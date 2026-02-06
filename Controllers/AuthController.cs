@@ -37,13 +37,25 @@ namespace HRMS_Backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string?>> Login(UserDto request)
+        public async Task<ActionResult<TokenResponseDto?>> Login(UserDto request)
         {
             var token = await service.LoginAsync(request);
             if (token is null) {
                 return BadRequest("Username/Password is wrong");
             }
            
+            return Ok(token);
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
+        {
+            var token = await service.RefreshTokenAsync(request);
+            if (token is null)
+            {
+                return BadRequest("Invlid/expired token");
+            }
+
             return Ok(token);
         }
 
@@ -54,6 +66,12 @@ namespace HRMS_Backend.Controllers
         {
             return Ok();
         }
+        [HttpGet("Admin-endpoint")]
+        [Authorize(Roles = "Admin")]
 
+        public ActionResult AdminCheck()
+        {
+            return Ok();
+        }
     }
 }

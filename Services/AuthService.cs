@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace HRMS_Backend.Services
@@ -19,11 +20,26 @@ namespace HRMS_Backend.Services
             this.configuration = configuration;
             this.context = context;
         }
+
+        private async Task<string> GenerateAndSaveRefreshToken(User user)
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            var refreshToken = Convert.ToBase64String(randomNumber);
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+            await context.SaveChangesAsync();
+            return refreshToken;
+        }
+
         private string CreateToken(User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name , user.Username)
+                new Claim(ClaimTypes.Name , user.Username),
+                 new Claim(ClaimTypes.NameIdentifier , user.Id.ToString()),
+                  new Claim(ClaimTypes.Role , user.Roles),
             };
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
@@ -55,7 +71,7 @@ namespace HRMS_Backend.Services
             return (user);
         }
 
-        public async Task<string?> LoginAsync(UserDto request)
+        public async Task<TokenResponseDto?> LoginAsync(UserDto request)
         {
             User? user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
             if (user is null)
@@ -66,8 +82,29 @@ namespace HRMS_Backend.Services
             {
                 return null;
             }
-            string token = CreateToken(user);
-            return (token);
+            var token = new TokenResponseDto
+            {
+                AccessToken = CreateToken(user),
+                RefreshToken = await GenerateAndSaveRefreshToken(user)
+            };
+            return token;
+        }
+
+        public async Task<TokenResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto request)
+        {
+            var user = await context.Users.FindAsync(request.userId);
+            if (user is null || user.RefreshToken != request.RefreshToken
+                || user.RefreshTokenExpiry < DateTime.UtcNow
+                )
+            {
+                return null;
+            }
+            var token = new TokenResponseDto
+            {
+                AccessToken = CreateToken(user),
+                RefreshToken = await GenerateAndSaveRefreshToken(user)
+            };
+            return token;
         }
     }
 }
