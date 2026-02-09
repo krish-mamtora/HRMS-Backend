@@ -22,11 +22,192 @@ namespace HRMS_Backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ParentComment")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostsId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ModeratedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TagsId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Tags", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("TagName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GamesId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("OverTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("SlotDuration")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GamesId");
+
+                    b.ToTable("GameConfiguration");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameSlots", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GamesId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GamesId");
+
+                    b.ToTable("GameSlots");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.Games", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Games");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -50,6 +231,80 @@ namespace HRMS_Backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Posts")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Tags", "Tags")
+                        .WithMany("Posts")
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tags");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.Games", "Games")
+                        .WithMany("GameConfigurations")
+                        .HasForeignKey("GamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameSlots", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.Games", "Games")
+                        .WithMany("GameSlots")
+                        .HasForeignKey("GamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Tags", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.Games", b =>
+                {
+                    b.Navigation("GameConfigurations");
+
+                    b.Navigation("GameSlots");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
+                {
+                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,12 +6,12 @@ namespace HRMS_Backend.Entities.Achievements
     public class Posts
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id {  get; set; }
         public User User { get; set; }
         public int UserId { get; set; }
         [StringLength(50)]
         [Required(ErrorMessage = "Title is Required")]
-
         public string Title { get; set; } = string.Empty;
         [StringLength(150)]
         public string Description { get; set; } =  string.Empty ;
@@ -22,8 +22,8 @@ namespace HRMS_Backend.Entities.Achievements
 
         [ForeignKey("Moderator")]
         public int ModeratedByUserId { get; set; }
-        public Boolean IsDeleted { get; set; }
+        public bool IsDeleted { get; set; }
        
-        public ICollection<Comments> Comments { get; set; }
+        public ICollection<Comments> Comments { get; set; } = new List<Comments>();
     }
 }

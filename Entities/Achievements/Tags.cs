@@ -11,6 +11,6 @@ namespace HRMS_Backend.Entities.Achievements
         public int Id { get; set; }
         public string TagName { get; set; }  = string.Empty;
 
-        public ICollection<Posts> Posts { get; set; }
+        public ICollection<Posts> Posts { get; set; } = new List<Posts>();
     }
 }
