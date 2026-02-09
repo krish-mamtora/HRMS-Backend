@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
+using HRMS_Backend.Entities;
+using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model;
 using HRMS_Backend.Model.JobListing;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +23,20 @@ namespace HRMS_Backend.Services.Jobs
             return JobDtos;
         }
 
-        public async Task CreateJobAsync(JobCreateUpdateDto jobCreateUpdateDto)
+        public async Task<JobCreateUpdateDto> CreateJobAsync(JobCreateUpdateDto jobCreateUpdateDto)
         {
-            //var todo = _mapper.Map<>
-            
+            var jobEntity = _mapper.Map<HRMS_Backend.Entities.JobListing.Jobs>(jobCreateUpdateDto);
+            await _context.Jobs.AddAsync(jobEntity);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<JobCreateUpdateDto>(jobEntity);
         }
+        public async Task<JobResponseDto?> GetJobByIdAsync(int id)
+        {
+            var Jobs = await _context.Jobs.FindAsync(id);
+            var JobDtos = _mapper.Map<JobResponseDto>(Jobs);
+            return JobDtos;
+        }
+
+
     }
 }

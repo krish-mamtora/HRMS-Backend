@@ -1,7 +1,10 @@
 using HRMS_Backend.Data;
+using HRMS_Backend.Mapper;
 using HRMS_Backend.Services;
+using HRMS_Backend.Services.Jobs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
@@ -32,6 +35,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
     });
 
 builder.Services.AddScoped<IAuthService , AuthService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddScoped<IJobsService, JobService>();
+
+
 
 var app = builder.Build();
 

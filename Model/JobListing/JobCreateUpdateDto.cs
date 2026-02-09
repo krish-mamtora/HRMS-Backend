@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Model.JobListing
 {
     public class JobCreateUpdateDto
     {
+        int Id { get; set; }
         [StringLength(50)]
         [Required(ErrorMessage = "Title is required")]
         string Title { get; set; } = string.Empty;
@@ -11,6 +13,7 @@ namespace HRMS_Backend.Model.JobListing
          [StringLength(300)]
         [Required(ErrorMessage = "Description is required")]
         string Description {  get; set; } = string.Empty;
+
 
         int? ManagedBy { get; set; }
 
