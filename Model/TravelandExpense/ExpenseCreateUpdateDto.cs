@@ -11,8 +11,9 @@ namespace HRMS_Backend.Model.TravelandExpense
         [Range(1, int.MaxValue, ErrorMessage = "Employee ID must be a valid positive integer.")]
         public int EmplId { get; set; }
 
+
         [Required(ErrorMessage = "Expense type is required.")]
-        [Range(1, 500000, ErrorMessage = "Expense type must be a valid positive integer.")]
+        [Range(1, 500000, ErrorMessage = "Expense type must be positive")]
         public int ExpenseType { get; set; }
 
         [Required(ErrorMessage = "Amount is required.")]

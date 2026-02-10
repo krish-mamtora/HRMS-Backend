@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HRMS_Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class FirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,7 +47,7 @@ namespace HRMS_Backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Roles = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RefreshTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -97,6 +97,55 @@ namespace HRMS_Backend.Migrations
                         name: "FK_GameSlots_Games_GamesId",
                         column: x => x.GamesId,
                         principalTable: "Games",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Jobs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ExpYearsReq = table.Column<int>(type: "int", nullable: false),
+                    ManagedBy = table.Column<int>(type: "int", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TotalPositions = table.Column<int>(type: "int", nullable: false),
+                    JdUrl = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ContactMail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Jobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Jobs_Users_ManagedBy",
+                        column: x => x.ManagedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -173,6 +222,16 @@ namespace HRMS_Backend.Migrations
                 column: "GamesId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Jobs_ManagedBy",
+                table: "Jobs",
+                column: "ManagedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_UserId",
+                table: "Notifications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_TagsId",
                 table: "Posts",
                 column: "TagsId");
@@ -194,6 +253,12 @@ namespace HRMS_Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "GameSlots");
+
+            migrationBuilder.DropTable(
+                name: "Jobs");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "Posts");

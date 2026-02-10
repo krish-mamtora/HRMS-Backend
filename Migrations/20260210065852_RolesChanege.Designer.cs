@@ -4,6 +4,7 @@ using HRMS_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS_Backend.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210065852_RolesChanege")]
+    partial class RolesChanege
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,46 +285,6 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Destination")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastUpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Purpose")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.ToTable("TravelPlan");
-                });
-
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -433,17 +396,6 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
-                {
-                    b.HasOne("HRMS_Backend.Entities.User", "User")
-                        .WithMany("TravelPlan")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
                 {
                     b.Navigation("Comments");
@@ -468,8 +420,6 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("Notification");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("TravelPlan");
                 });
 #pragma warning restore 612, 618
         }

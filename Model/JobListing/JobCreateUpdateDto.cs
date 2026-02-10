@@ -5,16 +5,17 @@ namespace HRMS_Backend.Model.JobListing
 {
     public class JobCreateUpdateDto
     {
-        int Id { get; set; }
+        [Required]
+        public int Id { get; set; }
         [StringLength(50)]
         [Required(ErrorMessage = "Title is required")]
-        string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
 
          [StringLength(300)]
         [Required(ErrorMessage = "Description is required")]
         string Description {  get; set; } = string.Empty;
 
-
+      
         int? ManagedBy { get; set; }
 
         [StringLength(100)]
@@ -29,10 +30,10 @@ namespace HRMS_Backend.Model.JobListing
 
         [StringLength(100)]
         [Required(ErrorMessage = "Job Description is required")]
-        string JdUrl { get; set; }
+        string JdUrl { get; set; } = string.Empty ;
 
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        string ContactMail { get; set; }
+        string ContactMail { get; set; } = string.Empty;
 
     }
 }

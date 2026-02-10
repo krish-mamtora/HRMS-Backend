@@ -1,17 +1,18 @@
-﻿using HRMS_Backend.Model.JobListing;
+﻿using HRMS_Backend.Entities.JobListing;
+using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Services.Jobs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS_Backend.Controllers.JobListing
 {
-    [Route("api/jobs/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class jobListingController : ControllerBase
     {
         private readonly IJobsService service;
 
-        jobListingController(IJobsService jobsService) { 
+        public jobListingController(IJobsService jobsService) { 
             service = jobsService;
         }
         [HttpGet]
@@ -20,7 +21,6 @@ namespace HRMS_Backend.Controllers.JobListing
             return Ok(await service.GetAllJobsAsync());
         }
         [HttpPost]
-        //public async Task<IActionResult?> CreateJob([FromBody] JobCreateUpdateDto job) {
         public async Task<IActionResult?> CreateJob([FromBody] JobCreateUpdateDto job)
         {
             if (!ModelState.IsValid)
@@ -28,10 +28,9 @@ namespace HRMS_Backend.Controllers.JobListing
                 return BadRequest(ModelState);
             }
             var createjob = await service.CreateJobAsync(job);
-            
             return CreatedAtAction(nameof(GetJobById), new { id = createjob.Id }, createjob);
         }
-        
+
 
         [HttpGet("{id}", Name = "GetJobById")]
         public async Task<IActionResult> GetJobById(int id) { 

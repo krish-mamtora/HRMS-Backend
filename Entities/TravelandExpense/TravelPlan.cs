@@ -12,14 +12,16 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         [Required]
+        [StringLength(100)]
         public string Destination {  get; set; } = string.Empty;
         [Required]
         [StringLength(500)]
         public string Purpose { get; set; } = string.Empty;
-        public int UserId { get; set; }
+        public int CreatedByUserId { get; set; }
+        [ForeignKey("CreatedByUserId")]
         public User User { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
-        
+
     }
 }

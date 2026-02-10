@@ -26,7 +26,7 @@ namespace HRMS_Backend.Entities.JobListing
 
         [StringLength(100)]
         [Required(ErrorMessage = "Resume is required")]
-        public string ReffResumeUrl {  get; set; } = string.Empty;
+        public string ReffResumeUrl { get; set; } = string.Empty;
 
         public int EmpId { get; set; }
         [ForeignKey("EmpId")]

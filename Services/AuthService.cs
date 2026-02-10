@@ -37,9 +37,10 @@ namespace HRMS_Backend.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name , user.Username),
+                //new Claim(ClaimTypes.Name , user.Username),
+                new Claim(ClaimTypes.Name , user.Email),
                  new Claim(ClaimTypes.NameIdentifier , user.Id.ToString()),
-                  new Claim(ClaimTypes.Role , user.Roles),
+                  new Claim(ClaimTypes.Role , user.Role),
             };
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
@@ -57,12 +58,13 @@ namespace HRMS_Backend.Services
         }
         public async Task<User?> RegisterAsync(UserDto request)
         {
-            if (await context.Users.AnyAsync(u => u.Username == request.Username))
+            //if (await context.Users.AnyAsync(u => u.Username == request.Username))
+            if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return null;
             }
             var user = new User();
-            user.Username = request.Username;
+            user.Email = request.Email;
             user.PasswordHash = new PasswordHasher<User>()
                 .HashPassword(user, request.Password);
             await context.Users.AddAsync(user);
@@ -73,7 +75,7 @@ namespace HRMS_Backend.Services
 
         public async Task<TokenResponseDto?> LoginAsync(UserDto request)
         {
-            User? user = await context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user is null)
             {
                 return null;
@@ -85,7 +87,8 @@ namespace HRMS_Backend.Services
             var token = new TokenResponseDto
             {
                 AccessToken = CreateToken(user),
-                RefreshToken = await GenerateAndSaveRefreshToken(user)
+                RefreshToken = await GenerateAndSaveRefreshToken(user),
+                Role = user.Role,
             };
             return token;
         }

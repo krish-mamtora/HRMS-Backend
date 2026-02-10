@@ -1,0 +1,85 @@
+﻿using HRMS_Backend.Model.TravelandExpense;
+using HRMS_Backend.Services.TravelandExpenses;
+using Microsoft.AspNetCore.Mvc;
+
+namespace HRMS_Backend.Controllers.TravelandExpense
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TravelPlanController :ControllerBase
+    { 
+        private readonly ITravelPlanService _service;
+
+        public TravelPlanController(ITravelPlanService service)
+        {
+            _service = service;
+        }
+
+        [HttpPost]
+        public async  Task<ActionResult> CreateTravelPlan([FromBody] TravelCreateUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var CreatePlan = await _service.CreateTravelPlanAsync(dto);
+                return Ok(CreatePlan);
+            }
+            catch (Exception ex) { 
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var plans = await _service.GetAllPlansAsync();
+            if (plans == null || !plans.Any())
+            {
+                return NotFound("No plans found");
+            }
+            return Ok(plans);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var plans = await _service.GetPlanByIdAsync(id);
+            if (plans == null)
+            {
+                return NotFound("No plans found");
+            }
+            return Ok(plans);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePlanById(int id)
+        {
+            var result = await _service.DeletePlanById(id);
+            if (!result)
+            {
+                return NotFound("no plan found");
+            }
+            return NoContent();
+        }
+
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePlanById(int id , [FromBody] TravelCreateUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _service.UpdatePlanById(id, dto);
+            if (!result)
+            {
+                return NotFound("Plan not found");
+            }
+            return Ok("Plan updated successfully");
+
+        }
+    
+    }
+}

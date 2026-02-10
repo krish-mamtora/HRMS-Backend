@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS_Backend.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20260209042100_Initial")]
-    partial class Initial
+    [Migration("20260210050908_Jobs2")]
+    partial class Jobs2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -204,6 +204,87 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Games");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContactMail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("ExpYearsReq")
+                        .HasColumnType("int");
+
+                    b.Property<string>("JdUrl")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ManagedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TotalPositions")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ManagedBy");
+
+                    b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -288,6 +369,28 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("Games");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("Jobs")
+                        .HasForeignKey("ManagedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("Notification")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
                 {
                     b.Navigation("Comments");
@@ -307,6 +410,10 @@ namespace HRMS_Backend.Migrations
 
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
+                    b.Navigation("Jobs");
+
+                    b.Navigation("Notification");
+
                     b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618

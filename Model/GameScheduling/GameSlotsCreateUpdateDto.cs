@@ -1,21 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRMS_Backend.Entities.Games_Scheduling
+namespace HRMS_Backend.Model.GameScheduling
 {
-    public class GameSlots
+    public class GameSlotsCreateUpdateDto
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        [Required]
-        public Games Games { get; set; }
-
         [Required(ErrorMessage = "Game ID is required")]
         public int GamesId { get; set; }
 
         [Required(ErrorMessage = "Start Time is required")]
-        public DateTime StartTime {  get; set; }
+        public DateTime StartTime { get; set; }
 
         [Required(ErrorMessage = "End Time is required")]
         public DateTime EndTime { get; set; }
