@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Metrics;
 
 namespace HRMS_Backend.Entities.TravelandExpense
 {
@@ -9,10 +10,16 @@ namespace HRMS_Backend.Entities.TravelandExpense
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int EmpId { get; set; }
+        [ForeignKey("EmpId")]
+        public User User { get; set; }
+
         public int PId {  get; set; }
-        public string Status {  get; set; }
+        [ForeignKey("PId")]
+        public TravelPlan TravelPlan { get; set; }
+        public string Status {  get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
         
     }
 }
+
