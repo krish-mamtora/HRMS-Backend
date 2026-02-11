@@ -1,6 +1,6 @@
 ﻿using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model.JobListing;
-using HRMS_Backend.Services.Jobs;
+using HRMS_Backend.Services.JobListing;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +10,9 @@ namespace HRMS_Backend.Controllers.JobListing
     [ApiController]
     public class jobListingController : ControllerBase
     {
-        private readonly IJobsService service;
+        private readonly IJobService service;
 
-        public jobListingController(IJobsService jobsService) { 
+        public jobListingController(IJobService jobsService) { 
             service = jobsService;
         }
         [HttpGet]

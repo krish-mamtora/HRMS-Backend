@@ -4,11 +4,14 @@ using HRMS_Backend.Entities;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model;
 using HRMS_Backend.Model.JobListing;
+using HRMS_Backend.Model.TravelandExpense;
+
+//using HRMS_Backend.Services.Jobs;
 using Microsoft.EntityFrameworkCore;
 
-namespace HRMS_Backend.Services.Jobs
+namespace HRMS_Backend.Services.JobListing
 {
-    public class JobService : IJobsService
+    public class JobService : IJobService
     {
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
@@ -19,38 +22,39 @@ namespace HRMS_Backend.Services.Jobs
         public async Task<IEnumerable<JobResponseDto>> GetAllJobsAsync()
         {
             var Jobs = await _context.Jobs.ToListAsync();
-            //var Jobs = await _context.Jobs.ToListAsync();
-            var JobDtos = _mapper.Map<IEnumerable<JobResponseDto>>(Jobs);
-            return JobDtos;
+            return _mapper.Map<IEnumerable<JobResponseDto>>(Jobs);
         }
 
-        //public async Task<JobCreateUpdateDto> CreateJobAsync(JobCreateUpdateDto jobCreateUpdateDto)
-        //{
-        //    var jobEntity = _mapper.Map<HRMS_Backend.Entities.JobListing.Jobs>(jobCreateUpdateDto);
-        //    await _context.Jobs.AddAsync(jobEntity);
-        //    await _context.SaveChangesAsync();
-        //    return _mapper.Map<JobCreateUpdateDto>(jobEntity);
-        //}
-        public async Task<JobCreateUpdateDto> CreateJobAsync(JobCreateUpdateDto jobCreateUpdateDto)
+        public async Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync()
         {
-            if (jobCreateUpdateDto == null)
-                throw new ArgumentNullException(nameof(jobCreateUpdateDto));
-
-            var jobEntity = _mapper.Map<HRMS_Backend.Entities.JobListing.Jobs>(jobCreateUpdateDto);
-
-            try
-            {
-                await _context.Jobs.AddAsync(jobEntity);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new InvalidOperationException("Error saving job to database.", ex);
-            }
-
-            return _mapper.Map<JobCreateUpdateDto>(jobEntity);
+            var plans = await _context.TravelPlan.ToListAsync();
+            return _mapper.Map<IEnumerable<TravelResponseDto>>(plans);
         }
+        public async Task<Jobs> CreateJobAsync(JobCreateUpdateDto dto)
+        {
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
 
+            if (dto.ManagedBy == null)
+                throw new ArgumentException("ManagedBy is required", nameof(dto.ManagedBy));
+
+
+            var job = new Jobs
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Status = dto.Status,
+                ExpYearsReq = dto.ExpYearsReq,
+                Role = dto.Role,
+                JdUrl = dto.JdUrl,
+                TotalPositions = dto.TotalPositions,
+                ContactMail = dto.ContactMail,
+                ManagedBy = dto.ManagedBy,
+            };
+            _context.Jobs.AddAsync(job);
+            await _context.SaveChangesAsync();
+            return job;
+        }
         public async Task<JobResponseDto?> GetJobByIdAsync(int id)
         {
             var Jobs = await _context.Jobs.FindAsync(id);
