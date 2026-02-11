@@ -27,6 +27,9 @@ namespace HRMS_Backend.Services.TravelandExpenses
                 EndDate = dto.EndDate,
                 Destination = dto.Destination,
                 Purpose = dto.Purpose,
+                TravelMode = dto.TravelMode,
+                TripType = dto.TripType,
+                
                 CreatedByUserId = dto.CreatedByUserId
             };
             //var travelPlan = _mapper.Map<TravelPlan>(dto);

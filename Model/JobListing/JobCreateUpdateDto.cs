@@ -13,27 +13,28 @@ namespace HRMS_Backend.Model.JobListing
 
          [StringLength(300)]
         [Required(ErrorMessage = "Description is required")]
-        string Description {  get; set; } = string.Empty;
+       public  string Description {  get; set; } = string.Empty;
 
-      
-        int? ManagedBy { get; set; }
+       public  int ManagedBy { get; set; }
+
+        public string Status { get; set; } = "Open";
 
         [StringLength(100)]
         [Required(ErrorMessage = "Role is required")]
-        string Role {  get; set; } = string.Empty;
+        public string Role {  get; set; } = string.Empty;
 
         [Required]
-        int TotalPositions { get; set; }
+       public  int TotalPositions { get; set; }
 
         [Range(0, 50, ErrorMessage = "Experience Should be in range 0 to 50")]
-        int ExpYearsReq { get; set; }
+       public  int ExpYearsReq { get; set; }
 
         [StringLength(100)]
         [Required(ErrorMessage = "Job Description is required")]
-        string JdUrl { get; set; } = string.Empty ;
+       public  string JdUrl { get; set; } = string.Empty ;
 
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        string ContactMail { get; set; } = string.Empty;
+        public string ContactMail { get; set; } = string.Empty;
 
     }
 }
