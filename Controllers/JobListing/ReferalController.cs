@@ -25,13 +25,12 @@ namespace HRMS_Backend.Controllers.JobListing
             var createjob = await _service.createReferalAsync(dto);
             return CreatedAtAction(nameof(getReferalById), new { id = createjob.Id }, createjob);
         }
-        //        createReferalAsync , getReferalById , getReferalByJobId, getReferalByUserId
 
 
         [HttpGet("{id}", Name = "getReferalById")]
         public async Task<IActionResult> getReferalById(int id)
         {
-            var referal = _service.getReferalById(id);
+            var referal = await _service.getReferalById(id);
             if (referal == null)
             {
                 return BadRequest(ModelState);
@@ -42,7 +41,7 @@ namespace HRMS_Backend.Controllers.JobListing
         [HttpGet("job/{id}", Name = "getReferalByJobId")]
         public async Task<IActionResult> getReferalByJobId(int id)
         {
-            var referal = _service.getReferalByJobId(id);
+            var referal = await  _service.getReferalByJobId(id);
             if (referal == null)
             {
                 return BadRequest(ModelState);
@@ -53,7 +52,7 @@ namespace HRMS_Backend.Controllers.JobListing
         [HttpGet("user/{id}", Name = "getReferalByUserId")]
         public async Task<IActionResult> getReferalByUserId(int id)
         {
-            var referal = _service.getReferalByUserId(id);
+            var referal =await  _service.getReferalByUserId(id);
             if (referal == null)
             {
                 return BadRequest(ModelState);

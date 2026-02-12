@@ -8,11 +8,9 @@ namespace HRMS_Backend.Entities.JobListing
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
         public int JobId { get; set; }
         //[ForeignKey("JobId")]
         public Jobs Job { get; set; }
-
 
         [StringLength(20)]
         [Required(ErrorMessage = "Refferal Name is required")]
@@ -29,7 +27,7 @@ namespace HRMS_Backend.Entities.JobListing
 
         public int EmpId { get; set; }
         //[ForeignKey("EmpId")]
-        public User Employee { get; set; }
+        public User User { get; set; }
 
         [StringLength(20)]
         [Required(ErrorMessage = "Status is required")]

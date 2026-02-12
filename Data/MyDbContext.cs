@@ -21,17 +21,19 @@ namespace HRMS_Backend.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Referals>()
-                .HasOne<Jobs>(r=>r.Job)
-                .WithMany()
+                .HasOne(r=>r.Job)
+                .WithMany(r=>r.Referrals)
                 .HasForeignKey(r=>r.JobId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Referals>()
-                .HasOne(r=>r.Employee)
+                .HasOne(r=>r.User)
                 .WithMany()
                 .HasForeignKey(r=>r.EmpId)
                 .OnDelete(DeleteBehavior.Restrict);
             
+
+
             modelBuilder.Entity<TravelPlan>()
                 .HasOne(tp=>tp.User)
                 .WithMany()

@@ -4,6 +4,7 @@ using HRMS_Backend.Services;
 using HRMS_Backend.Services.GameScheduling;
 using HRMS_Backend.Services.JobListing;
 using HRMS_Backend.Services.TravelandExpenses;
+//using HRMS_Backend.Services.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +55,8 @@ builder.Services.AddScoped<IEmployeeTravelService, EmployeeTravelService>();
 //builder.Services.AddScoped<IGameConfigService, GameConfigService>();
 builder.Services.AddScoped<IGamesService, GamesService>();
 //builder.Services.AddScoped<IReferService, ReferService>();
+//builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IReferService, ReferService>();
 
 var app = builder.Build();
 

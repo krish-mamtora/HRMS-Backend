@@ -28,7 +28,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         [HttpGet("plan/", Name = "getAllAssignDetails")]
         public async Task<IActionResult> getAllAssignDetails()
         {
-            var travelPlans = _service.getAllAssignDetails();
+            var travelPlans = await  _service.getAllAssignDetails();
             if (travelPlans == null)
             {
                 return BadRequest(ModelState);
@@ -39,7 +39,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         [HttpGet("plan/{id}", Name = "getAssignedTravelPlayById")]
         public async Task<IActionResult> getAssignedTravelPlayById(int id)
         {
-            var travelPlans = _service.getAssignedTravelPlayById(id);
+            var travelPlans =await  _service.getAssignedTravelPlayById(id);
             if (travelPlans == null)
             {
                 return BadRequest(ModelState);
@@ -50,7 +50,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         [HttpGet("employee/{id}", Name = "getAllAssignedPlansForEmpId")]
         public async Task<IActionResult> getAllAssignedPlansForEmpId(int id)
         {
-            var plans = _service.getAllAssignedPlansForEmpId(id);
+            var plans = await _service.getAllAssignedPlansForEmpId(id);
             if (plans == null)
             {
                 return BadRequest(ModelState);

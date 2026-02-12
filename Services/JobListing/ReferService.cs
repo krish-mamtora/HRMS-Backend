@@ -11,11 +11,10 @@ namespace HRMS_Backend.Services.JobListing
     public class ReferService : IReferService
     {
         private readonly MyDbContext _context;
-        private readonly IReferService _service;
         private readonly IMapper _mapper;
-        public ReferService(MyDbContext context , IReferService service) { 
+        public ReferService(MyDbContext context , IMapper mapper) { 
             _context = context;
-            _service = service;
+            _mapper = mapper;
         }
         public async Task<Referals> createReferalAsync(JobRefferalCreateUpdateDto dto)
         {
@@ -33,7 +32,7 @@ namespace HRMS_Backend.Services.JobListing
                 Description = dto.Description,
                 CreatedAt = dto.CreatedAt,
             };
-            _context.Referals.AddAsync(referal);
+            await _context.Referals.AddAsync(referal);
             await _context.SaveChangesAsync();
             return referal;
         }
@@ -47,7 +46,6 @@ namespace HRMS_Backend.Services.JobListing
             var Referals = await _context.Referals.FindAsync(id);
             var ReferalsDto = _mapper.Map<JobRefferalResponseDto>(Referals);
             return ReferalsDto;
-
         }
 
         public async Task<JobRefferalResponseDto> getReferalByJobId(int id)

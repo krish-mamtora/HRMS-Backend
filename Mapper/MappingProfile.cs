@@ -17,6 +17,8 @@ namespace HRMS_Backend.Mapper
             //CreateMap<JobCreateUpdateDto , >
             CreateMap<Jobs, JobResponseDto>();
             CreateMap<Referals, JobRefferalResponseDto>();
+            CreateMap<TravelAssignment, TravelAssignmentDisplayDto>();
+
         }
     }
 }
