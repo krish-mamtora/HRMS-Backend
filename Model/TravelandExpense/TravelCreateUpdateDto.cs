@@ -10,6 +10,13 @@ namespace HRMS_Backend.Model.TravelandExpense
         [Required(ErrorMessage = "End date is required.")]
         public DateTime EndDate { get; set; }
 
+        public int NumDays { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string TripType { get; set; } = string.Empty;
+        [Required]
+        [StringLength(100)]
+        public string TravelMode { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Destination is required.")]
         [StringLength(100, ErrorMessage = "Destination cannot exceed 100 characters.")]

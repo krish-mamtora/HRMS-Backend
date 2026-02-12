@@ -78,7 +78,6 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 return NotFound("Plan not found");
             }
             return Ok("Plan updated successfully");
-
         }
     
     }

@@ -1,7 +1,7 @@
 using HRMS_Backend.Data;
 using HRMS_Backend.Mapper;
 using HRMS_Backend.Services;
-using HRMS_Backend.Services.Jobs;
+using HRMS_Backend.Services.JobListing;
 using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
 
 builder.Services.AddScoped<IAuthService , AuthService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddScoped<IJobsService, JobService>();
+builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<ITravelPlanService, TravelPlanService>();
 
 

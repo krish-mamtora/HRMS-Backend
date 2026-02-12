@@ -250,11 +250,77 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("TotalPositions")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ManagedBy");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Referals", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("EmpId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("JobsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReffMail")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ReffName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ReffResumeUrl")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpId");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("JobsId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Referals");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
@@ -282,6 +348,39 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmpId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpId");
+
+                    b.HasIndex("PId");
+
+                    b.ToTable("TravelAssignment");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
                 {
                     b.Property<int>("Id")
@@ -307,6 +406,9 @@ namespace HRMS_Backend.Migrations
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("NumDays")
+                        .HasColumnType("int");
+
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -315,9 +417,24 @@ namespace HRMS_Backend.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("TravelMode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TripType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("TravelPlan");
                 });
@@ -414,12 +531,43 @@ namespace HRMS_Backend.Migrations
             modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.User", "User")
-                        .WithMany("Jobs")
+                        .WithMany()
                         .HasForeignKey("ManagedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("Jobs")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Referals", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.JobListing.Jobs", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("HRMS_Backend.Entities.JobListing.Jobs", null)
+                        .WithMany("Referrals")
+                        .HasForeignKey("JobsId");
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("Referrals")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Job");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
@@ -433,13 +581,36 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("EmpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelPlan", "TravelPlan")
+                        .WithMany("TravelAssignment")
+                        .HasForeignKey("PId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPlan");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.User", "User")
-                        .WithMany("TravelPlan")
+                        .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("TravelPlan")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -461,6 +632,16 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("GameSlots");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
+                {
+                    b.Navigation("Referrals");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
+                {
+                    b.Navigation("TravelAssignment");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
                     b.Navigation("Jobs");
@@ -468,6 +649,8 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("Notification");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("Referrals");
 
                     b.Navigation("TravelPlan");
                 });

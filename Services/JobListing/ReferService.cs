@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
 using HRMS_Backend.Entities.JobListing;
-using HRMS_Backend.Migrations;
+//using HRMS_Backend.Migrations;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.EntityFrameworkCore;

@@ -22,12 +22,12 @@ namespace HRMS_Backend.Entities
         public string Role { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime RefreshTokenExpiry { get; set; } = DateTime.UtcNow.AddDays(2);
-        public ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
+        public ICollection<Jobs> Jobs { get; set; } 
         public ICollection<Posts> Posts { get; set; }
-        //public ICollection<Referrals> Referrals { get; set; }
+        public ICollection<Referals> Referrals { get; set; }
         //public ICollection<ShareEmail> ShareEmail {  get; set; }
         public ICollection<Notification> Notification { get; set; }
-
+        public ICollection<TravelAssignment> TravelAssignment { get; set; }
         public ICollection<TravelPlan> TravelPlan { get; set; }
 
     }

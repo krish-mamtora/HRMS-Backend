@@ -89,6 +89,7 @@ namespace HRMS_Backend.Services
                 AccessToken = CreateToken(user),
                 RefreshToken = await GenerateAndSaveRefreshToken(user),
                 Role = user.Role,
+                Id = user.Id.ToString(),
             };
             return token;
         }

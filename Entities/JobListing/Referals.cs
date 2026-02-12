@@ -3,15 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.JobListing
 {
-    public class Referrals
+    public class Referals
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public int JobId { get; set; }
-        [ForeignKey("JobId")]
-        public Jobs Jobs { get; set; }
+        //[ForeignKey("JobId")]
+        public Jobs Job { get; set; }
 
 
         [StringLength(20)]
@@ -28,8 +28,8 @@ namespace HRMS_Backend.Entities.JobListing
         public string ReffResumeUrl { get; set; } = string.Empty;
 
         public int EmpId { get; set; }
-        [ForeignKey("EmpId")]
-        public User User { get; set; }
+        //[ForeignKey("EmpId")]
+        public User Employee { get; set; }
 
         [StringLength(20)]
         [Required(ErrorMessage = "Status is required")]

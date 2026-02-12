@@ -15,13 +15,28 @@ namespace HRMS_Backend.Controllers.JobListing
         public jobListingController(IJobService jobsService) { 
             service = jobsService;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await service.GetAllJobsAsync());
+            var jobs = await service.GetAllJobsAsync();
+            return Ok(jobs);
         }
+
+
+        [HttpGet("{id}", Name = "GetJobById")]
+        public async Task<IActionResult> GetJobById(int id)
+        {
+            var job = await service.GetJobByIdAsync(id);
+            if (job == null)
+            {
+                return NotFound();
+            }
+            return Ok(job);
+        }
+
         [HttpPost]
-        public async Task<IActionResult?> CreateJob([FromBody] JobCreateUpdateDto job)
+        public async Task<IActionResult> CreateJob([FromBody] JobCreateUpdateDto job)
         {
             if (!ModelState.IsValid)
             {
@@ -29,17 +44,6 @@ namespace HRMS_Backend.Controllers.JobListing
             }
             var createjob = await service.CreateJobAsync(job);
             return CreatedAtAction(nameof(GetJobById), new { id = createjob.Id }, createjob);
-        }
-
-
-        [HttpGet("{id}", Name = "GetJobById")]
-        public async Task<IActionResult> GetJobById(int id) { 
-            var job = service.GetJobByIdAsync(id);
-            if(job == null)
-            {
-                return BadRequest(ModelState);
-            }
-              return Ok(job);
         }
     }
 }

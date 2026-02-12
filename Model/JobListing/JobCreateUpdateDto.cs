@@ -15,6 +15,7 @@ namespace HRMS_Backend.Model.JobListing
         [Required(ErrorMessage = "Description is required")]
        public  string Description {  get; set; } = string.Empty;
 
+        [Required]
        public  int ManagedBy { get; set; }
 
         public string Status { get; set; } = "Open";

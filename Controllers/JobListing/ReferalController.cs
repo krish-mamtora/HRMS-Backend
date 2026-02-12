@@ -1,12 +1,10 @@
 ﻿using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using HRMS_Backend.Services.JobListing;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
-using RouteAttribute = Microsoft.AspNetCore.Components.RouteAttribute;
-
 namespace HRMS_Backend.Controllers.JobListing
 {
+  
     [Route("api/[controller]")]
     [ApiController]
     public class ReferalController : ControllerBase
@@ -29,17 +27,19 @@ namespace HRMS_Backend.Controllers.JobListing
         }
         //        createReferalAsync , getReferalById , getReferalByJobId, getReferalByUserId
 
-        [HttpGet("{id}" , Name = "getReferalById")]
+
+        [HttpGet("{id}", Name = "getReferalById")]
         public async Task<IActionResult> getReferalById(int id)
         {
             var referal = _service.getReferalById(id);
-            if(referal == null)
+            if (referal == null)
             {
                 return BadRequest(ModelState);
             }
             return Ok(referal);
         }
-        [HttpGet("{id}", Name = "getReferalByJobId")]
+
+        [HttpGet("job/{id}", Name = "getReferalByJobId")]
         public async Task<IActionResult> getReferalByJobId(int id)
         {
             var referal = _service.getReferalByJobId(id);
@@ -49,7 +49,8 @@ namespace HRMS_Backend.Controllers.JobListing
             }
             return Ok(referal);
         }
-        [HttpGet("{id}", Name = "getReferalByUserId")]
+
+        [HttpGet("user/{id}", Name = "getReferalByUserId")]
         public async Task<IActionResult> getReferalByUserId(int id)
         {
             var referal = _service.getReferalByUserId(id);

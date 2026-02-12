@@ -12,11 +12,6 @@ namespace HRMS_Backend.Controllers.GameScheduling
             _service = service;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Games>>> GetGames()
-        //{
-        //    var games = await _service.GetAllGamesAsync();
-        //    return Ok(games);
-        //}
+      
     }
 }

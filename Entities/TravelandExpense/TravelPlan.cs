@@ -11,7 +11,6 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-
         public int NumDays { get; set; }
         [Required]
         [StringLength(100)]
@@ -26,11 +25,10 @@ namespace HRMS_Backend.Entities.TravelandExpense
         [StringLength(100)]
         public string TravelMode { get; set; } = string.Empty;
         public int CreatedByUserId { get; set; }
-        [ForeignKey("CreatedByUserId")]
+        //[ForeignKey("CreatedByUserId")]
         public User User { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
-
         public ICollection<TravelAssignment> TravelAssignment { get; set; }
 
     }

@@ -9,12 +9,14 @@ namespace HRMS_Backend.Mapper
     public class MappingProfile : Profile
     {
         public MappingProfile() {
-            CreateMap<Jobs, JobResponseDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-            CreateMap<JobCreateUpdateDto , Jobs>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+            //CreateMap<Jobs, JobResponseDto>()
+            //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+            //CreateMap<JobCreateUpdateDto , Jobs>()
+            //    .ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<TravelPlan, TravelResponseDto>();
-
+            //CreateMap<JobCreateUpdateDto , >
+            CreateMap<Jobs, JobResponseDto>();
+            CreateMap<Referals, JobRefferalResponseDto>();
         }
     }
 }

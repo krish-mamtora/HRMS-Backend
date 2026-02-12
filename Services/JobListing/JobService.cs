@@ -35,9 +35,14 @@ namespace HRMS_Backend.Services.JobListing
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
 
-            if (dto.ManagedBy == null)
-                throw new ArgumentException("ManagedBy is required", nameof(dto.ManagedBy));
+            //if (dto.ManagedBy == null)
+            //    throw new ArgumentException("ManagedBy is required", nameof(dto.ManagedBy));
 
+            var userExists = await _context.Users.AnyAsync(u => u.Id == dto.ManagedBy);
+            if (!userExists)
+            {
+                throw new Exception($"User with ID {dto.ManagedBy} does not exist. Cannot assign as Manager.");
+            }
 
             var job = new Jobs
             {
@@ -51,7 +56,7 @@ namespace HRMS_Backend.Services.JobListing
                 ContactMail = dto.ContactMail,
                 ManagedBy = dto.ManagedBy,
             };
-            _context.Jobs.AddAsync(job);
+            await _context.Jobs.AddAsync(job);
             await _context.SaveChangesAsync();
             return job;
         }
