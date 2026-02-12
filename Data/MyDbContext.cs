@@ -66,7 +66,7 @@ namespace HRMS_Backend.Data
         public DbSet<TravelPlan> TravelPlan { get; set; }
 
         public DbSet<Referals> Referals { get; set; }
-        //public DbSet<TravelAssignment> TravelAssignment { get; set; }
+        public DbSet<TravelAssignment> TravelAssignment { get; set; }
     }
 
 }

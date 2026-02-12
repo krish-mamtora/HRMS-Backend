@@ -1,6 +1,7 @@
 using HRMS_Backend.Data;
 using HRMS_Backend.Mapper;
 using HRMS_Backend.Services;
+using HRMS_Backend.Services.GameScheduling;
 using HRMS_Backend.Services.JobListing;
 using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -49,8 +50,10 @@ builder.Services.AddScoped<IAuthService , AuthService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<ITravelPlanService, TravelPlanService>();
-
-
+builder.Services.AddScoped<IEmployeeTravelService, EmployeeTravelService>();
+//builder.Services.AddScoped<IGameConfigService, GameConfigService>();
+builder.Services.AddScoped<IGamesService, GamesService>();
+//builder.Services.AddScoped<IReferService, ReferService>();
 
 var app = builder.Build();
 

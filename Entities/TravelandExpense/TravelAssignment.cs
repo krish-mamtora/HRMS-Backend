@@ -16,10 +16,10 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public int PId {  get; set; }
         [ForeignKey("PId")]
         public TravelPlan TravelPlan { get; set; }
-        public string Status {  get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
-        
+       
     }
 }
 
