@@ -1,4 +1,4 @@
-﻿using HRMS_Backend.Model.UserProfile;
+﻿using HRMS_Backend.Model.DtoUserProfile;
 
 namespace HRMS_Backend.Services.ServiceUserProfile
 {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HRMS_Backend.Model.UserProfile
+namespace HRMS_Backend.Model.DtoUserProfile
 {
     public class UserProfileCreateUpdateDto
     {

@@ -4,7 +4,7 @@ using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Entities.FixEntityUserProfile;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
-using HRMS_Backend.Model.UserProfile;
+using HRMS_Backend.Model.DtoUserProfile;
 
 namespace HRMS_Backend.Mapper
 {

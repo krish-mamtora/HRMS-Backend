@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
 using HRMS_Backend.Entities;
-using HRMS_Backend.Model.UserProfile;
-//using HRMS_Backend.Model.DtoUserProfile;
+//using HRMS_Backend.Model.UserProfile;
+using HRMS_Backend.Model.DtoUserProfile;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Services.ServiceUserProfile

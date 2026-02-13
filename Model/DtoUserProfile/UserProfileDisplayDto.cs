@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HRMS_Backend.Model.UserProfile
+namespace HRMS_Backend.Model.DtoUserProfile
 {
     public class UserProfileDisplayDto
     {
