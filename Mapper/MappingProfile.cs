@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
+using HRMS_Backend.Entities.FixEntityUserProfile;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using HRMS_Backend.Model.UserProfile;
 
 namespace HRMS_Backend.Mapper
 {
@@ -18,7 +20,8 @@ namespace HRMS_Backend.Mapper
             CreateMap<Jobs, JobResponseDto>();
             CreateMap<Referals, JobRefferalResponseDto>();
             CreateMap<TravelAssignment, TravelAssignmentDisplayDto>();
-
+            CreateMap<UserProfileCreateUpdateDto, UserProfile>();
+            CreateMap<UserProfile, UserProfileDisplayDto>();
         }
     }
 }

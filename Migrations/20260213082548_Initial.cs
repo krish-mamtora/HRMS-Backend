@@ -6,11 +6,24 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HRMS_Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class First : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "FileModel2",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FileModel2", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Games",
                 columns: table => new
@@ -224,6 +237,39 @@ namespace HRMS_Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserProfile",
+                columns: table => new
+                {
+                    UserProfileId = table.Column<int>(type: "int", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ManagerId = table.Column<int>(type: "int", nullable: false),
+                    Age = table.Column<int>(type: "int", nullable: false),
+                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FavouriteSport = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JoinDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserProfile", x => x.UserProfileId);
+                    table.ForeignKey(
+                        name: "FK_UserProfile_Users_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserProfile_Users_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Referals",
                 columns: table => new
                 {
@@ -237,7 +283,6 @@ namespace HRMS_Backend.Migrations
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    JobsId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -249,11 +294,6 @@ namespace HRMS_Backend.Migrations
                         principalTable: "Jobs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Referals_Jobs_JobsId",
-                        column: x => x.JobsId,
-                        principalTable: "Jobs",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Referals_Users_EmpId",
                         column: x => x.EmpId,
@@ -301,7 +341,8 @@ namespace HRMS_Backend.Migrations
                     PId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -318,6 +359,11 @@ namespace HRMS_Backend.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TravelAssignment_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -371,11 +417,6 @@ namespace HRMS_Backend.Migrations
                 column: "JobId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Referals_JobsId",
-                table: "Referals",
-                column: "JobsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Referals_UserId",
                 table: "Referals",
                 column: "UserId");
@@ -391,6 +432,11 @@ namespace HRMS_Backend.Migrations
                 column: "PId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TravelAssignment_UserId",
+                table: "TravelAssignment",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TravelPlan_CreatedByUserId",
                 table: "TravelPlan",
                 column: "CreatedByUserId");
@@ -399,6 +445,11 @@ namespace HRMS_Backend.Migrations
                 name: "IX_TravelPlan_UserId",
                 table: "TravelPlan",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProfile_ManagerId",
+                table: "UserProfile",
+                column: "ManagerId");
         }
 
         /// <inheritdoc />
@@ -406,6 +457,9 @@ namespace HRMS_Backend.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Comments");
+
+            migrationBuilder.DropTable(
+                name: "FileModel2");
 
             migrationBuilder.DropTable(
                 name: "GameConfiguration");
@@ -421,6 +475,9 @@ namespace HRMS_Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "TravelAssignment");
+
+            migrationBuilder.DropTable(
+                name: "UserProfile");
 
             migrationBuilder.DropTable(
                 name: "Posts");

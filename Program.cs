@@ -4,6 +4,12 @@ using HRMS_Backend.Services;
 using HRMS_Backend.Services.GameScheduling;
 using HRMS_Backend.Services.JobListing;
 using HRMS_Backend.Services.TravelandExpenses;
+using HRMS_Backend.Services.ServiceUserProfile;
+//using HRMS_Backend.Services.User;
+//using HRMS_Backend.Services.UserProfile;
+
+//using HRMS_Backend.Services.User;
+
 //using HRMS_Backend.Services.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +63,7 @@ builder.Services.AddScoped<IGamesService, GamesService>();
 //builder.Services.AddScoped<IReferService, ReferService>();
 //builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReferService, ReferService>();
-
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

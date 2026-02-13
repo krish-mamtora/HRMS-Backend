@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS_Backend.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20260212081025_TravelAssign")]
-    partial class TravelAssign
+    [Migration("20260213082548_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -204,6 +204,23 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Games");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.FileModel2", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileModel2");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
                 {
                     b.Property<int>("Id")
@@ -287,9 +304,6 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("JobId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("JobsId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ReffMail")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -318,8 +332,6 @@ namespace HRMS_Backend.Migrations
                     b.HasIndex("EmpId");
 
                     b.HasIndex("JobId");
-
-                    b.HasIndex("JobsId");
 
                     b.HasIndex("UserId");
 
@@ -484,6 +496,54 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.UserProfile", b =>
+                {
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FavouriteSport")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserProfileId");
+
+                    b.HasIndex("ManagerId");
+
+                    b.ToTable("UserProfile");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Posts")
@@ -553,29 +613,25 @@ namespace HRMS_Backend.Migrations
 
             modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Referals", b =>
                 {
-                    b.HasOne("HRMS_Backend.Entities.User", "Employee")
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("EmpId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("HRMS_Backend.Entities.JobListing.Jobs", "Job")
-                        .WithMany()
+                        .WithMany("Referrals")
                         .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HRMS_Backend.Entities.JobListing.Jobs", null)
-                        .WithMany("Referrals")
-                        .HasForeignKey("JobsId");
 
                     b.HasOne("HRMS_Backend.Entities.User", null)
                         .WithMany("Referrals")
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Employee");
-
                     b.Navigation("Job");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
@@ -627,6 +683,25 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.UserProfile", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithOne("UserProfile")
+                        .HasForeignKey("HRMS_Backend.Entities.UserProfile", "UserProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
                 {
                     b.Navigation("Comments");
@@ -667,6 +742,9 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("TravelAssignment");
 
                     b.Navigation("TravelPlan");
+
+                    b.Navigation("UserProfile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

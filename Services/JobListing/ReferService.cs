@@ -23,7 +23,6 @@ namespace HRMS_Backend.Services.JobListing
 
             var referal = new Referals
             {
-                Id = dto.Id,
                 JobId = dto.JobId,
                 ReffName = dto.ReffName,
                 ReffMail = dto.ReffMail,
@@ -32,7 +31,7 @@ namespace HRMS_Backend.Services.JobListing
                 Description = dto.Description,
                 CreatedAt = dto.CreatedAt,
             };
-            await _context.Referals.AddAsync(referal);
+             _context.Referals.Add(referal);
             await _context.SaveChangesAsync();
             return referal;
         }
@@ -48,14 +47,14 @@ namespace HRMS_Backend.Services.JobListing
             return ReferalsDto;
         }
 
-        public async Task<JobRefferalResponseDto> getReferalByJobId(int id)
+        public async Task<List<JobRefferalResponseDto>> getReferalByJobId(int id)
         {
             if (id == null)
             {
                 throw new ArgumentNullException(nameof(id));
             }
-            var Referals = await _context.Referals.FirstOrDefaultAsync(x=>x.JobId == id);
-            var ReferalsDto = _mapper.Map<JobRefferalResponseDto>(Referals);
+            var Referals = await _context.Referals.Where(x=>x.JobId == id).ToListAsync();
+            var ReferalsDto = _mapper.Map<List<JobRefferalResponseDto>>(Referals);
             return ReferalsDto;
 
         }

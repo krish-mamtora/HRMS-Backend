@@ -201,6 +201,23 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Games");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.FileModel2", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileModel2");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
                 {
                     b.Property<int>("Id")
@@ -476,6 +493,54 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.UserProfile", b =>
+                {
+                    b.Property<int>("UserProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FavouriteSport")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserProfileId");
+
+                    b.HasIndex("ManagerId");
+
+                    b.ToTable("UserProfile");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Posts")
@@ -615,6 +680,25 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.UserProfile", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithOne("UserProfile")
+                        .HasForeignKey("HRMS_Backend.Entities.UserProfile", "UserProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
                 {
                     b.Navigation("Comments");
@@ -655,6 +739,9 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("TravelAssignment");
 
                     b.Navigation("TravelPlan");
+
+                    b.Navigation("UserProfile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
