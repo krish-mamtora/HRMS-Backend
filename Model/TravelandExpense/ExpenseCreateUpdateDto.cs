@@ -8,7 +8,7 @@ namespace HRMS_Backend.Model.TravelandExpense
     public class ExpenseCreateUpdateDto
     {
         
-        public int Id { get; set; }
+        //public int Id { get; set; }
         [Required]
         public int TravelAssignId { get; set; }
 

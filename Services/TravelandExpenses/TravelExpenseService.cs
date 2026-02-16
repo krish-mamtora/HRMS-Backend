@@ -51,15 +51,34 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<ExpenseDisplayDto>(expense);
         }
 
-        public async Task<ExpenseDisplayDto> GetExpenseByTravelAssignmentId(int id)
+        public async Task<IEnumerable<ExpenseDisplayDto>> GetExpenseByTravelAssignmentId(int id)
         {
-            var expense = await _context.TravelExpense.FirstOrDefaultAsync(e => e.TravelAssignId == id);
-            if (expense == null)
+            var expenses = await _context.TravelExpense.Where(e => e.TravelAssignId == id).ToListAsync();
+            if (expenses == null)
             {
                 return null;
             }
-            return _mapper.Map<ExpenseDisplayDto>(expense);
+            return _mapper.Map<IEnumerable<ExpenseDisplayDto>>(expenses);
         }
-
+        public async Task<bool> UpdatePlanExpenseById(int id, ExpenseCreateUpdateDto dto)
+        {
+            var expense = await _context.TravelExpense.FindAsync(id);
+            if (expense == null)
+            {
+                return false;
+            }
+            _mapper.Map(dto, expense);
+            try
+            {
+                _context.TravelExpense.Update(expense);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.Write(ex.Message);
+                return false;
+            }
+        }
     }
 }
