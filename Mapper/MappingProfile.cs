@@ -24,6 +24,7 @@ namespace HRMS_Backend.Mapper
             CreateMap<UserProfile, UserProfileDisplayDto>();
             CreateMap<UserProfileDisplayDto, UserProfile>();
             CreateMap<TravelExpense, ExpenseDisplayDto>();
+            CreateMap<ExpenseCreateUpdateDto, TravelExpense>();
         }
     }
 }

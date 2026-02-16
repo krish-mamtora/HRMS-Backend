@@ -29,7 +29,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name : "AllowdFrontend",
         builder =>
         {
-            builder.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); ;
+            builder.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); 
+            builder.WithOrigins("https://localhost:7035").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
         }
     );
 });
@@ -78,7 +79,6 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 app.UseCors("AllowdFrontend");
-
 
 app.UseHttpsRedirection();
 
