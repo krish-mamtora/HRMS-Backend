@@ -18,7 +18,7 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         }
         public async Task<IEnumerable<UserProfileDisplayDto>> GetAllUsersAsync()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.UserProfile.ToListAsync();
             return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
         }
 

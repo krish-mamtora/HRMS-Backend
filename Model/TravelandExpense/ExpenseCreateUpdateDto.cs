@@ -1,28 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HRMS_Backend.Entities;
+using HRMS_Backend.Entities.TravelandExpense;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Model.TravelandExpense
 {
     public class ExpenseCreateUpdateDto
     {
-        public int TravelId { get; set; }
+        
+        public int Id { get; set; }
+        [Required]
+        public int TravelAssignId { get; set; }
 
-        [Required(ErrorMessage = "Employee ID is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Employee ID must be a valid positive integer.")]
-        public int EmplId { get; set; }
-
-
-        [Required(ErrorMessage = "Expense type is required.")]
-        [Range(1, 500000, ErrorMessage = "Expense type must be positive")]
-        public int ExpenseType { get; set; }
-
-        [Required(ErrorMessage = "Amount is required.")]
-        [Column(TypeName = "decimal")]
-        [Range(1, 100000, ErrorMessage = "Amount must be a positive value.")]
+        [Required]
+        public int? ExpenseType { get; set; }       
+        
+        [Required]
+        [Column(TypeName = "decimal(7, 2)")]
         public decimal Amount { get; set; }
-
-        [StringLength(500, ErrorMessage = "Remarks cannot exceed 500 characters.")]
-        public string HrRemarks { get; set; }
+        [Required]
+        public string Status { get; set; } = "pending";
+        public string? HrRemarks { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public int? ApprovedBy { get; set; }
 
     }
 }

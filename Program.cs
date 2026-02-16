@@ -17,8 +17,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using HRMS_Backend.Services.Email;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 
 builder.Services.AddCors(options =>
@@ -35,7 +38,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
+//builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddDbContext<MyDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -64,6 +67,8 @@ builder.Services.AddScoped<IGamesService, GamesService>();
 //builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReferService, ReferService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<ITravelExpenseService, TravelExpenseService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

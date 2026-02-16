@@ -45,7 +45,18 @@ namespace HRMS_Backend.Data
                 .WithMany()
                 .HasForeignKey(r=>r.EmpId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
+            modelBuilder.Entity<ShareEmail>()
+                .HasOne(r => r.Job)
+                .WithMany(r => r.ShareEmail)
+                .HasForeignKey(r => r.JobId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ShareEmail>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.EmpId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<TravelPlan>()
@@ -66,6 +77,20 @@ namespace HRMS_Backend.Data
                 .HasForeignKey(ta => ta.EmpId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Expenses>()
+                .HasOne(ep=>ep.TravelPlan)
+                .WithMany(ep=>ep.Expenses)
+                .HasForeignKey(ep=>ep.TravelId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Expenses>()
+                .HasOne(ep=>ep.User)
+                .WithMany()
+                .HasForeignKey(ep=>ep.EmplId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            
+
         }
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {
@@ -82,6 +107,12 @@ namespace HRMS_Backend.Data
         public DbSet<TravelAssignment> TravelAssignment { get; set; }
         public DbSet<FileModel2> FileModel2 { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
+
+        public DbSet<ShareEmail> ShareEmail { get; set; }
+        public DbSet<Expenses> Expenses { get; set; }
+        public DbSet<TravelExpense>TravelExpense { get; set; }
+        public DbSet<ExpenseProof> ExpenseProof { get; set; }
+
     }
 
 }

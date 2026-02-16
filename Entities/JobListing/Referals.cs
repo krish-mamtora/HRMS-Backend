@@ -9,7 +9,6 @@ namespace HRMS_Backend.Entities.JobListing
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int JobId { get; set; }
-        //[ForeignKey("JobId")]
         public Jobs Job { get; set; }
 
         [StringLength(20)]

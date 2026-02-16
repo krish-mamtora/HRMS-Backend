@@ -39,5 +39,6 @@ namespace HRMS_Backend.Entities.JobListing
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public ICollection<Referals> Referrals { get; set; }
 
+        public ICollection<ShareEmail> ShareEmail { get; set; }
     }
 }

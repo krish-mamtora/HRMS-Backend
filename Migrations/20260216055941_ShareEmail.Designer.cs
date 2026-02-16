@@ -4,6 +4,7 @@ using HRMS_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS_Backend.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260216055941_ShareEmail")]
+    partial class ShareEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,97 +432,6 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("ShareEmail");
                 });
 
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpensePolicy", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MaxAmout")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExpensePolicy");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpenseProof", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProofDocumentUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TravelExpenseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TravelExpenseId");
-
-                    b.ToTable("ExpenseProof");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Expenses", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(7, 2)");
-
-                    b.Property<int?>("ApprovedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EmplId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExpenseType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HrRemarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TravelId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovedBy");
-
-                    b.HasIndex("EmplId");
-
-                    b.HasIndex("ExpenseType");
-
-                    b.HasIndex("TravelId");
-
-                    b.ToTable("Expenses");
-                });
-
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -581,50 +493,6 @@ namespace HRMS_Backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("TravelAssignment");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelExpense", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(7, 2)");
-
-                    b.Property<int?>("ApprovedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ExpenseType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HrRemarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TravelAssignId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TravelAssignmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovedBy");
-
-                    b.HasIndex("ExpenseType");
-
-                    b.HasIndex("TravelAssignmentId");
-
-                    b.ToTable("TravelExpense");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
@@ -854,50 +722,6 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpenseProof", b =>
-                {
-                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelExpense", "TravelExpense")
-                        .WithMany()
-                        .HasForeignKey("TravelExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TravelExpense");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Expenses", b =>
-                {
-                    b.HasOne("HRMS_Backend.Entities.User", "HrApprover")
-                        .WithMany("Expenses")
-                        .HasForeignKey("ApprovedBy");
-
-                    b.HasOne("HRMS_Backend.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("EmplId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.ExpensePolicy", "ExpensePolicy")
-                        .WithMany("Expenses")
-                        .HasForeignKey("ExpenseType")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelPlan", "TravelPlan")
-                        .WithMany("Expenses")
-                        .HasForeignKey("TravelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExpensePolicy");
-
-                    b.Navigation("HrApprover");
-
-                    b.Navigation("TravelPlan");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.User", "User")
@@ -930,27 +754,6 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("TravelPlan");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelExpense", b =>
-                {
-                    b.HasOne("HRMS_Backend.Entities.User", "HrApprover")
-                        .WithMany("TravelExpense")
-                        .HasForeignKey("ApprovedBy");
-
-                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.ExpensePolicy", "ExpensePolicy")
-                        .WithMany()
-                        .HasForeignKey("ExpenseType")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", null)
-                        .WithMany("TravelExpense")
-                        .HasForeignKey("TravelAssignmentId");
-
-                    b.Navigation("ExpensePolicy");
-
-                    b.Navigation("HrApprover");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
@@ -992,27 +795,13 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("ShareEmail");
                 });
 
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpensePolicy", b =>
-                {
-                    b.Navigation("Expenses");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", b =>
-                {
-                    b.Navigation("TravelExpense");
-                });
-
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
                 {
-                    b.Navigation("Expenses");
-
                     b.Navigation("TravelAssignment");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
-                    b.Navigation("Expenses");
-
                     b.Navigation("Jobs");
 
                     b.Navigation("Notification");
@@ -1024,8 +813,6 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("ShareEmail");
 
                     b.Navigation("TravelAssignment");
-
-                    b.Navigation("TravelExpense");
 
                     b.Navigation("TravelPlan");
 

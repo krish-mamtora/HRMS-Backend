@@ -3,25 +3,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.TravelandExpense
 {
-    public class Expenses
+    public class TravelExpense
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public int TravelId { get; set; }
-        public TravelPlan TravelPlan { get; set; }
-        [Required]
-        public int EmplId { get; set; }
-        //[ForeignKey("EmplId")] 
-        public User User { get; set; }
+        public int TravelAssignId { get; set; }
+        [ForeignKey("TravelAssignId")]
+        public TravelAssignment TravelAssignment;
+
+
         [Required]
         public int? ExpenseType { get; set; }
         [ForeignKey("ExpenseType")]
         public ExpensePolicy ExpensePolicy { get; set; }
+
+
         [Required]
         [Column(TypeName = "decimal(7, 2)")]
-        public decimal Amount { get; set; }
+        public decimal Amount { get; set; } = 0;
         [Required]
         public string Status { get; set; } = "pending";
         public string? HrRemarks { get; set; }

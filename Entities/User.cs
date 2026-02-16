@@ -29,13 +29,14 @@ namespace HRMS_Backend.Entities
         public ICollection<Jobs> Jobs { get; set; }
         public ICollection<Posts> Posts { get; set; }
         public ICollection<Referals> Referrals { get; set; }
-        //public ICollection<ShareEmail> ShareEmail {  get; set; }
+        public ICollection<ShareEmail> ShareEmail {  get; set; }
         public ICollection<Notification> Notification { get; set; }
         public ICollection<TravelAssignment> TravelAssignment { get; set; }
         public ICollection<TravelPlan> TravelPlan { get; set; }
+        public ICollection<Expenses> Expenses { get; set; }
         //[NotMapped]
         //public ICollection<UserProfile> UserProfile { get;set;}
-        
+        public ICollection<TravelExpense> TravelExpense { get; set; }
     }
 }
 
