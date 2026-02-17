@@ -16,11 +16,21 @@ namespace HRMS_Backend.Controllers.JobListing
         }
 
         [HttpPost]
-        public async Task<IActionResult?> CreateReferal([FromBody] JobRefferalCreateUpdateDto dto)
+        public async Task<IActionResult?> CreateReferalAsync([FromForm] JobRefferalCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+            string uniqueFileName = string.Empty;
+            if (dto.ReffResume != null)
+            {
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                var extension = Path.GetExtension(dto.ReffResume.FileName).ToLowerInvariant();
+                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                {
+                    return BadRequest("Invalid file type. Only PDF and Word documents are allowed.");
+                }
             }
             var createjob = await _service.createReferalAsync(dto);
             return CreatedAtAction(nameof(getReferalById), new { id = createjob.Id }, createjob);

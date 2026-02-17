@@ -4,6 +4,7 @@ using HRMS_Backend.Entities.JobListing;
 //using HRMS_Backend.Migrations;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Services.JobListing
@@ -12,21 +13,37 @@ namespace HRMS_Backend.Services.JobListing
     {
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
-        public ReferService(MyDbContext context , IMapper mapper) { 
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public ReferService(MyDbContext context , IMapper mapper  , IWebHostEnvironment hostingEnvironment) { 
             _context = context;
             _mapper = mapper;
+            _hostingEnvironment = hostingEnvironment;
         }
-        public async Task<Referals> createReferalAsync(JobRefferalCreateUpdateDto dto)
+        public async Task<Referals> createReferalAsync([FromForm] JobRefferalCreateUpdateDto dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
 
+            string uniqueFileName = string.Empty;
+            if (dto.ReffResume != null)
+            {
+                string uploadsFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "UploadedResumes");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(dto.ReffResume.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.ReffResume.CopyToAsync(fileStream);
+                }
+            }
             var referal = new Referals
             {
                 JobId = dto.JobId,
                 ReffName = dto.ReffName,
                 ReffMail = dto.ReffMail,
-                ReffResumeUrl = dto.ReffResumeUrl,
+                ReffResumeUrl = uniqueFileName,
                 EmpId = dto.EmpId,
                 Description = dto.Description,
                 CreatedAt = dto.CreatedAt,
