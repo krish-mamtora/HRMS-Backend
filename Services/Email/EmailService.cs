@@ -1,54 +1,48 @@
-﻿using MimeKit;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 using System.Net;
-using System.Net.Mail;
-
 namespace HRMS_Backend.Services.Email
 {
-    public class EmailService 
+    public class EmailService : IEmailService
     {
         private readonly string smtpServer;
-        private readonly int smtpPort;
-        private readonly string smtpUsername;
-        private readonly string smtpPassword;
+        private readonly int port;
+        private readonly string senderName;
+        private readonly string senderEmail;
+        private readonly string username;
+        private readonly string appPassword;
+
         public EmailService(IConfiguration configuration)
         {
-            smtpServer = configuration.GetValue<string>("SmtpSettings.SmtpServer", "");
-            smtpPort = configuration.GetValue<int>("SmtpSettings.SmtpPort", 0);
-            smtpUsername = configuration.GetValue<string>("SmtpSettings.SmtpUsername", "");
-            smtpPassword = configuration.GetValue<string>("SmtpSettings.SmtpPassword", "");
+            smtpServer = configuration["SmtpSettings:SmtpServer"];
+            port = int.Parse(configuration["SmtpSettings:Port"]);
+            senderName = configuration["SmtpSettings:SenderName"];
+            senderEmail = configuration["SmtpSettings:SenderEmail"];
+            username = configuration["SmtpSettings:Username"];
+            appPassword = configuration["SmtpSettings:AppPassword"];
         }
 
 
-            public void SendEmail (string senderName , string senderEmail 
-                , string toName  , string toEmail  , string subject , string textContent)
+            public async Task SendEmailAsync (string toEmail , string subject , string message)
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(senderName, senderEmail));
-            message.To.Add(new MailboxAddress(toName, toEmail));
-            message.Subject = subject;
+            var email = new MimeMessage();
+            email.From.Add(new MailboxAddress(senderName, senderEmail));
+            email.To.Add( MailboxAddress.Parse(toEmail));
+            email.Subject = subject;
 
-            message.Body = new TextPart("plain")
+            email.Body = new TextPart("html")
             {
-                Text = textContent
+                Text = message
             };
 
-            using (var client = new SmtpClient())
-            {
-                //client.Connect(smtpServer, smtpPort, false);
-
-                //client.Authenticate(smtpUsername, smtpPassword);
-                //try
-                //{
-                //    var result = client.Send(message);
-                //    Console.WriteLine("Email Sender Ok : \n" + result);
-                //    client.Disconnect(true);
-                //}
-                //catch (ex)
-                //{
-                //    Console.WriteLine("Email Sender Fail : \n" + ex.ToString());
-                //}
+             using var smtp = new SmtpClient();
+            await smtp.ConnectAsync(smtpServer, port , SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync(username , appPassword);
+            await smtp.SendAsync(email);
+            await smtp.DisconnectAsync(true);
             }
-        } 
+       
         }
     }
 //}

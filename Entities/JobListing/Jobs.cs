@@ -37,7 +37,7 @@ namespace HRMS_Backend.Entities.JobListing
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string ContactMail { get; set; } = "ab@gmail.com";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public ICollection<Referals> Referrals { get; set; }
+        public ICollection<Referals> Referals { get; set; }
 
         public ICollection<ShareEmail> ShareEmail { get; set; }
     }

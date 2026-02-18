@@ -36,7 +36,7 @@ namespace HRMS_Backend.Data
 
             modelBuilder.Entity<Referals>()
                 .HasOne(r=>r.Job)
-                .WithMany(r=>r.Referrals)
+                .WithMany(r=>r.Referals)
                 .HasForeignKey(r=>r.JobId)
                 .OnDelete(DeleteBehavior.Cascade);
 

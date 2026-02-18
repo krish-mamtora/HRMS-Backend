@@ -14,6 +14,6 @@ namespace HRMS_Backend.Services.JobListing
             _context = context;
             _mapper = mapper;
         }
-        
+
     }
 }

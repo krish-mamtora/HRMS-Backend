@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using HRMS_Backend.Model;
 using HRMS_Backend.Services.Email;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +43,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<MyDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
     AddJwtBearer(options=>
@@ -68,7 +70,9 @@ builder.Services.AddScoped<IGamesService, GamesService>();
 //builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReferService, ReferService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+
 builder.Services.AddScoped<ITravelExpenseService, TravelExpenseService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

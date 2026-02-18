@@ -19,9 +19,9 @@ namespace HRMS_Backend.Model.JobListing
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string ReffMail { get; set; } = string.Empty;
 
-        [StringLength(100)]
-        [Required(ErrorMessage = "Resume is required")]
-        public string ReffResumeUrl { get; set; } = string.Empty;
+        //[Required(ErrorMessage = "Resume is required")]
+        [NotMapped]
+        public IFormFile? ReffResume { get; set; }
         public int EmpId { get; set; }
 
         [StringLength(200)]

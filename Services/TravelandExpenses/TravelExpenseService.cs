@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HRMS_Backend.Services.TravelandExpenses
 {
-    public class TravelExpenseService :ITravelExpenseService
+    public class TravelExpenseService : ITravelExpenseService
     {
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
@@ -28,7 +28,7 @@ namespace HRMS_Backend.Services.TravelandExpenses
                 ApprovedBy = dto.ApprovedBy,
                 CreatedAt = dto.CreatedAt
             };
-            
+
             _context.TravelExpense.Add(travelPlanExpense);
             await _context.SaveChangesAsync();
             return travelPlanExpense;
@@ -51,34 +51,15 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<ExpenseDisplayDto>(expense);
         }
 
-        public async Task<IEnumerable<ExpenseDisplayDto>> GetExpenseByTravelAssignmentId(int id)
+        public async Task<ExpenseDisplayDto> GetExpenseByTravelAssignmentId(int id)
         {
-            var expenses = await _context.TravelExpense.Where(e => e.TravelAssignId == id).ToListAsync();
-            if (expenses == null)
+            var expense = await _context.TravelExpense.FirstOrDefaultAsync(e => e.TravelAssignId == id);
+            if (expense == null)
             {
                 return null;
             }
-            return _mapper.Map<IEnumerable<ExpenseDisplayDto>>(expenses);
+            return _mapper.Map<ExpenseDisplayDto>(expense);
         }
-        public async Task<bool> UpdatePlanExpenseById(int id, ExpenseCreateUpdateDto dto)
-        {
-            var expense = await _context.TravelExpense.FindAsync(id);
-            if (expense == null)
-            {
-                return false;
-            }
-            _mapper.Map(dto, expense);
-            try
-            {
-                _context.TravelExpense.Update(expense);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.Write(ex.Message);
-                return false;
-            }
-        }
+
     }
 }
