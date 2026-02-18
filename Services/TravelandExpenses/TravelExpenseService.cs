@@ -54,15 +54,15 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<ExpenseDisplayDto>(expense);
         }
 
-        public async Task<ExpenseDisplayDto> GetExpenseByTravelAssignmentId(int id)
-        {
-            var expense = await _context.TravelExpense.FirstOrDefaultAsync(e => e.TravelAssignId == id);
-            if (expense == null)
-            {
-                return null;
-            }
-            return _mapper.Map<ExpenseDisplayDto>(expense);
-        }
+        //public async Task<ExpenseDisplayDto> GetExpenseByTravelAssignmentId(int id)
+        //{
+        //    var expense = await _context.TravelExpense.FirstOrDefaultAsync(e => e.TravelAssignId == id);
+        //    if (expense == null)
+        //    {
+        //        return null;
+        //    }
+        //    return _mapper.Map<ExpenseDisplayDto>(expense);
+        //}
 
         public async Task<int> GetIdfromEmpIDandPID(int EmpId , int PId)
         {
@@ -70,13 +70,14 @@ namespace HRMS_Backend.Services.TravelandExpenses
                     .FirstOrDefaultAsync(x => x.EmpId == EmpId && x.PId == PId);
             return row?.Id ?? 0;
         }
-        //public async Task<ExpenseDisplayDto> getExpensesByTravelAssignedId(int id)
-        //{
-        //    var expense = await _context.TravelExpense.Where(ex=>ex.TravelAssignId==id).ToListAsync();
-        //    var expenseDto = _mapper.Map<List<JobRefferalResponseDto>>(Referals);
-        //    return ReferalsDto;
-
-
-        //}
+        public async Task<List<ExpenseDisplayDto>> getExpensesByTravelAssignedId(int id)
+        {
+            var expense = await _context.TravelExpense.Where(ex => ex.TravelAssignId == id).ToListAsync();
+            if(expense == null)
+            {
+                return null;
+            }
+            return _mapper.Map<List<ExpenseDisplayDto>>(expense);
+        }
     }
 }

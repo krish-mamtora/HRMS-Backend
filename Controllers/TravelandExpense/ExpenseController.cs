@@ -60,7 +60,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         [HttpGet("travelassign/{id}", Name = "GetExpenseByTravelAssignmentId")]
         public async Task<IActionResult> GetExpenseByTravelAssignmentId(int id)
         {
-            var Expense = await _service.GetExpenseByTravelAssignmentId(id);
+            var Expense = await _service.getExpensesByTravelAssignedId(id);
             if (Expense == null)
             {
                 return BadRequest(ModelState);
@@ -93,6 +93,18 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 return NotFound(new { message = "No record found for the given EmpId and PId." });
             }
             return Ok(rowId);
+        }
+
+        [HttpGet("getExpensesByTravelAssignedId/{id}", Name = "getExpensesByTravelAssignedId")]
+
+        public async Task<IActionResult> getExpensesByTravelAssignedId(int id)
+        {
+            var response = await _service.getExpensesByTravelAssignedId(id);
+            if (response == null)
+            {
+                return NotFound(new { message = "No record found for the given Travel AssignId." });
+            }
+            return Ok(response);
         }
 
     }
