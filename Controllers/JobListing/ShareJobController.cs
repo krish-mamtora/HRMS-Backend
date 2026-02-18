@@ -3,13 +3,14 @@ using HRMS_Backend.Entities;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Services.Email;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Controllers.JobListing
 {
-
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ShareJobController : ControllerBase
@@ -33,7 +34,6 @@ namespace HRMS_Backend.Controllers.JobListing
             {
                 return NotFound("Job Not Found");
             }
-
 
             var sahre = new ShareEmail
             {

@@ -18,6 +18,9 @@ namespace HRMS_Backend.Model.TravelandExpense
         [Required]
         [Column(TypeName = "decimal(7, 2)")]
         public decimal Amount { get; set; }
+        [StringLength(100)]
+        public string Description { get; set; }
+
         [Required]
         public string Status { get; set; } = "pending";
         public string? HrRemarks { get; set; }

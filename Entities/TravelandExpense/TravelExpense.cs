@@ -19,7 +19,8 @@ namespace HRMS_Backend.Entities.TravelandExpense
         [ForeignKey("ExpenseType")]
         public ExpensePolicy ExpensePolicy { get; set; }
 
-
+        [StringLength(100)]
+        public string Description { get; set; }
         [Required]
         [Column(TypeName = "decimal(7, 2)")]
         public decimal Amount { get; set; } = 0;

@@ -2,11 +2,13 @@
 using HRMS_Backend.Entities;
 using HRMS_Backend.Entities.FixEntityUserProfile;
 using HRMS_Backend.Services.TravelandExpenses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Controllers.OrgCharts
 {
+    [Authorize]
 
     [Route("api/[controller]")]
     [ApiController]
@@ -25,7 +27,7 @@ namespace HRMS_Backend.Controllers.OrgCharts
         {
             var allManagers = new List<UserProfile>();
             var currentEmployee = await _context.UserProfile.FindAsync(employeeId);
-
+            allManagers.Add(currentEmployee);
             int? currentManagerId = currentEmployee?.ManagerId;
 
             while (currentManagerId.HasValue)

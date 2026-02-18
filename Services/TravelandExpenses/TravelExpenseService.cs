@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
+using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
+using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -25,6 +27,7 @@ namespace HRMS_Backend.Services.TravelandExpenses
                 ExpenseType = dto.ExpenseType,
                 Amount = dto.Amount,
                 Status = dto.Status,
+                Description = dto.Description,
                 ApprovedBy = dto.ApprovedBy,
                 CreatedAt = dto.CreatedAt
             };
@@ -61,5 +64,19 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<ExpenseDisplayDto>(expense);
         }
 
+        public async Task<int> GetIdfromEmpIDandPID(int EmpId , int PId)
+        {
+            var row = await _context.TravelAssignment
+                    .FirstOrDefaultAsync(x => x.EmpId == EmpId && x.PId == PId);
+            return row?.Id ?? 0;
+        }
+        //public async Task<ExpenseDisplayDto> getExpensesByTravelAssignedId(int id)
+        //{
+        //    var expense = await _context.TravelExpense.Where(ex=>ex.TravelAssignId==id).ToListAsync();
+        //    var expenseDto = _mapper.Map<List<JobRefferalResponseDto>>(Referals);
+        //    return ReferalsDto;
+
+
+        //}
     }
 }

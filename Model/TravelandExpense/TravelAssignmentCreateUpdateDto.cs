@@ -12,8 +12,11 @@ namespace HRMS_Backend.Model.TravelandExpense
         public int EmpId { get; set; } 
         [Required]
         public int PId { get; set; }
-        [Required]
-        public string Status { get; set; } = "Pending";
+
+        //[Required]
+        [StringLength(4)]
+        [Required(ErrorMessage = "Status Name is required")]
+        public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
     }

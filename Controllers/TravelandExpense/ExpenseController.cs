@@ -1,10 +1,12 @@
 ﻿using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.TravelandExpense;
 using HRMS_Backend.Services.TravelandExpenses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS_Backend.Controllers.TravelandExpense
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ExpenseController : ControllerBase
@@ -80,5 +82,18 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         //    }
         //    return Ok("Expense updated successfully");
         //}
+
+        [HttpGet("getId")]
+        public async Task<IActionResult> GetAssignPlanIdfromEmpIdandPId([FromQuery(Name = "EmpId")] int EmpId, [FromQuery(Name = "PId")] int PId)
+
+        {
+            var rowId = await _service.GetIdfromEmpIDandPID(EmpId,PId);
+            if(rowId == null)
+            {
+                return NotFound(new { message = "No record found for the given EmpId and PId." });
+            }
+            return Ok(rowId);
+        }
+
     }
 }

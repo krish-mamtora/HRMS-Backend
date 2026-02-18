@@ -29,7 +29,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name : "AllowdFrontend",
         builder =>
         {
-            builder.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); 
+            builder.WithOrigins("http://localhost:8080").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+            builder.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("Content-Disposition"); 
             builder.WithOrigins("https://localhost:7035").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
         }
     );
@@ -58,6 +59,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
         ValidAudience = builder.Configuration["AppSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!))
     });
+builder.Services.AddAuthorization(); 
+
 
 builder.Services.AddScoped<IAuthService , AuthService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -73,7 +76,7 @@ builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
 builder.Services.AddScoped<ITravelExpenseService, TravelExpenseService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IShareEmailService, ShareEmailService>();
+//builder.Services.AddScoped<IShareEmailService, ShareEmailService>();
 
 var app = builder.Build();
 
@@ -86,9 +89,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowdFrontend");
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

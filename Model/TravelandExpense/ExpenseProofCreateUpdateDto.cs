@@ -6,11 +6,12 @@ namespace HRMS_Backend.Model.TravelandExpense
 {
     public class ExpenseProofCreateUpdateDto
     {
-        [Required]
         public int Id { get; set; }
         [Required]
         public int TravelExpenseId { get; set; }
-        public string ProofDocumentUrl { get; set; } = string.Empty;
+
+        [NotMapped]
+        public IFormFile? ProofDocumentUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -1,9 +1,10 @@
 ﻿using HRMS_Backend.Entities.JobListing;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS_Backend.Controllers.JobListing
 {
-
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class FileController :ControllerBase

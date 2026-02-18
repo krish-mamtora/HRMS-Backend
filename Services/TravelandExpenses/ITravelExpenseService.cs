@@ -7,5 +7,7 @@ public interface ITravelExpenseService
     Task<IEnumerable<ExpenseDisplayDto>> GetAllExpenseAsync();
     Task<ExpenseDisplayDto?> GetExpenseByIdAsync(int id);
     Task<ExpenseDisplayDto?> GetExpenseByTravelAssignmentId(int id);
-   
+    Task<int> GetIdfromEmpIDandPID(int EmpId, int PId);
+
+
 }

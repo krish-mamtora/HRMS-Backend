@@ -1,12 +1,14 @@
 ﻿using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model;
-using HRMS_Backend.Services.TravelandExpenses;
-using HRMS_Backend.Services.ServiceUserProfile;
-using Microsoft.AspNetCore.Mvc;
 using HRMS_Backend.Model.DtoUserProfile;
+using HRMS_Backend.Services.ServiceUserProfile;
+using HRMS_Backend.Services.TravelandExpenses;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS_Backend.Controllers.UserProfileController
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserProfileController : ControllerBase
