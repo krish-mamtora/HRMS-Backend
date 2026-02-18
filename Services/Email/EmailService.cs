@@ -1,7 +1,7 @@
-﻿using MailKit.Security;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 using System.Net;
-using MailKit.Net.Smtp;
 namespace HRMS_Backend.Services.Email
 {
     public class EmailService : IEmailService

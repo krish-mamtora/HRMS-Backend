@@ -1,10 +1,9 @@
-﻿namespace HRMS_Backend.Model.JobListing
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace HRMS_Backend.Model.JobListing
 {
     public class ShareMailCreateUpdateDto
     {
-<<<<<<< Updated upstream
-
-=======
         public int JobId { get; set; }
 
         [Required]
@@ -18,6 +17,5 @@
 
         [StringLength(200)]
         public string Message { get; set; } = string.Empty;
->>>>>>> Stashed changes
     }
 }
