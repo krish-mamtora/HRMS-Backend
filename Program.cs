@@ -73,6 +73,7 @@ builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
 builder.Services.AddScoped<ITravelExpenseService, TravelExpenseService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IShareEmailService, ShareEmailService>();
 
 var app = builder.Build();
 
