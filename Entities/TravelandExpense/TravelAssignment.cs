@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.Metrics;
 
 namespace HRMS_Backend.Entities.TravelandExpense
 {
+    [Index(nameof(EmpId), nameof(PId), IsUnique = true)]
     public class TravelAssignment
     {
         [Key]

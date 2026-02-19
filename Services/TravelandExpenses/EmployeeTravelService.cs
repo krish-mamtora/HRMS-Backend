@@ -8,6 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HRMS_Backend.Services.TravelandExpenses
 {
+
     public class EmployeeTravelService : IEmployeeTravelService
     {
         private readonly MyDbContext _context;
@@ -39,20 +40,26 @@ namespace HRMS_Backend.Services.TravelandExpenses
 
         public async Task<bool> createBulkUploadTravelPlan(BulkTravelAssignmentDto dto)
         {
-            var assignments = new List<TravelAssignment>();
             var now = DateTime.UtcNow;
 
-            foreach (var empId in dto.EmpId)
+            var existingEmpIds = await _context.TravelAssignment
+            .Where(ta => ta.PId == dto.PId && dto.EmpId.Contains(ta.EmpId))
+            .Select(ta => ta.EmpId)
+            .ToListAsync();
+
+            var newEmpIds = dto.EmpId.Except(existingEmpIds).ToList();
+
+            if (!newEmpIds.Any())
             {
-                assignments.Add(new TravelAssignment
-                {
-                    EmpId = empId,
-                    PId = dto.PId,
-                    Status = dto.Status,
-                    CreatedAt = now,
-                    LastUpdatedAt = null,
-                });
+                throw new Exception("Employees are already assigned to this plan.");
             }
+            var assignments = newEmpIds.Select(empId => new TravelAssignment
+            {
+                EmpId = empId,
+                PId = dto.PId,
+                Status = dto.Status,
+                CreatedAt = now
+            }).ToList();
             await _context.TravelAssignment.AddRangeAsync(assignments);
             await _context.SaveChangesAsync();
             return true;

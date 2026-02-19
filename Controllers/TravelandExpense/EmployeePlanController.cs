@@ -19,13 +19,21 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
 
         [HttpPost]
-        public async Task<bool> CreateBulkPlan([FromBody] BulkTravelAssignmentDto dto)
+        public async Task<IActionResult> CreateBulkPlan([FromBody] BulkTravelAssignmentDto dto)
         {
             if (dto?.EmpId == null || !dto.EmpId.Any())
-            { return false; }
-
-            bool result = await _service.createBulkUploadTravelPlan(dto);
-            return result;
+            {
+                return BadRequest("Employee list cannot be empty");
+            }
+            try
+            {
+                bool result = await _service.createBulkUploadTravelPlan(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("plan/", Name = "getAllAssignDetails")]
