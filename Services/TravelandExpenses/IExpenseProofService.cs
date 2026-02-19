@@ -9,5 +9,7 @@ namespace HRMS_Backend.Services.TravelandExpenses
     {
         Task<ExpenseProof> createExpenseProofAsync(ExpenseProofCreateUpdateDto dto);
         Task<ExpenseProofDisplayDto> getExpenseProofById(int id);
+
+        Task<IEnumerable<ExpenseProofDisplayDto>> getExpenseProofByExpenseId(int id);
     }
 }

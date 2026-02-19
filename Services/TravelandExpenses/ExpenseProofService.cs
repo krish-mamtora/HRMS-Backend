@@ -5,6 +5,7 @@ using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Services.TravelandExpenses
 {
@@ -67,5 +68,14 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<ExpenseProofDisplayDto>(expenseproof);
         }
 
+        public async Task<IEnumerable<ExpenseProofDisplayDto>> getExpenseProofByExpenseId(int id)
+        {
+            var expenseproof = await _context.ExpenseProof.Where(ep=>ep.TravelExpenseId==id).ToListAsync();
+            if (expenseproof == null)
+            {
+                return null;
+            }
+            return _mapper.Map<IEnumerable<ExpenseProofDisplayDto>>(expenseproof);
+        }
     }
 }

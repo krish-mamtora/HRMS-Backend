@@ -51,7 +51,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             return CreatedAtAction(nameof(getExpenseProofById), new { id = expenseProof.Id }, expenseProof);
         }
 
-        [HttpGet("{id}", Name = "getExpenseProofById")]
+        [HttpGet("getExpenseProofById/{id}")]
         public async Task<IActionResult> getExpenseProofById(int id)
         {
             var expenseproof = await _service.getExpenseProofById(id);
@@ -62,5 +62,15 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             return Ok(expenseproof);
         }
 
+        [HttpGet("getExpenseProofForExpenseid/{id}")]
+        public async Task<IActionResult> getExpenseProofByExpenseId(int id)
+        {
+            var expenseproof = await _service.getExpenseProofByExpenseId(id);
+            if (expenseproof == null)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(expenseproof);
+        }
     }
 }

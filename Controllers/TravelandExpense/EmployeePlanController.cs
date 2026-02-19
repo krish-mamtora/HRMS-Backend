@@ -2,6 +2,7 @@
 using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Controllers.TravelandExpense
 {
@@ -61,5 +62,17 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
 
 
+        [HttpGet("employeeForTravelPlan/{id}", Name = "getEmployeesForTravelPlan")]
+        public async Task<ActionResult<List<int>>> getAllEmployeesAssignedToPlan(int id)
+        {
+            var employeeIds = await _service.getAllEmployeesAssignedToPlan(id);
+
+            if (employeeIds == null || employeeIds.Count == 0)
+            {
+                return NotFound($"No employees found for plan ID {id}.");
+            }
+
+            return Ok(employeeIds);
+        }
     }
 }

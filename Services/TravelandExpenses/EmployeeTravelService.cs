@@ -4,6 +4,7 @@ using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HRMS_Backend.Services.TravelandExpenses
 {
@@ -55,6 +56,23 @@ namespace HRMS_Backend.Services.TravelandExpenses
             await _context.TravelAssignment.AddRangeAsync(assignments);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<int>> getAllEmployeesAssignedToPlan(int id)
+        {
+            try
+            {
+                return await _context.TravelAssignment
+                    .Where(ta => ta.PId == id)
+                    .Select(ta => ta.EmpId)              
+                    .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error occured : ", e.Message);
+                return new List<int>();
+            }
+
         }
     }
 }

@@ -8,5 +8,6 @@ namespace HRMS_Backend.Services.TravelandExpenses
       Task<bool> createBulkUploadTravelPlan(BulkTravelAssignmentDto dto);
         Task<IEnumerable<TravelAssignmentDisplayDto>> getAllAssignDetails();
         Task<TravelAssignmentDisplayDto?> getAssignedTravelPlayById(int id);
+        Task<List<int>> getAllEmployeesAssignedToPlan(int id);
     }
 }

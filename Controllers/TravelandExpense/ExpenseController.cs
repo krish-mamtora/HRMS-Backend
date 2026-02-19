@@ -28,12 +28,13 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             try
             {
                 var CreateExpense = await _service.CreateTravelExpenseAsync(dto);
-                return Ok(CreateExpense);
+                return CreatedAtAction(nameof(getExpenseById), new { id = CreateExpense.Id }, CreateExpense);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+
         }
         [HttpGet("{id}", Name = "getExpenseById")]
         public async Task<IActionResult> getExpenseById(int id)
