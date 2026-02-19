@@ -484,3 +484,6 @@ $RECYCLE.BIN/
 
 appsettings.Development.json
 appsettings.json
+
+UploadedExpenseProof/
+UploadedResumes/
