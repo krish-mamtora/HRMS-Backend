@@ -38,10 +38,6 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 
 builder.Services.AddControllers();
-    //AddJsonOptions(options =>
-    //{
-    //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-    //})
     
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -83,6 +79,7 @@ builder.Services.AddScoped<ITravelExpenseService, TravelExpenseService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddScoped<IShareEmailService, ShareEmailService>();
 builder.Services.AddScoped<IExpenseProofService, ExpenseProofService>();
+builder.Services.AddScoped<ITravelDocumentsService, TravelDocumentsService>();
 
 var app = builder.Build();
 

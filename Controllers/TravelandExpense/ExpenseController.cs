@@ -108,5 +108,19 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             return Ok(response);
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateExpenseByIdAsync([FromBody] ExpenseCreateUpdateDto dto, int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _service.UpdateExpenseByIdAsync(dto , id);
+            if (!result)
+            {
+                return NotFound("Expense not found");
+            }
+            return Ok("Expense updated successfully");
+        }
     }
 }

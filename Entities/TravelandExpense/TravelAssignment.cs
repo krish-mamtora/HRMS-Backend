@@ -20,6 +20,7 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public DateTime CreatedAt { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
         public ICollection<TravelExpense> TravelExpense { get; set; }
+        public ICollection<TravelDocuments> TravelDocuments { get; set; }
 
     }
 }

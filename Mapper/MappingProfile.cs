@@ -20,7 +20,7 @@ namespace HRMS_Backend.Mapper
             CreateMap<UserProfileDisplayDto, UserProfile>();
             CreateMap<TravelExpense, ExpenseDisplayDto>();
             CreateMap<ExpenseCreateUpdateDto, TravelExpense>();
-            CreateMap<ExpenseProof, ExpenseDisplayDto>();
+            CreateMap<Expenses, ExpenseDisplayDto>();
             CreateMap<ExpenseProof, ExpenseProofDisplayDto>();
         }
     }

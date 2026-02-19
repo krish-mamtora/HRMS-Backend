@@ -10,4 +10,5 @@ public interface ITravelExpenseService
     Task<int> GetIdfromEmpIDandPID(int EmpId, int PId);
     Task<List<ExpenseDisplayDto>> getExpensesByTravelAssignedId(int id);
 
+    Task<bool> UpdateExpenseByIdAsync(ExpenseCreateUpdateDto dto, int id);
 }

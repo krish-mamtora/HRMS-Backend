@@ -4,6 +4,7 @@ using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
@@ -54,6 +55,28 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<ExpenseDisplayDto>(expense);
         }
 
+        public async Task<bool> UpdateExpenseByIdAsync(ExpenseCreateUpdateDto dto , int id)
+        {
+            var expense = await _context.TravelExpense.FindAsync(id);
+            if (expense == null)
+            {
+                return false;
+            }
+            _mapper.Map(dto, expense);
+            try
+            {
+                _context.TravelExpense.Update(expense);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.Write(ex.Message);
+                return false;
+            }
+        }
+
+
         //public async Task<ExpenseDisplayDto> GetExpenseByTravelAssignmentId(int id)
         //{
         //    var expense = await _context.TravelExpense.FirstOrDefaultAsync(e => e.TravelAssignId == id);
@@ -63,6 +86,7 @@ namespace HRMS_Backend.Services.TravelandExpenses
         //    }
         //    return _mapper.Map<ExpenseDisplayDto>(expense);
         //}
+
 
         public async Task<int> GetIdfromEmpIDandPID(int EmpId , int PId)
         {
