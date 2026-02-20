@@ -1,4 +1,9 @@
-﻿using HRMS_Backend.Model.TravelandExpense;
+﻿using HRMS_Backend.Data;
+using HRMS_Backend.Entities.JobListing;
+using HRMS_Backend.Entities.TravelandExpense;
+using HRMS_Backend.Model.JobListing;
+using HRMS_Backend.Model.TravelandExpense;
+using HRMS_Backend.Services.Email;
 using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +17,13 @@ namespace HRMS_Backend.Controllers.TravelandExpense
     public class EmployeePlanController : ControllerBase
     {
         private readonly IEmployeeTravelService _service;
-
-        public EmployeePlanController(IEmployeeTravelService service)
+        private readonly IEmailService _emailService;
+        private readonly MyDbContext _context;
+        public EmployeePlanController(IEmployeeTravelService service , IEmailService emailservice , MyDbContext context)
         {
             _service = service;
+            _context = context;
+            _emailService = emailservice;
         }
 
         [HttpPost]
@@ -28,12 +36,58 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             try
             {
                 bool result = await _service.createBulkUploadTravelPlan(dto);
+
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpPost("notifyTravel/", Name = "NotifyForTravelPlan")]
+        public async Task<IActionResult> NotifyForTravelPlan([FromBody] ShareTravelPlanMailCreateUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var travelplan = await _context.TravelPlan.FindAsync(dto.PId);
+            if (travelplan == null)
+            {
+                return NotFound("Travel Plan Not Found");
+            }
+
+            var travelassignmail = new TravelAssignEmail
+            {
+                PId = dto.PId,
+                ReceiverMail = dto.ReceiverMail,
+                EmpId = dto.EmpId,
+                Subject = dto.Subject,
+                Message = dto.Message,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            _context.TravelAssignEmail.Add(travelassignmail);
+            await _context.SaveChangesAsync();
+
+            var body = $@"
+                  <h2> Travel Plan Assigned: {travelplan.Purpose}</h2>
+                   <p>{dto.Message}</p>   
+                        <br/>
+                        <p>Experiance Required {travelplan.Destination}</p>
+                          <p>Start Date  :  {travelplan.StartDate}</p>
+                          <p>End Date :  {travelplan.EndDate}</p>
+                          <p>Trip Type :  {travelplan.TripType}</p>
+                              <h3>Kindly Visit portal for more information and upload varification documents ...<h3/>
+            ";
+            await _emailService.SendEmailAsync(
+                dto.ReceiverMail,
+                string.IsNullOrEmpty(dto.Subject) ? "Travel Plan Assigned" : dto.Subject,
+                body
+            );
+
+            return Ok(new { message = "Email send successfully!" });
         }
 
         [HttpGet("plan/", Name = "getAllAssignDetails")]
