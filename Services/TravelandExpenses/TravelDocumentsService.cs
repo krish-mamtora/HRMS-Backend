@@ -2,6 +2,7 @@
 using HRMS_Backend.Data;
 using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.TravelandExpense;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Services.TravelandExpenses
 {
@@ -47,9 +48,9 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return TravelDocument;
         }
 
-        public async Task<TravelDocumentsDisplayDto> getExpenseProofById(int id)
+        public async Task<TravelDocumentsDisplayDto> getDocumentsByTravelDocumentId(int id)
         {
-            var traveldocument = await _context.ExpenseProof.FindAsync(id);
+            var traveldocument = await _context.TravelDocuments.FindAsync(id);
             if (traveldocument == null)
             {
                 return null;
@@ -57,5 +58,14 @@ namespace HRMS_Backend.Services.TravelandExpenses
             return _mapper.Map<TravelDocumentsDisplayDto>(traveldocument);
         }
 
+        public async Task<List<TravelDocumentsDisplayDto>> getDocumentsByTravelAssignedId(int id)
+        {
+            var expense = await _context.TravelDocuments.Where(ex => ex.TravelAssignmentId == id).ToListAsync();
+            if (expense == null)
+            {
+                return null;
+            }
+            return _mapper.Map<List<TravelDocumentsDisplayDto>>(expense);
+        }
     }
 }

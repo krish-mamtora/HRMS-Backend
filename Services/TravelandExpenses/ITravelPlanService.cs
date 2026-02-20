@@ -14,5 +14,7 @@ namespace HRMS_Backend.Services.TravelandExpenses
 
         Task<bool> UpdatePlanById(int id, TravelCreateUpdateDto dto);
         Task<bool> DeletePlanById(int id);
+
+       Task<DateTime?> GetToDate(int id);
     }
 }

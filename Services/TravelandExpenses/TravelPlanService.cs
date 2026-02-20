@@ -100,6 +100,15 @@ namespace HRMS_Backend.Services.TravelandExpenses
             }
         }
 
-     
+        public async Task<DateTime?> GetToDate(int id)
+        {
+            var plan = await _context.TravelPlan.FindAsync(id);
+            if (plan == null)
+            {
+                return null;
+            }
+            return plan.EndDate;
+        }
+
     }
 }

@@ -7,5 +7,6 @@ namespace HRMS_Backend.Services.TravelandExpenses
     {
         Task<TravelDocuments> uploadTravelDocument(TravelDocumentsCreateUpdateDto dto);
         Task<TravelDocumentsDisplayDto> getDocumentsByTravelDocumentId(int id);
+        Task<List<TravelDocumentsDisplayDto>> getDocumentsByTravelAssignedId(int id);
     }
 }
