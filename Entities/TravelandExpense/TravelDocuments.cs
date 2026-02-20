@@ -21,9 +21,16 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public string Description { get; set; } = string.Empty;
 
         [Required]
+        //public int TravelPlanId { get; set; }
+        ////[ForeignKey("TravelPlanId")]
+        //public TravelPlan TravelPlan { get; set; }
+
+       
         public int TravelAssignmentId { get; set; }
         [ForeignKey("TravelAssignmentId")]
         public TravelAssignment TravelAssignment { get; set; }
+
+
 
         [Required]
         public string TravelDocumentUrl { get; set; } = string.Empty;

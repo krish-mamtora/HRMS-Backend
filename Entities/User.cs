@@ -37,6 +37,8 @@ namespace HRMS_Backend.Entities
         //[NotMapped]
         //public ICollection<UserProfile> UserProfile { get;set;}
         public ICollection<TravelExpense> TravelExpense { get; set; }
+        public ICollection<TravelDocuments> TravelDocuments { get; set; }
+        public ICollection<TravelAssignEmail> TravelAssignEmail { get; set; }
     }
 }
 

@@ -81,6 +81,18 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             }
             return Ok("Plan updated successfully");
         }
-    
+
+        [HttpGet("date/{id}")]
+       public async Task<IActionResult> GetToDate(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid ID");
+            DateTime? result = await _service.GetToDate(id);
+            if (!result.HasValue)
+            {
+                return NotFound("Plan not found");
+            }
+            return Ok(result);
+        }
     }
 }

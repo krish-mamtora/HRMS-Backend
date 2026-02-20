@@ -14,7 +14,6 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public int EmpId { get; set; }
         [ForeignKey("EmpId")]
         public User User { get; set; }
-
         public int PId {  get; set; }
         [ForeignKey("PId")]
         public TravelPlan TravelPlan { get; set; }

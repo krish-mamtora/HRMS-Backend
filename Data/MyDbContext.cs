@@ -8,6 +8,8 @@ using HRMS_Backend.Entities.FixEntityUserProfile;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Cryptography.X509Certificates;
+using HRMS_Backend.Migrations;
+using TravelDocuments = HRMS_Backend.Entities.TravelandExpense.TravelDocuments;
 
 namespace HRMS_Backend.Data
 {
@@ -33,6 +35,12 @@ namespace HRMS_Backend.Data
                 .WithMany()
                 .HasForeignKey(j => j.ManagedBy)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<TravelDocuments>()
+            //    .HasOne(td=>td.TravelPlan)
+            //    .WithMany(td => td.TravelDocuments)
+            //    .HasForeignKey(td => td.TravelPlanId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Referals>()
                 .HasOne(r=>r.Job)
@@ -107,11 +115,13 @@ namespace HRMS_Backend.Data
         public DbSet<TravelAssignment> TravelAssignment { get; set; }
         public DbSet<FileModel2> FileModel2 { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
-
         public DbSet<ShareEmail> ShareEmail { get; set; }
         public DbSet<Expenses> Expenses { get; set; }
         public DbSet<TravelExpense>TravelExpense { get; set; }
         public DbSet<ExpenseProof> ExpenseProof { get; set; }
+        public DbSet<TravelDocuments> TravelDocuments { get; set; }
+
+        public DbSet<TravelAssignEmail> TravelAssignEmail { get; set; }
 
     }
 
