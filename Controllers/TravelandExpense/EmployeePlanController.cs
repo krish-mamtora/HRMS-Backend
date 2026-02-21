@@ -90,6 +90,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             return Ok(new { message = "Email send successfully!" });
         }
 
+
         [HttpGet("plan/", Name = "getAllAssignDetails")]
         public async Task<IActionResult> getAllAssignDetails()
         {

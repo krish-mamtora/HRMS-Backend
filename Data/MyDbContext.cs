@@ -123,6 +123,7 @@ namespace HRMS_Backend.Data
 
         public DbSet<TravelAssignEmail> TravelAssignEmail { get; set; }
 
+        public DbSet<ExpenseCreateEmail> ExpenseCreateEmail { get; set; }
     }
 
 }
