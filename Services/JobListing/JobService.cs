@@ -1,12 +1,17 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
+using HRMS_Backend.Entities;
+using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model;
 using HRMS_Backend.Model.JobListing;
+using HRMS_Backend.Model.TravelandExpense;
+
+//using HRMS_Backend.Services.Jobs;
 using Microsoft.EntityFrameworkCore;
 
-namespace HRMS_Backend.Services.Jobs
+namespace HRMS_Backend.Services.JobListing
 {
-    public class JobService : IJobsService
+    public class JobService : IJobService
     {
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
@@ -17,14 +22,49 @@ namespace HRMS_Backend.Services.Jobs
         public async Task<IEnumerable<JobResponseDto>> GetAllJobsAsync()
         {
             var Jobs = await _context.Jobs.ToListAsync();
-            var JobDtos = _mapper.Map<IEnumerable<JobResponseDto>>(Jobs);
-            return JobDtos;
+            return _mapper.Map<IEnumerable<JobResponseDto>>(Jobs);
         }
 
-        public async Task CreateJobAsync(JobCreateUpdateDto jobCreateUpdateDto)
+        public async Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync()
         {
-            //var todo = _mapper.Map<>
-            
+            var plans = await _context.TravelPlan.ToListAsync();
+            return _mapper.Map<IEnumerable<TravelResponseDto>>(plans);
+        }
+        public async Task<Jobs> CreateJobAsync(JobCreateUpdateDto dto)
+        {
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
+
+            //if (dto.ManagedBy == null)
+            //    throw new ArgumentException("ManagedBy is required", nameof(dto.ManagedBy));
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == dto.ManagedBy);
+            if (!userExists)
+            {
+                throw new Exception($"User with ID {dto.ManagedBy} does not exist. Cannot assign as Manager.");
+            }
+
+            var job = new Jobs
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Status = dto.Status,
+                ExpYearsReq = dto.ExpYearsReq,
+                Role = dto.Role,
+                JdUrl = dto.JdUrl,
+                TotalPositions = dto.TotalPositions,
+                ContactMail = dto.ContactMail,
+                ManagedBy = dto.ManagedBy,
+            };
+            await _context.Jobs.AddAsync(job);
+            await _context.SaveChangesAsync();
+            return job;
+        }
+        public async Task<JobResponseDto?> GetJobByIdAsync(int id)
+        {
+            var Jobs = await _context.Jobs.FindAsync(id);
+            var JobDtos = _mapper.Map<JobResponseDto>(Jobs);
+            return JobDtos;
         }
     }
 }

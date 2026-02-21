@@ -9,8 +9,10 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public Games Games { get; set; }
         public int GamesId { get; set; }
+        [ForeignKey("GamesId")]
+        public Games Games { get; set; }
+
         [Required(ErrorMessage ="Start Time is Required")]
         public TimeOnly StartTime { get; set; }
 

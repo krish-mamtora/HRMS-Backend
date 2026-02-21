@@ -1,0 +1,91 @@
+﻿using AutoMapper;
+using HRMS_Backend.Data;
+using HRMS_Backend.Entities;
+//using HRMS_Backend.Model.UserProfile;
+using HRMS_Backend.Model.DtoUserProfile;
+using Microsoft.EntityFrameworkCore;
+
+namespace HRMS_Backend.Services.ServiceUserProfile
+{
+    public class UserProfileService : IUserProfileService
+    {
+        private readonly MyDbContext _context;
+        private readonly IMapper _mapper;
+        public UserProfileService(MyDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+        public async Task<IEnumerable<UserProfileDisplayDto>> GetAllUsersAsync()
+        {
+            var users = await _context.UserProfile.ToListAsync();
+            return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
+        }
+
+        public async Task<UserProfileDisplayDto> GetUserByIdAsync(int id)
+        {
+            var user = await _context.UserProfile.FindAsync(id);
+            return _mapper.Map<UserProfileDisplayDto>(user);
+        }
+        public async Task<UserProfileDisplayDto> CreateUserAsync(UserProfileCreateUpdateDto createUserDto)
+        {
+            //var user = _mapper.Map<UserProfile>(createUserDto);
+            //HRMS_Backend.Model.;
+            var user = new HRMS_Backend.Entities.FixEntityUserProfile.UserProfile
+            {
+                // Assuming properties like Name, Email, etc.
+                IsActive = createUserDto.IsActive,
+                FirstName = createUserDto.FirstName,
+                LastName = createUserDto.LastName,
+                Gender = createUserDto.Gender,
+                Address = createUserDto.Address,
+                Age = createUserDto.Age,
+                Department = createUserDto.Department,
+                ManagerId = createUserDto.ManagerId,
+                UserProfileId = createUserDto.UserProfileId,
+            };
+
+            _context.UserProfile.Add(user);
+            await _context.SaveChangesAsync();
+
+            return new UserProfileDisplayDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Gender = user.Gender,
+                Address = user.Address,
+                Age = user.Age,
+                Department = user.Department,
+                ManagerId = user.ManagerId,
+                UserProfileId = user.UserProfileId,
+                IsActive = user.IsActive,
+            };
+
+            //_context.UserProfile.Add(user);
+
+            //await _context.SaveChangesAsync();
+            //return _mapper.Map<UserProfileDisplayDto>(user);
+        }
+        public async Task<bool> UpdateUserAsync(int id, UserProfileCreateUpdateDto updateUserDto)
+        {
+            var user = await _context.UserProfile.FindAsync(id);
+            if (user == null) return false;
+
+            _mapper.Map(updateUserDto, user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _context.UserProfile.FindAsync(id);
+            if (user == null)
+            {
+                return false;
+            }
+            _context.UserProfile.Remove(user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+    }
+}

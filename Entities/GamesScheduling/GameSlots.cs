@@ -20,7 +20,7 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         [Required(ErrorMessage = "End Time is required")]
         public DateTime EndTime { get; set; }
         [Required]
-        public Boolean IsAvailable { get; set; }
+        public bool IsAvailable { get; set; }
 
     }
 }
