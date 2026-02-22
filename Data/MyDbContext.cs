@@ -8,8 +8,9 @@ using HRMS_Backend.Entities.FixEntityUserProfile;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Cryptography.X509Certificates;
-using HRMS_Backend.Migrations;
+//using HRMS_Backend.Migrations;
 using TravelDocuments = HRMS_Backend.Entities.TravelandExpense.TravelDocuments;
+using ShareEmail = HRMS_Backend.Entities.JobListing.ShareEmail;
 
 namespace HRMS_Backend.Data
 {
@@ -113,12 +114,13 @@ namespace HRMS_Backend.Data
         public DbSet<TravelPlan> TravelPlan { get; set; }
         public DbSet<Referals> Referals { get; set; }
         public DbSet<TravelAssignment> TravelAssignment { get; set; }
-        public DbSet<FileModel2> FileModel2 { get; set; }
+        //public DbSet<FileModel2> FileModel2 { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<ShareEmail> ShareEmail { get; set; }
         public DbSet<Expenses> Expenses { get; set; }
         public DbSet<TravelExpense>TravelExpense { get; set; }
         public DbSet<ExpenseProof> ExpenseProof { get; set; }
+        public DbSet<ExpensePolicy> ExpensePolicy { get; set; }
         public DbSet<TravelDocuments> TravelDocuments { get; set; }
 
         public DbSet<TravelAssignEmail> TravelAssignEmail { get; set; }

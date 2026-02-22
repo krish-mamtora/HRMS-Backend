@@ -13,7 +13,6 @@ namespace HRMS_Backend.Entities.TravelandExpense
         [ForeignKey("TravelAssignId")]
         public TravelAssignment TravelAssignment;
 
-
         [Required]
         public int? ExpenseType { get; set; }
         [ForeignKey("ExpenseType")]
@@ -21,6 +20,7 @@ namespace HRMS_Backend.Entities.TravelandExpense
 
         [StringLength(100)]
         public string Description { get; set; }
+        public DateTime ExpenseDate { get; set; }
         [Required]
         [Column(TypeName = "decimal(7, 2)")]
         public decimal Amount { get; set; } = 0;
@@ -28,8 +28,13 @@ namespace HRMS_Backend.Entities.TravelandExpense
         public string Status { get; set; } = "pending";
         public string? HrRemarks { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
         public int? ApprovedBy { get; set; }
         [ForeignKey("ApprovedBy")]
         public User HrApprover { get; set; }
+
+        public ICollection<ExpenseCreateEmail> ExpenseCreateEmail { get; set; }
+
     }
 }

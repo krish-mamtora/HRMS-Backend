@@ -14,8 +14,11 @@ namespace HRMS_Backend.Model.TravelandExpense
         public string Status { get; set; } = "pending";
 
         public string Description { get; set; }
+        public DateTime ExpenseDate { get; set; }
         public string? HrRemarks { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
         public int? ApprovedBy { get; set; }
 
     }

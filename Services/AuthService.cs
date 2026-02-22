@@ -1,5 +1,6 @@
 ﻿using HRMS_Backend.Data;
 using HRMS_Backend.Entities;
+using HRMS_Backend.Entities.FixEntityUserProfile;
 using HRMS_Backend.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,13 +64,27 @@ namespace HRMS_Backend.Services
             {
                 return null;
             }
-            var user = new User();
-            user.Email = request.Email;
+            //var user = new User();
+
+            //user.Email = request.Email;
+            var user = new User
+            {
+                Email = request.Email,
+                Role = "Employee",                           
+                UserProfile = new UserProfile
+                {
+                    FirstName = "New",
+                    LastName = "User",
+                    JoinDate = DateTime.UtcNow,
+                    IsActive = true,
+                    ManagerId = 1
+                }
+            };
             user.PasswordHash = new PasswordHasher<User>()
                 .HashPassword(user, request.Password);
+      
             await context.Users.AddAsync(user);
             await context.SaveChangesAsync();
-
             return (user);
         }
 

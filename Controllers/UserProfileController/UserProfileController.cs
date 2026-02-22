@@ -49,5 +49,7 @@ namespace HRMS_Backend.Controllers.UserProfileController
             var createProfile = await _service.CreateUserAsync(dto);
             return CreatedAtAction(nameof(GetUserById), new { id = createProfile.UserProfileId }, createProfile);
         }
+
+      
     }
 }

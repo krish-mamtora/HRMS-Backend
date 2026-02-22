@@ -1,6 +1,7 @@
 ﻿using HRMS_Backend.Entities.TravelandExpense;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HRMS_Backend.Entities.FixEntityUserProfile
 {
@@ -22,6 +23,7 @@ namespace HRMS_Backend.Entities.FixEntityUserProfile
         public string FavouriteSport { get; set; } = string.Empty;
         public DateTime JoinDate { get; set; }
         public bool IsActive { get; set; }
+        [JsonIgnore]
         public User User { get; set; }
     }
 }
