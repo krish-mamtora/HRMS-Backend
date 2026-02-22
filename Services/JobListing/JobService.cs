@@ -62,6 +62,7 @@ namespace HRMS_Backend.Services.JobListing
                 ExpYearsReq = dto.ExpYearsReq,
                 Role = dto.Role,
                 JdUrl = uniqueFileName,
+                ReviewerEmail = dto.ReviewerEmail,
                 TotalPositions = dto.TotalPositions,
                 ContactMail = dto.ContactMail,
                 ManagedBy = dto.ManagedBy,

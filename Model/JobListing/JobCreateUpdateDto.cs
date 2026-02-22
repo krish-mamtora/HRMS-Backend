@@ -23,6 +23,8 @@ namespace HRMS_Backend.Model.JobListing
         [Required(ErrorMessage = "Role is required")]
         public string Role {  get; set; } = string.Empty;
 
+        public string ReviewerEmail { get; set; } = string.Empty;
+
         [Required]
        public  int TotalPositions { get; set; }
 
