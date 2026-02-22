@@ -5,8 +5,7 @@ namespace HRMS_Backend.Model.JobListing
 {
     public class JobCreateUpdateDto
     {
-        [Required]
-        public int Id { get; set; }
+        public int? Id { get; set; }
         [StringLength(50)]
         [Required(ErrorMessage = "Title is required")]
         public string Title { get; set; } = string.Empty;
@@ -30,9 +29,8 @@ namespace HRMS_Backend.Model.JobListing
         [Range(0, 50, ErrorMessage = "Experience Should be in range 0 to 50")]
        public  int ExpYearsReq { get; set; }
 
-        [StringLength(100)]
-        [Required(ErrorMessage = "Job Description is required")]
-       public  string JdUrl { get; set; } = string.Empty ;
+        [NotMapped]
+        public IFormFile? JdUrl { get; set; } 
 
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string ContactMail { get; set; } = string.Empty;

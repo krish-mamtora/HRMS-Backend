@@ -17,5 +17,6 @@ namespace HRMS_Backend.Model.JobListing
 
         [StringLength(200)]
         public string Message { get; set; } = string.Empty;
+        public IFormFile? JobDescriptionPdf { get; set; }
     }
 }

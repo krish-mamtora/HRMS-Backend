@@ -5,6 +5,8 @@ using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using Microsoft.AspNetCore.Mvc;
+
 
 //using HRMS_Backend.Services.Jobs;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +17,12 @@ namespace HRMS_Backend.Services.JobListing
     {
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
-        public JobService(MyDbContext context , IMapper mapper) {
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public JobService(MyDbContext context , IMapper mapper, IWebHostEnvironment hostingEnvironment = null)
+        {
             _context = context;
             _mapper = mapper;
+            _hostingEnvironment = hostingEnvironment;
         }
         public async Task<IEnumerable<JobResponseDto>> GetAllJobsAsync()
         {
@@ -30,18 +35,23 @@ namespace HRMS_Backend.Services.JobListing
             var plans = await _context.TravelPlan.ToListAsync();
             return _mapper.Map<IEnumerable<TravelResponseDto>>(plans);
         }
-        public async Task<Jobs> CreateJobAsync(JobCreateUpdateDto dto)
+        public async Task<Jobs> CreateJobAsync([FromForm]  JobCreateUpdateDto dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
 
-            //if (dto.ManagedBy == null)
-            //    throw new ArgumentException("ManagedBy is required", nameof(dto.ManagedBy));
-
-            var userExists = await _context.Users.AnyAsync(u => u.Id == dto.ManagedBy);
-            if (!userExists)
+            string uniqueFileName = string.Empty;
+            if (dto.JdUrl != null)
             {
-                throw new Exception($"User with ID {dto.ManagedBy} does not exist. Cannot assign as Manager.");
+                string uploadsFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "JD");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(dto.JdUrl.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.JdUrl.CopyToAsync(fileStream);
+                }
             }
 
             var job = new Jobs
@@ -51,7 +61,7 @@ namespace HRMS_Backend.Services.JobListing
                 Status = dto.Status,
                 ExpYearsReq = dto.ExpYearsReq,
                 Role = dto.Role,
-                JdUrl = dto.JdUrl,
+                JdUrl = uniqueFileName,
                 TotalPositions = dto.TotalPositions,
                 ContactMail = dto.ContactMail,
                 ManagedBy = dto.ManagedBy,
