@@ -1,5 +1,6 @@
 ﻿using HRMS_Backend.Entities.Achievements;
 using HRMS_Backend.Entities.FixEntityUserProfile;
+using HRMS_Backend.Entities.GamesScheduling;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,9 @@ namespace HRMS_Backend.Entities
         public ICollection<TravelExpense> TravelExpense { get; set; }
         public ICollection<TravelDocuments> TravelDocuments { get; set; }
         public ICollection<TravelAssignEmail> TravelAssignEmail { get; set; }
+        public ICollection<BookingParticipants> BookingParticipants { get; set; }
+        public ICollection<EmployeeCycleStats> EmployeeCycleStats { get; set; }
+
     }
 }
 

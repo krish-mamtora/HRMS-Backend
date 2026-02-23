@@ -170,6 +170,162 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("UserProfile");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.BookingParticipants", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BookingsBId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmpId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("BookingsBId");
+
+                    b.HasIndex("EmpId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BookingParticipants");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>
+                {
+                    b.Property<int>("BId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BId"));
+
+                    b.Property<string>("BookedAt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BookedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SlotPlayed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("BId");
+
+                    b.HasIndex("BookedBy");
+
+                    b.HasIndex("SlotId");
+
+                    b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.EmployeeCycleStats", b =>
+                {
+                    b.Property<int>("SId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SId"));
+
+                    b.Property<int>("GameCycleId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("SlotPlayed")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SId");
+
+                    b.HasIndex("GameCycleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmployeeCycleStats");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
+                {
+                    b.Property<int>("CycleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CycleId"));
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GamesId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CycleId");
+
+                    b.HasIndex("GamesId");
+
+                    b.ToTable("GameCycle");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.WaitingQueue", b =>
+                {
+                    b.Property<int>("QueueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QueueId"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CycleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("QueueId");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("CycleId");
+
+                    b.HasIndex("SlotId");
+
+                    b.ToTable("WaitingQueue");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
                 {
                     b.Property<int>("Id")
@@ -195,7 +351,8 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GamesId");
+                    b.HasIndex("GamesId")
+                        .IsUnique();
 
                     b.ToTable("GameConfiguration");
                 });
@@ -222,7 +379,8 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GamesId");
+                    b.HasIndex("GamesId", "StartTime")
+                        .IsUnique();
 
                     b.ToTable("GameSlots");
                 });
@@ -910,6 +1068,109 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.BookingParticipants", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", "Bookings")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", null)
+                        .WithMany("BookingParticipants")
+                        .HasForeignKey("BookingsBId");
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("EmpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("BookingParticipants")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("BookedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
+                        .WithMany("Bookings")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameSlots");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.EmployeeCycleStats", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", "GameCycle")
+                        .WithMany("EmployeeCycleStats")
+                        .HasForeignKey("GameCycleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("EmployeeCycleStats")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameCycle");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.Games", "Games")
+                        .WithMany("GameCycle")
+                        .HasForeignKey("GamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.WaitingQueue", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", "Bookings")
+                        .WithMany("WaitingQueue")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", "GameCycle")
+                        .WithMany()
+                        .HasForeignKey("CycleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
+                        .WithMany("WaitingQueue")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("GameCycle");
+
+                    b.Navigation("GameSlots");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.Games_Scheduling.Games", "Games")
@@ -1170,9 +1431,30 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("Posts");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>
+                {
+                    b.Navigation("BookingParticipants");
+
+                    b.Navigation("WaitingQueue");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
+                {
+                    b.Navigation("EmployeeCycleStats");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameSlots", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("WaitingQueue");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.Games", b =>
                 {
                     b.Navigation("GameConfigurations");
+
+                    b.Navigation("GameCycle");
 
                     b.Navigation("GameSlots");
                 });
@@ -1214,6 +1496,10 @@ namespace HRMS_Backend.Migrations
 
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
+                    b.Navigation("BookingParticipants");
+
+                    b.Navigation("EmployeeCycleStats");
+
                     b.Navigation("Expenses");
 
                     b.Navigation("Jobs");

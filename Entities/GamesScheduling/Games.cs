@@ -11,11 +11,11 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         public int Id { get; set; }
 
         [StringLength(50)]
-        [Required(ErrorMessage = "Game ID is required")]
+        [Required(ErrorMessage = "Game Name is required")]
         public string Name { get; set; } = string.Empty;
 
         [StringLength(100)]
-        [Required(ErrorMessage = "Game Name is required")]
+        [Required(ErrorMessage = "Game Location is required")]
         public string Location { get; set; } = string.Empty;
         [Required]
         public bool IsAvailable { get; set; }

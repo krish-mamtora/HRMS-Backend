@@ -99,7 +99,20 @@ namespace HRMS_Backend.Data
                 .HasForeignKey(ep=>ep.EmplId)
                 .OnDelete(DeleteBehavior.Restrict);
                 
-            
+            modelBuilder.Entity<BookingParticipants>()
+                .HasOne(bp=>bp.User)
+                .WithMany()
+                .HasForeignKey(bp=>bp.EmpId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BookingParticipants>()
+                .HasOne(bp=>bp.Bookings)
+                .WithMany()
+                .HasForeignKey(bp=>bp.BookingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<WaitingQueue>()
+            //    .
 
         }
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
@@ -127,6 +140,9 @@ namespace HRMS_Backend.Data
         public DbSet<ExpenseCreateEmail> ExpenseCreateEmail { get; set; }
         public DbSet<GameCycle> GameCycle { get; set; }
         public DbSet<EmployeeCycleStats> EmployeeCycleStats { get; set; }
+        public DbSet<Bookings> Bookings { get; set; }
+        public DbSet<WaitingQueue> WaitingQueue { get; set; }
+        public DbSet<BookingParticipants> BookingParticipants { get; set; }
     }
 
 }

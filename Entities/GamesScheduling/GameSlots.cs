@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HRMS_Backend.Entities.GamesScheduling;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,9 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         public DateTime EndTime { get; set; }
         [Required]
         public bool IsAvailable { get; set; }
+        public ICollection<Bookings> Bookings { get; set; }
+
+        public ICollection<WaitingQueue> WaitingQueue { get; set; }
 
     }
 }
