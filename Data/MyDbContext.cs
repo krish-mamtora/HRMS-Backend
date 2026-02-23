@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 //using HRMS_Backend.Migrations;
 using TravelDocuments = HRMS_Backend.Entities.TravelandExpense.TravelDocuments;
 using ShareEmail = HRMS_Backend.Entities.JobListing.ShareEmail;
+using HRMS_Backend.Entities.GamesScheduling;
 
 namespace HRMS_Backend.Data
 {
@@ -122,10 +123,10 @@ namespace HRMS_Backend.Data
         public DbSet<ExpenseProof> ExpenseProof { get; set; }
         public DbSet<ExpensePolicy> ExpensePolicy { get; set; }
         public DbSet<TravelDocuments> TravelDocuments { get; set; }
-
         public DbSet<TravelAssignEmail> TravelAssignEmail { get; set; }
-
         public DbSet<ExpenseCreateEmail> ExpenseCreateEmail { get; set; }
+        public DbSet<GameCycle> GameCycle { get; set; }
+        public DbSet<EmployeeCycleStats> EmployeeCycleStats { get; set; }
     }
 
 }

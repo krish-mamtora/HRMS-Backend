@@ -3,6 +3,7 @@ using HRMS_Backend.Data;
 using HRMS_Backend.Entities.Games_Scheduling;
 //using HRMS_Backend.Migrations;
 using HRMS_Backend.Model.GameScheduling;
+using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
@@ -38,28 +39,32 @@ namespace HRMS_Backend.Services.GameScheduling
             await _context.SaveChangesAsync();
             return gameConfig;
         }
-        //public async Task<bool> UpdateGameConfigurationAsync(int id, GameConfigCreateUpdateDto dto)
-        //{
-        //    var gameconfig = await _context.GameConfiguration.FindAsync(id);
-        //    if (gameconfig == null)
-        //    {
-        //        return false;
-        //    }
-        //    _mapper.Map(dto, gameconfig);
+        public async Task<IEnumerable<GameConfigDisplayDto>> GetAllConfigAsync()
+        {
+            var config = await _context.GameConfiguration.ToListAsync();
+            return _mapper.Map<IEnumerable<GameConfigDisplayDto>>(config);
+        }
+        public async Task<bool> UpdateGameConfigurationAsync(int id, GameConfigCreateUpdateDto dto)
+        {
+            var gameconfig = await _context.GameConfiguration.FindAsync(id);
+            if (gameconfig == null)
+            {
+                return false;
+            }
+            _mapper.Map(dto, gameconfig);
 
-        //    try
-        //    {
-        //        _context.GameConfiguration.Update(gameconfig);
-        //        await _context.SaveChangesAsync();
-        //        return true;
-        //    }
-        //    catch (DbUpdateException e)
-        //    {
-        //        Console.WriteLine(e.Message);
-        //        return false;
-        //    }
-        //}
-
+            try
+            {
+                _context.GameConfiguration.Update(gameconfig);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+        }
         public async Task<GameConfigDisplayDto> getGameConfigByIdAsync(int id)
         {
             if (id == null)

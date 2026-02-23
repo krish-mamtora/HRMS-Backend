@@ -38,5 +38,16 @@ namespace HRMS_Backend.Controllers.GameScheduling
             }
             return Ok(GameConfig);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllConfigAsync()
+        {
+            var gameConfig = await _service.GetAllConfigAsync();
+            if (gameConfig == null || !gameConfig.Any())
+            {
+                return NotFound("No Config found");
+            }
+            return Ok(gameConfig);
+        }
     }
 }

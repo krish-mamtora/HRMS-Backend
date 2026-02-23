@@ -9,6 +9,7 @@ namespace HRMS_Backend.Services.GameScheduling
 
         Task<GameConfiguration> AddGameConfigurationAsync(GameConfigCreateUpdateDto dto);
         Task<GameConfigDisplayDto> getGameConfigByIdAsync(int id);
-        //Task<IEnumerable> UpdateGameConfigurationAsync(GameConfigCreateUpdateDto dto);
+        Task<bool> UpdateGameConfigurationAsync(int id, GameConfigCreateUpdateDto dto);
+        Task<IEnumerable<GameConfigDisplayDto>> GetAllConfigAsync();
     }
 }
