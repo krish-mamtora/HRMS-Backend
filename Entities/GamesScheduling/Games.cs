@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HRMS_Backend.Entities.GamesScheduling;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.Games_Scheduling
@@ -20,5 +21,6 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         public bool IsAvailable { get; set; }
         public ICollection<GameConfiguration> GameConfigurations { get; set; }
         public ICollection<GameSlots> GameSlots { get; set; }
+        public ICollection<GameCycle> GameCycle { get; set; }
     }
 }
