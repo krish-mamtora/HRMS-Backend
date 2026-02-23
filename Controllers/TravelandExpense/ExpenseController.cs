@@ -25,6 +25,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
        
         [HttpPost]
+        [Authorize(Roles = "Employee")]
         public async Task<ActionResult> CreateTravelExpense([FromBody] ExpenseCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -115,6 +116,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "HR")]
         public async Task<IActionResult> UpdateExpenseByIdAsync([FromBody] ExpenseCreateUpdateDto dto, int id)
         {
             if (!ModelState.IsValid)

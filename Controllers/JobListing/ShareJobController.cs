@@ -22,6 +22,7 @@ namespace HRMS_Backend.Controllers.JobListing
             _context = context;
         }
 
+        [Authorize(Roles = "Employee")]
         [HttpPost]
         public async Task<IActionResult> ShareJob([FromForm] ShareMailCreateUpdateDto dto)
         {

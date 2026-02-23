@@ -24,7 +24,7 @@ namespace HRMS_Backend.Controllers.JobListing
             _context = context;
             _emailService = emailService;
         }
-
+        [Authorize(Roles = "Employee")]
         [HttpPost]
         public async Task<IActionResult?> CreateReferalAsync([FromForm] JobRefferalCreateUpdateDto dto)
         {

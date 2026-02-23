@@ -25,7 +25,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             _context = context;
             _emailService = emailservice;
         }
-
+        [Authorize(Roles = "HR")]
         [HttpPost]
         public async Task<IActionResult> CreateBulkPlan([FromBody] BulkTravelAssignmentDto dto)
         {
@@ -44,8 +44,9 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 return BadRequest(new { message = ex.Message });
             }
         }
-
+        [Authorize(Roles = "HR")]
         [HttpPost("notifyTravel/", Name = "NotifyForTravelPlan")]
+
         public async Task<IActionResult> NotifyForTravelPlan([FromBody] ShareTravelPlanMailCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)

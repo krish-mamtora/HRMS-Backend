@@ -48,7 +48,7 @@ namespace HRMS_Backend.Controllers.JobListing
             return File(fileBytes, "application/pdf", fileName);
         }
 
-
+        [Authorize(Roles = "HR")]
         [HttpPost]
         public async Task<IActionResult> CreateJob([FromForm] JobCreateUpdateDto dto)
         {
