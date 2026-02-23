@@ -27,6 +27,11 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             var user = await _context.UserProfile.FindAsync(id);
             return _mapper.Map<UserProfileDisplayDto>(user);
         }
+        public async Task<IEnumerable<UserProfileDisplayDto>> GetUsersByManagerIdAsync(int id)
+        {
+            var users = await _context.UserProfile.Where(up=>up.ManagerId==id).ToListAsync();
+            return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
+        }
         public async Task<UserProfileDisplayDto> CreateUserAsync(UserProfileCreateUpdateDto createUserDto)
         {
             //var user = _mapper.Map<UserProfile>(createUserDto);
@@ -38,6 +43,7 @@ namespace HRMS_Backend.Services.ServiceUserProfile
                 FirstName = createUserDto.FirstName,
                 LastName = createUserDto.LastName,
                 Gender = createUserDto.Gender,
+                Designation = createUserDto.Designation,
                 Address = createUserDto.Address,
                 Age = createUserDto.Age,
                 Department = createUserDto.Department,
@@ -54,6 +60,7 @@ namespace HRMS_Backend.Services.ServiceUserProfile
                 LastName = user.LastName,
                 Gender = user.Gender,
                 Address = user.Address,
+                Designation = user.Designation,
                 Age = user.Age,
                 Department = user.Department,
                 ManagerId = user.ManagerId,

@@ -134,6 +134,10 @@ namespace HRMS_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FavouriteSport")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -279,6 +283,10 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<int>("ManagedBy")
                         .HasColumnType("int");
+
+                    b.Property<string>("ReviewerEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()
