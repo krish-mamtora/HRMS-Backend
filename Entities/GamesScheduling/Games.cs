@@ -18,7 +18,7 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         public string Location { get; set; } = string.Empty;
         [Required]
         public bool IsAvailable { get; set; }
-        public ICollection<GameConfiguration> GameConfigurations { get; set; } = new List<GameConfiguration>();
-        public ICollection<GameSlots> GameSlots { get; set; } = new HashSet<GameSlots>();
+        public ICollection<GameConfiguration> GameConfigurations { get; set; }
+        public ICollection<GameSlots> GameSlots { get; set; }
     }
 }

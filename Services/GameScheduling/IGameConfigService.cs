@@ -7,7 +7,8 @@ namespace HRMS_Backend.Services.GameScheduling
     public interface IGameConfigService
     {
 
-        //Task<GameConfiguration> AddGameConfigurationAsync(GameConfigCreateUpdateDto dto);
+        Task<GameConfiguration> AddGameConfigurationAsync(GameConfigCreateUpdateDto dto);
+        Task<GameConfigDisplayDto> getGameConfigByIdAsync(int id);
         //Task<IEnumerable> UpdateGameConfigurationAsync(GameConfigCreateUpdateDto dto);
     }
 }

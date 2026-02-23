@@ -68,7 +68,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<ITravelPlanService, TravelPlanService>();
 builder.Services.AddScoped<IEmployeeTravelService, EmployeeTravelService>();
-//builder.Services.AddScoped<IGameConfigService, GameConfigService>();
+builder.Services.AddScoped<IGameConfigService, GameConfigService>();
 builder.Services.AddScoped<IGamesService, GamesService>();
 //builder.Services.AddScoped<IReferService, ReferService>();
 //builder.Services.AddScoped<IUserService, UserService>();
