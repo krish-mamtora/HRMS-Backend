@@ -31,7 +31,7 @@ namespace HRMS_Backend.Services.GameScheduling
             var slotDuration = gameConfig.SlotDuration;  // minute ma 
             var startTime = gameConfig.StartTime;       
             var endTime = gameConfig.OverTime;         
-
+            
             var totalMinutes = (endTime- startTime).TotalMinutes;
 
             if (totalMinutes <= 0)
@@ -47,10 +47,12 @@ namespace HRMS_Backend.Services.GameScheduling
                 var gameSlot = new GameSlots
                 {
                     GamesId = gamesId,
-                     StartTime = slotStartDateTime,
-
+                    StartTime = slotStartDateTime,
+                    Capacity = gameConfig.Capacity,
+                    Assigned = 0,
+                    AvailableSeats = gameConfig.Capacity,
                     EndTime = slotEndDateTime,
-                    IsAvailable = true
+                    IsBookingOpen = true
                 };
 
                 try

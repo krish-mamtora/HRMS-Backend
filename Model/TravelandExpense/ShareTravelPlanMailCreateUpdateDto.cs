@@ -9,7 +9,7 @@ namespace HRMS_Backend.Model.TravelandExpense
         [Required]
         [StringLength(100)]
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        public string ReceiverMail { get; set; } = string.Empty;
+        public string ReceiverMail { get; set; }
         public int EmpId { get; set; }
 
         [StringLength(100)]

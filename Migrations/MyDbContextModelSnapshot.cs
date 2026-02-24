@@ -305,7 +305,13 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BookingsBId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CycleId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GameSlotsId")
                         .HasColumnType("int");
 
                     b.Property<int>("SlotId")
@@ -319,7 +325,11 @@ namespace HRMS_Backend.Migrations
 
                     b.HasIndex("BookingId");
 
+                    b.HasIndex("BookingsBId");
+
                     b.HasIndex("CycleId");
+
+                    b.HasIndex("GameSlotsId");
 
                     b.HasIndex("SlotId");
 
@@ -365,13 +375,22 @@ namespace HRMS_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Assigned")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AvailableSeats")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("GamesId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsAvailable")
+                    b.Property<bool>("IsBookingOpen")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("StartTime")
@@ -1147,21 +1166,29 @@ namespace HRMS_Backend.Migrations
             modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.WaitingQueue", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", "Bookings")
-                        .WithMany("WaitingQueue")
+                        .WithMany()
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", null)
+                        .WithMany("WaitingQueue")
+                        .HasForeignKey("BookingsBId");
+
                     b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", "GameCycle")
                         .WithMany()
                         .HasForeignKey("CycleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", null)
                         .WithMany("WaitingQueue")
+                        .HasForeignKey("GameSlotsId");
+
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
+                        .WithMany()
                         .HasForeignKey("SlotId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Bookings");
