@@ -321,6 +321,12 @@ namespace HRMS_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId1")
+                        .HasColumnType("int");
+
                     b.HasKey("QueueId");
 
                     b.HasIndex("BookingId");
@@ -332,6 +338,10 @@ namespace HRMS_Backend.Migrations
                     b.HasIndex("GameSlotsId");
 
                     b.HasIndex("SlotId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("WaitingQueue");
                 });
@@ -1191,11 +1201,23 @@ namespace HRMS_Backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("WaitingQueue")
+                        .HasForeignKey("UserId1");
+
                     b.Navigation("Bookings");
 
                     b.Navigation("GameCycle");
 
                     b.Navigation("GameSlots");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
@@ -1551,6 +1573,8 @@ namespace HRMS_Backend.Migrations
 
                     b.Navigation("UserProfile")
                         .IsRequired();
+
+                    b.Navigation("WaitingQueue");
                 });
 #pragma warning restore 612, 618
         }

@@ -81,6 +81,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddScoped<IShareEmailService, ShareEmailService>();
 builder.Services.AddScoped<IExpenseProofService, ExpenseProofService>();
 builder.Services.AddScoped<ITravelDocumentsService, TravelDocumentsService>();
+builder.Services.AddScoped<IWaitingQueueService, WaitingQueueService>();
+builder.Services.AddScoped<IGameCycleService, GameCycleService>();
 
 var app = builder.Build();
 

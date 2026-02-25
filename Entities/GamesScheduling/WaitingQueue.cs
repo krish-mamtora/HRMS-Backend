@@ -13,6 +13,12 @@ namespace HRMS_Backend.Entities.GamesScheduling
         public int QueueId { get; set; }
 
         [Required]
+        public int UserId { get; set; }
+        [ForeignKey("UserId")]
+        public User User { get; set; }
+
+
+        [Required]
         public int BookingId { get; set; }
         [ForeignKey("BookingId")]
         public Bookings Bookings { get; set; }

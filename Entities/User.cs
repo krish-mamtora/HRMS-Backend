@@ -45,6 +45,7 @@ namespace HRMS_Backend.Entities
         public ICollection<TravelAssignEmail> TravelAssignEmail { get; set; }
         public ICollection<BookingParticipants> BookingParticipants { get; set; }
         public ICollection<EmployeeCycleStats> EmployeeCycleStats { get; set; }
+        public ICollection<WaitingQueue> WaitingQueue { get; set; }
 
     }
 }

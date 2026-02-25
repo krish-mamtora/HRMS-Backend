@@ -10,6 +10,7 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         Task<UserProfileDisplayDto> CreateUserAsync(UserProfileCreateUpdateDto createUserDto);
         Task<IEnumerable<UserProfileDisplayDto>> GetUsersByManagerIdAsync(int id);
         Task<bool> UpdateUserAsync(int id, UserProfileCreateUpdateDto updateUserDto);
+        Task<string> GetGameInterestedByIdAsync(int id);
         Task<bool> DeleteUserAsync(int id);
     }
 }

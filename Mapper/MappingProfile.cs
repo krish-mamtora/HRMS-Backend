@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Entities.FixEntityUserProfile;
 using HRMS_Backend.Entities.Games_Scheduling;
+using HRMS_Backend.Entities.GamesScheduling;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.DtoUserProfile;
@@ -27,6 +28,8 @@ namespace HRMS_Backend.Mapper
             CreateMap<TravelDocuments, TravelDocumentsDisplayDto>();
             CreateMap<Games, GamesDisplayDto>();
             CreateMap<GameConfiguration, GameConfigDisplayDto>();
+            CreateMap<GameSlots, GameSlotsDisplayDto>();
+            CreateMap<EmployeeCycleStats, EmployeeCycleStatsDisplayDto>();
         }
     }
 }

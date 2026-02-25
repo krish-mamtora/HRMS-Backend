@@ -27,6 +27,11 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             var user = await _context.UserProfile.FindAsync(id);
             return _mapper.Map<UserProfileDisplayDto>(user);
         }
+        public async Task<string> GetGameInterestedByIdAsync(int id)
+        {
+            var sport = await _context.UserProfile.Where(u => u.UserProfileId == id).Select(u => u.FavouriteSport).FirstOrDefaultAsync();
+            return sport;
+        }
         public async Task<IEnumerable<UserProfileDisplayDto>> GetUsersByManagerIdAsync(int id)
         {
             var users = await _context.UserProfile.Where(up=>up.ManagerId==id).ToListAsync();
@@ -34,11 +39,8 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         }
         public async Task<UserProfileDisplayDto> CreateUserAsync(UserProfileCreateUpdateDto createUserDto)
         {
-            //var user = _mapper.Map<UserProfile>(createUserDto);
-            //HRMS_Backend.Model.;
             var user = new HRMS_Backend.Entities.FixEntityUserProfile.UserProfile
             {
-                // Assuming properties like Name, Email, etc.
                 IsActive = createUserDto.IsActive,
                 FirstName = createUserDto.FirstName,
                 LastName = createUserDto.LastName,
@@ -68,10 +70,6 @@ namespace HRMS_Backend.Services.ServiceUserProfile
                 IsActive = user.IsActive,
             };
 
-            //_context.UserProfile.Add(user);
-
-            //await _context.SaveChangesAsync();
-            //return _mapper.Map<UserProfileDisplayDto>(user);
         }
         public async Task<bool> UpdateUserAsync(int id, UserProfileCreateUpdateDto updateUserDto)
         {

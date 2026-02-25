@@ -83,6 +83,61 @@ namespace HRMS_Backend.Services.GameScheduling
 
             return totalSlotAdded;
         }
+        public async Task<IEnumerable<GameSlotsDisplayDto>> GetAllGamesSlotAsync()
+        {
+            var slots = await _context.GameSlots.ToListAsync();
+            return _mapper.Map<IEnumerable<GameSlotsDisplayDto>>(slots);
+        }
+        public async Task<IEnumerable<GameSlotsDisplayDto>> GetGamesSlotForGameAndDateAsync(int id, DateTime dt)
+        {
+            dt = dt.Date;
+            var slots = await _context.GameSlots.Where(gs => gs.GamesId == id && gs.StartTime.Date == dt.Date).ToListAsync();
+            return _mapper.Map<IEnumerable<GameSlotsDisplayDto>>(slots);
 
+        }
+        //public async Task<GameSlotsDisplayDto> GetSlotByIdAsync(int slotId)
+        //{
+            
+        //}
+
+        //public async Task<int> GetAvailableSeatCountAsync(int slotId)
+        //{
+
+        //}
+
+        //public async Task<Boolean> IsBookingOpenAsync(int slotId)
+        //{
+
+        //}
+
+        //public async Task<Boolean> IsSlotCompletedAsync(int slotId)
+        //{
+
+        //}
+        public async Task<Boolean> UpdateSlotStatus(int slotId, bool status)
+        {
+            try
+            {
+                var gameSlot = await _context.GameSlots.FirstOrDefaultAsync(s => s.Id == slotId);
+
+                if(gameSlot != null)
+                {
+                    gameSlot.IsBookingOpen = status;
+                    await _context.SaveChangesAsync();
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+        }
+     
     }
 }

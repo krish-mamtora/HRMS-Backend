@@ -2,7 +2,7 @@
 
 namespace HRMS_Backend.Model.GameScheduling
 {
-    public class GameSlotsCreateUpdateDto
+    public class GameCycleCreateUpdateDto
     {
         [Required(ErrorMessage = "Game ID is required")]
         public int GamesId { get; set; }
@@ -12,11 +12,8 @@ namespace HRMS_Backend.Model.GameScheduling
 
         [Required(ErrorMessage = "End Time is required")]
         public DateTime EndTime { get; set; }
-        public int Capacity { get; set; }
-        public int Assigned { get; set; }
-        public int AvailableSeats { get; set; }
-        [Required]
-        public bool IsBookingOpen { get; set; }
 
+        [Required]
+        public Boolean isActive { get; set; }
     }
 }
