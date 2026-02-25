@@ -19,6 +19,8 @@ using Scalar.AspNetCore;
 using System.Text;
 using HRMS_Backend.Model;
 using HRMS_Backend.Services.Email;
+using Quartz;
+using HRMS_Backend.Services.Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,18 @@ builder.Services.AddCors(options =>
         }
     );
 });
+
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("ExampleJob");
+    q.AddJob<ExampleJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithSimpleSchedule(x => x.WithIntervalInSeconds(15).RepeatForever())
+    );
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -86,7 +100,10 @@ builder.Services.AddScoped<IGameCycleService, GameCycleService>();
 builder.Services.AddScoped<IFairnessService, FairnessService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IEmployeeCycleStatsService, EmployeeCycleStatsService>();
-
+//builder.Services.AddQuartzHostedService(options =>
+//{
+//    options.WaitForJobsToComplete = true;
+//});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
