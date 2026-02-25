@@ -9,6 +9,7 @@ namespace HRMS_Backend.Services.GameScheduling
         public Task<IEnumerable<GameSlotsDisplayDto>> GetAllGamesSlotAsync();
         public  Task<IEnumerable<GameSlotsDisplayDto>> GetGamesSlotForGameAndDateAsync(int id, DateTime dt);
 
+        public Task<Boolean> CompleteSlotAsync(int slotId);
     }
 
 }

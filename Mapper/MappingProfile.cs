@@ -30,6 +30,8 @@ namespace HRMS_Backend.Mapper
             CreateMap<GameConfiguration, GameConfigDisplayDto>();
             CreateMap<GameSlots, GameSlotsDisplayDto>();
             CreateMap<EmployeeCycleStats, EmployeeCycleStatsDisplayDto>();
+            CreateMap<GameCycle, GameCycleDisplayDto>();
+            CreateMap<Bookings, BookingsDisplayDto>();
         }
     }
 }

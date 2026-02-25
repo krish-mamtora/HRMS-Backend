@@ -83,6 +83,9 @@ builder.Services.AddScoped<IExpenseProofService, ExpenseProofService>();
 builder.Services.AddScoped<ITravelDocumentsService, TravelDocumentsService>();
 builder.Services.AddScoped<IWaitingQueueService, WaitingQueueService>();
 builder.Services.AddScoped<IGameCycleService, GameCycleService>();
+builder.Services.AddScoped<IFairnessService, FairnessService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IEmployeeCycleStatsService, EmployeeCycleStatsService>();
 
 var app = builder.Build();
 

@@ -21,8 +21,8 @@ namespace HRMS_Backend.Entities.GamesScheduling
         
         public string Status { get; set; }
 
-        public string BookedAt { get; set; }
-        public string UpdatedAt { get; set; }
+        public DateTime BookedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         [Required]
         public Boolean SlotPlayed { get; set; }

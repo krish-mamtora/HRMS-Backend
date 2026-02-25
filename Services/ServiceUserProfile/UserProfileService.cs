@@ -81,6 +81,17 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             return true;
         }
 
+        public async Task<Boolean> IsUserBannedAsync(int userId)
+        {
+            var user = await _context.UserProfile.FirstOrDefaultAsync(u => u.UserProfileId == userId);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+
+            }
+            return user.IsUserBanned;
+        }
         public async Task<bool> DeleteUserAsync(int id)
         {
             var user = await _context.UserProfile.FindAsync(id);

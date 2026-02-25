@@ -153,6 +153,9 @@ namespace HRMS_Backend.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsUserBanned")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
 
@@ -211,9 +214,8 @@ namespace HRMS_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BId"));
 
-                    b.Property<string>("BookedAt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("BookedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("BookedBy")
                         .HasColumnType("int");
@@ -228,9 +230,8 @@ namespace HRMS_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UpdatedAt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("BId");
 
@@ -252,8 +253,8 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("GameCycleId")
                         .HasColumnType("int");
 
-                    b.Property<byte>("SlotPlayed")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("GamePlayed")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -314,6 +315,12 @@ namespace HRMS_Backend.Migrations
                     b.Property<int?>("GameSlotsId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("InsertionTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
                     b.Property<int>("SlotId")
                         .HasColumnType("int");
 
@@ -321,10 +328,10 @@ namespace HRMS_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("UpdationTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId1")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("QueueId");
@@ -337,11 +344,11 @@ namespace HRMS_Backend.Migrations
 
                     b.HasIndex("GameSlotsId");
 
+                    b.HasIndex("PlayerId");
+
                     b.HasIndex("SlotId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("WaitingQueue");
                 });
@@ -394,8 +401,14 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
 
+                    b.Property<int>("CycleId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("GameCycleCycleId")
+                        .HasColumnType("int");
 
                     b.Property<int>("GamesId")
                         .HasColumnType("int");
@@ -403,13 +416,24 @@ namespace HRMS_Backend.Migrations
                     b.Property<bool>("IsBookingOpen")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("SlotPlayed")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("GamesId", "StartTime")
-                        .IsUnique();
+                    b.HasIndex("CycleId");
+
+                    b.HasIndex("GameCycleCycleId");
+
+                    b.HasIndex("GamesId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("GameSlots");
                 });
@@ -1195,21 +1219,21 @@ namespace HRMS_Backend.Migrations
                         .WithMany("WaitingQueue")
                         .HasForeignKey("GameSlotsId");
 
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
                         .WithMany()
                         .HasForeignKey("SlotId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HRMS_Backend.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("HRMS_Backend.Entities.User", null)
                         .WithMany("WaitingQueue")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Bookings");
 
@@ -1233,11 +1257,27 @@ namespace HRMS_Backend.Migrations
 
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameSlots", b =>
                 {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", "GameCycle")
+                        .WithMany()
+                        .HasForeignKey("CycleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", null)
+                        .WithMany("GameSlots")
+                        .HasForeignKey("GameCycleCycleId");
+
                     b.HasOne("HRMS_Backend.Entities.Games_Scheduling.Games", "Games")
                         .WithMany("GameSlots")
                         .HasForeignKey("GamesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("GameSlots")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("GameCycle");
 
                     b.Navigation("Games");
                 });
@@ -1490,6 +1530,8 @@ namespace HRMS_Backend.Migrations
             modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
                 {
                     b.Navigation("EmployeeCycleStats");
+
+                    b.Navigation("GameSlots");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameSlots", b =>
@@ -1550,6 +1592,8 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("EmployeeCycleStats");
 
                     b.Navigation("Expenses");
+
+                    b.Navigation("GameSlots");
 
                     b.Navigation("Jobs");
 

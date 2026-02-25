@@ -23,7 +23,8 @@ namespace HRMS_Backend.Entities.FixEntityUserProfile
         public string Department { get; set; } = string.Empty; 
         public string FavouriteSport { get; set; } = string.Empty;
         public DateTime JoinDate { get; set; }
-        public bool IsActive { get; set; }
+        public Boolean IsUserBanned { get; set; }
+        public Boolean IsActive { get; set; }
         [JsonIgnore]
         public User User { get; set; }
     }

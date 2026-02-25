@@ -2,6 +2,7 @@
 {
     public interface IFairnessService
     {
-        public Task<Boolean> IsUsersEligibleAsync(int slotId, List<int> userIds);
+        public Task<Boolean> IsUsersEligibleAsync(int slotId, int userId, int cycleId);
+        
     }
 }

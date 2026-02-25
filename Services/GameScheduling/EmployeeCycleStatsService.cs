@@ -32,8 +32,24 @@ namespace HRMS_Backend.Services.GameScheduling
   
         public async Task<EmployeeCycleStatsDisplayDto> GetUserCycleStatsAsync(int userId, int cycleId)
         {
-            var cyclestatus = await _context.EmployeeCycleStats.FindAsync(cycleId);
+            var cyclestatus = await _context.EmployeeCycleStats
+                .FirstOrDefaultAsync(es => es.UserId == userId && es.GameCycleId == cycleId);
             return _mapper.Map<EmployeeCycleStatsDisplayDto>(cyclestatus);
         }
+
+        public async Task<Boolean> IncrementCompletedPlayCountAsync(List<int> userIds, int CycleId)
+        {
+            var stats = await _context.EmployeeCycleStats.Where(es => es.GameCycleId == CycleId && userIds.Contains(es.UserId)).ToListAsync();
+
+            foreach (var stat in stats)
+            {
+                stat.GamePlayed++;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+
     }
 }

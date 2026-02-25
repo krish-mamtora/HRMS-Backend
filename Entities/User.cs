@@ -1,5 +1,6 @@
 ﻿using HRMS_Backend.Entities.Achievements;
 using HRMS_Backend.Entities.FixEntityUserProfile;
+using HRMS_Backend.Entities.Games_Scheduling;
 using HRMS_Backend.Entities.GamesScheduling;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
@@ -46,6 +47,8 @@ namespace HRMS_Backend.Entities
         public ICollection<BookingParticipants> BookingParticipants { get; set; }
         public ICollection<EmployeeCycleStats> EmployeeCycleStats { get; set; }
         public ICollection<WaitingQueue> WaitingQueue { get; set; }
+
+        public ICollection<GameSlots> GameSlots { get; set; }
 
     }
 }

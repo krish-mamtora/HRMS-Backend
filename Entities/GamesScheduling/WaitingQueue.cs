@@ -12,10 +12,7 @@ namespace HRMS_Backend.Entities.GamesScheduling
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int QueueId { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
-        [ForeignKey("UserId")]
-        public User User { get; set; }
+
 
 
         [Required]
@@ -35,10 +32,16 @@ namespace HRMS_Backend.Entities.GamesScheduling
         [ForeignKey("CycleId")]
         public GameCycle GameCycle { get; set; }
 
-        public DateTime InsertionTime = DateTime.Now;
-        public DateTime UpdationTime = DateTime.Now;
+        public DateTime InsertionTime { get; set; } = DateTime.Now;
+        public DateTime UpdationTime { get; set; } = DateTime.Now;
 
         public string Status { get; set; }
+
+
+        //[Required]
+        public int PlayerId { get; set; }
+        [ForeignKey("PlayerId")]
+        public User User { get; set; }
 
     }
 }

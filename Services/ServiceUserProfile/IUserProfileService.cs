@@ -12,5 +12,6 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         Task<bool> UpdateUserAsync(int id, UserProfileCreateUpdateDto updateUserDto);
         Task<string> GetGameInterestedByIdAsync(int id);
         Task<bool> DeleteUserAsync(int id);
+        Task<Boolean> IsUserBannedAsync(int userId);
     }
 }

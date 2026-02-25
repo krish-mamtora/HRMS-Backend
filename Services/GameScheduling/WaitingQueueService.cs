@@ -40,7 +40,7 @@ namespace HRMS_Backend.Services.GameScheduling
         }
         public async Task<Boolean> MarkUserAsAssignedAsync(int slotId, int userId)
         {
-            var record = await _context.WaitingQueue.FirstOrDefaultAsync(wq => wq.SlotId == slotId && wq.UserId == userId && wq.Status == "Waiting");
+            var record = await _context.WaitingQueue.FirstOrDefaultAsync(wq => wq.SlotId == slotId && wq.PlayerId == userId && wq.Status == "Waiting");
 
             if (record == null) return false;
 
@@ -51,7 +51,7 @@ namespace HRMS_Backend.Services.GameScheduling
 
         public async Task<Boolean> RemoveUserFromQueueAsync(int slotId, int userId)
         {
-            var record = await _context.WaitingQueue.FirstOrDefaultAsync(wq => wq.SlotId == slotId && wq.UserId == userId);
+            var record = await _context.WaitingQueue.FirstOrDefaultAsync(wq => wq.SlotId == slotId && wq.PlayerId == userId);
 
             if (record == null) return false;
 
@@ -62,7 +62,7 @@ namespace HRMS_Backend.Services.GameScheduling
 
         public async Task<Boolean> IsUserInQueueAsync(int slotId, int userId)
         {
-            return await _context.WaitingQueue.AnyAsync(wq => wq.SlotId == slotId && wq.UserId == userId && wq.Status == "Waiting");
+            return await _context.WaitingQueue.AnyAsync(wq => wq.SlotId == slotId && wq.PlayerId == userId && wq.Status == "Waiting");
         }
 
         //public async Task<int> GetNextEligiblePerson(int slotId)S

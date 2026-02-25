@@ -22,6 +22,6 @@ namespace HRMS_Backend.Entities.GamesScheduling
         public GameCycle GameCycle { get; set; }
 
         [Required]
-        public byte GamePlayed { get; set; }
+        public int GamePlayed { get; set; }
     }
 }

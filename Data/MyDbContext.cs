@@ -132,8 +132,17 @@ namespace HRMS_Backend.Data
             modelBuilder.Entity<WaitingQueue>()
                 .HasOne(wq => wq.User)
                 .WithMany()
-                .HasForeignKey(wq => wq.UserId)
+                .HasForeignKey(wq => wq.PlayerId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<GameSlots>()
+                .HasOne(gs => gs.GameCycle)
+                .WithMany()
+                .HasForeignKey(gs => gs.CycleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
         }
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {

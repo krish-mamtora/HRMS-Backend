@@ -10,6 +10,6 @@ namespace HRMS_Backend.Model.GameScheduling
         public int SId { get; set; }
         public int UserId { get; set; }
         public int GameCycleId { get; set; }
-        public byte GamePlayed { get; set; }
+        public int GamePlayed { get; set; }
     }
 }

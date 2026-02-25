@@ -7,8 +7,11 @@ namespace HRMS_Backend.Services.GameScheduling
     {
         Task<IEnumerable<GameCycle>> GetAllGameCyclesAsync();
         Task<GameCycle> GetGameCycleByIdAsync(int id);
-        Task<GameCycle> CreateGameCycleAsync(GameConfigCreateUpdateDto dto);
-
+        Task<GameCycleDisplayDto> CreateGameCycleAsync(GameCycleCreateUpdateDto dto);
         Task<int> GetActiveCycleIdAsync(int id);
+        Task<int> getLowsetGamePlayedInCurrentCycle(int cycleId);
+        Task<Boolean> InitializeCycleStatsAsyc(int cycleId, List<int> InteretedUser);
+
+        Task<GameCycleDisplayDto> getCycleById(int id);
     }
 }

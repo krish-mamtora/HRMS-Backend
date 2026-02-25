@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
-using HRMS_Backend.Entities;
-using HRMS_Backend.Entities.Games_Scheduling;
-using HRMS_Backend.Model.GameScheduling;
+
 using HRMS_Backend.Services.ServiceUserProfile;
 using Microsoft.EntityFrameworkCore;
+using static HRMS_Backend.Services.GameScheduling.BookingService;
 
 namespace HRMS_Backend.Services.GameScheduling
 {
@@ -23,75 +22,39 @@ namespace HRMS_Backend.Services.GameScheduling
             _gameCycleService = gameCycleService;
             _employeeCycleStatsService = employeeCycleStatsService;
             _userProfileService = userProfileService;
+        
         }
 
-        public async Task<Boolean> IsUsersEligibleAsync(int slotId, int userId , int cycleId , int gameId)
-        {          
-            return await CheckAllValidations(slotId , userId , cycleId  , gameId);
-        }
-        
-        public async Task<string> IsUsersEligibAsync(int slotId, int userId, int cycleId, int gameId)
+        public async Task<Boolean> IsUsersEligibleAsync(int slotId, int userId , int cycleId)
         {
-             if(CheckUserIsInterestedInGame(userId, gameId))
+            var slot = await _context.GameSlots.Include(s=>s.Games).FirstAsync(s=>s.Id==slotId);
+
+            var interestedGame = await _userProfileService.GetGameInterestedByIdAsync(userId);
+
+            if (interestedGame != slot.Games.Name)
             {
-                if (await !CheckSlotCapacity(slotId) ||await CheckUserHasPlaydToday(userId) ||await  !ComparePlayedGameValueInCycle(userId, cycleId))
-                {
-                    return "Waiting-Queue";
-                }
-                else if (await CheckSlotCapacity(slotId) && await !CheckUserHasPlaydToday(userId) && await ComparePlayedGameValueInCycle(userId, cycleId))
-
-                {
-                    return "Booking";
-                }
+                return false;
             }
-        }
-   
-        public async Task<Boolean> CheckAllValidations(int slotId , int userId,int cycleId, int gameId)
-        {
-            return (CheckUserIsInterestedInGame(userId,gameId)
-                && ComparePlayedGameValueInCycle( userId,  cycleId)
-                && (CheckSlotCapasityAndUserWIthTeamCount(userId,  cycleId)
-                && (CheckTeamMembersValidation()
-                && (CheckUserHasPlaydToday(int userId))
-                )
+            Boolean playedToday = await _context.BookingParticipants.AnyAsync(p=>p.EmpId == userId && p.Bookings.SlotPlayed==true && p.Bookings.GameSlots.StartTime.Date == DateTime.UtcNow.Date);
 
-        }
+            if (playedToday) {
+                return false;
+            }
 
-        public async Task<Boolean> CheckUserIsInterestedInGame (int userId , int gameId)
-        {
-            var userSport = await _userProfileService.GetGameInterestedByIdAsync(userId);
-            var gameName = await _context.Games.Where(g => g.Id == gameId).Select(g => g.Name).FirstOrDefaultAsync();
-            return userSport == gameName;
-        }
+            var lowestGamePlayed = await _gameCycleService.getLowsetGamePlayedInCurrentCycle(cycleId);
+            Console.WriteLine($"CHECK lowest state : {lowestGamePlayed}");
 
-        public async Task<Boolean> ComparePlayedGameValueInCycle(int userId , int cycleId)
-        {
-           var lowsetGamePlayed = await _gameCycleService.getLowsetGamePlayedInCurrentCycle(cycleId);
-            var userPlayedSlots = await _employeeCycleStatsService.GetUserCycleStatsAsync(userId, cycleId);
-        
-            return (userPlayedSlots.GamePlayed > lowsetGamePlayed) ? false : true;
-        }
-        public async Task<Boolean> CheckSlotCapacity(int slotId)
-        {
+            var stats = await _employeeCycleStatsService.GetUserCycleStatsAsync(userId, cycleId);
 
+            int userPlayed = (stats != null) ? (stats.GamePlayed != null ? stats.GamePlayed : 0) : 0;
+ 
+            Console.WriteLine($"CHECK EMP cycle state : {userPlayed}");
+            if (userPlayed > lowestGamePlayed) {
+                return false;
+            }
+            return true;
         }
-        public async Task<Boolean> CheckSlotCapasityAndUserWIthTeamCount(int userId, int cycleId)
-        {
-
-        }
-        public async Task<Boolean> CheckTeamMembersValidation()
-        {
-
-        }
-        public async Task<Boolean> CheckUserHasPlaydToday(int userId, int cycleId)
-        {
-            //move back to waiting queue
-        }
-        public async Task<Boolean> IncrementCompletedPlayCountAsync(int userId,int  cycleId)
-        {
-
-        }
-
-      
+       
     }
+
 }
