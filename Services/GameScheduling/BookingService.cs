@@ -123,44 +123,45 @@ namespace HRMS_Backend.Services.GameScheduling
             }
 
 
-            //if (waitingUsers.Any())
-            //{
-            //    Console.WriteLine($"NOOOOOOOOOO");
-            //    foreach (var userId in waitingUsers)
-            //    {
-            //        await _context.WaitingQueue.AddAsync(new WaitingQueue
-            //        {
-            //            PlayerId = userId,
-            //            SlotId = slotId,
-            //            CycleId = slot.CycleId,
-            //            Status = "Waiting",
-            //            InsertionTime = DateTime.Now,
-            //        });
-            //        //result.WaitingUsers.Add(userId);
-            //    }
-            //    result.WaitingUsers.AddRange(waitingUsers);
-            //    await _context.SaveChangesAsync();
-            //    await transection.CommitAsync();
-            //}
-            if (waitingUsers?.Any() == true)
+            if (waitingUsers.Any())
             {
-                Console.WriteLine($"QUEUEQUEUEQUEUE");
-                var entities = waitingUsers.Select(userId => new WaitingQueue
+                Console.WriteLine($"NOOOOOOOOOO");
+                foreach (var userId in waitingUsers)
                 {
-                    PlayerId = userId,
-                    SlotId = slotId,
-                    CycleId = slot.CycleId,
-                    Status = "Waiting",
-                    InsertionTime = DateTime.UtcNow
-                }).ToList();
+                    await _context.WaitingQueue.AddAsync(new WaitingQueue
+                    {
+                        PlayerId = userId,
+                        SlotId = slotId,
+                        CycleId = slot.CycleId,
+                        Status = "Waiting",
+                        InsertionTime = DateTime.Now,
 
-                await _context.WaitingQueue.AddRangeAsync(entities);
-                Console.WriteLine($"Inserted in queue");
-                result.WaitingUsers ??= new List<int>();
+                    });
+                    result.WaitingUsers.Add(userId);
+                }
                 result.WaitingUsers.AddRange(waitingUsers);
-
-                await _context.SaveChangesAsync();
             }
+                await _context.SaveChangesAsync();
+                await transection.CommitAsync();
+            //if (waitingUsers?.Any() == true)
+            //{
+            //    Console.WriteLine($"QUEUEQUEUEQUEUE");
+            //    var entities = waitingUsers.Select(userId => new WaitingQueue
+            //    {
+            //        PlayerId = userId,
+            //        SlotId = slotId,
+            //        CycleId = slot.CycleId,
+            //        Status = "Waiting",
+            //        InsertionTime = DateTime.UtcNow
+            //    }).ToList();
+
+            //    await _context.WaitingQueue.AddRangeAsync(entities);
+            //    Console.WriteLine($"Inserted in queue");
+            //    result.WaitingUsers ??= new List<int>();
+            //    result.WaitingUsers.AddRange(waitingUsers);
+
+            //    await _context.SaveChangesAsync();
+            //}
 
             return result;
         }
@@ -205,7 +206,6 @@ namespace HRMS_Backend.Services.GameScheduling
                     slot.Assigned++;
                     relaesedSeats--;
                 }
-
             }
             await _context.SaveChangesAsync();
             await transection.CommitAsync();
@@ -219,6 +219,15 @@ namespace HRMS_Backend.Services.GameScheduling
             }
             var booking = await _context.Bookings.FindAsync(id);
             return _mapper.Map<BookingsDisplayDto>(booking);
+        }
+        public async Task<BookingsDisplayDto> getBookingsByUserId(int id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            var bookings = await _context.BookingParticipants.Where(bk => bk.EmpId==id).Distinct().ToListAsync();
+            return _mapper.Map<BookingsDisplayDto>
         }
 
     }

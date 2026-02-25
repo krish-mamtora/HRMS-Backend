@@ -48,6 +48,15 @@ namespace HRMS_Backend.Controllers.GameScheduling
             }
             return Ok(booking);
         }
-    
+        [HttpGet("/user/{id}" , Name ="getUserBookings")]
+        public async Task<IActionResult> getBookingsByUserId(int id)
+        {
+            var bookings = await _service.getBookingsByUserId(int id);
+            if(bookings == null)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(bookings);
+        }
     }
 }
