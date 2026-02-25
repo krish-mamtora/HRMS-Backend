@@ -8,8 +8,10 @@ using HRMS_Backend.Entities.FixEntityUserProfile;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Cryptography.X509Certificates;
-using HRMS_Backend.Migrations;
+//using HRMS_Backend.Migrations;
 using TravelDocuments = HRMS_Backend.Entities.TravelandExpense.TravelDocuments;
+using ShareEmail = HRMS_Backend.Entities.JobListing.ShareEmail;
+using HRMS_Backend.Entities.GamesScheduling;
 
 namespace HRMS_Backend.Data
 {
@@ -97,7 +99,20 @@ namespace HRMS_Backend.Data
                 .HasForeignKey(ep=>ep.EmplId)
                 .OnDelete(DeleteBehavior.Restrict);
                 
-            
+            modelBuilder.Entity<BookingParticipants>()
+                .HasOne(bp=>bp.User)
+                .WithMany()
+                .HasForeignKey(bp=>bp.EmpId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BookingParticipants>()
+                .HasOne(bp=>bp.Bookings)
+                .WithMany()
+                .HasForeignKey(bp=>bp.BookingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<WaitingQueue>()
+            //    .
 
         }
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
@@ -113,16 +128,21 @@ namespace HRMS_Backend.Data
         public DbSet<TravelPlan> TravelPlan { get; set; }
         public DbSet<Referals> Referals { get; set; }
         public DbSet<TravelAssignment> TravelAssignment { get; set; }
-        public DbSet<FileModel2> FileModel2 { get; set; }
+        //public DbSet<FileModel2> FileModel2 { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
         public DbSet<ShareEmail> ShareEmail { get; set; }
         public DbSet<Expenses> Expenses { get; set; }
         public DbSet<TravelExpense>TravelExpense { get; set; }
         public DbSet<ExpenseProof> ExpenseProof { get; set; }
+        public DbSet<ExpensePolicy> ExpensePolicy { get; set; }
         public DbSet<TravelDocuments> TravelDocuments { get; set; }
-
         public DbSet<TravelAssignEmail> TravelAssignEmail { get; set; }
-
+        public DbSet<ExpenseCreateEmail> ExpenseCreateEmail { get; set; }
+        public DbSet<GameCycle> GameCycle { get; set; }
+        public DbSet<EmployeeCycleStats> EmployeeCycleStats { get; set; }
+        public DbSet<Bookings> Bookings { get; set; }
+        public DbSet<WaitingQueue> WaitingQueue { get; set; }
+        public DbSet<BookingParticipants> BookingParticipants { get; set; }
     }
 
 }

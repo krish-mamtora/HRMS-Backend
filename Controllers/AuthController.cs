@@ -31,9 +31,13 @@ namespace HRMS_Backend.Controllers
             var user = await  service.RegisterAsync(request);
             if(user is null)
             {
-                return BadRequest("Username already exist");
+                return BadRequest(new { message = "Email already exists" });
             }
-            return Ok(user);
+            return Ok(new
+            {
+                email = user.Email,
+                message = "Registration successful"
+            });
         }
 
         [HttpPost("login")]

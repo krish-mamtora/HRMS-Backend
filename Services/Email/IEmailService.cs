@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        public Task SendEmailAsync(string toEmail, string subject, string message);
+        public Task SendEmailAsync(string toEmail, string subject, string message , IFormFile? attachment = null);
     }
 }

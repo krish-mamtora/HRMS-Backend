@@ -8,6 +8,8 @@
         public string Status { get; set; } = string.Empty;
         public int ExpYearsReq { get; set; }
         public int ManagedBy { get; set; }
+
+        public string ReviewerEmail { get; set; } = string.Empty;
         public string Role { get; set; }  = string.Empty;
        public  int TotalPositions { get; set; } 
         public string JdUrl { get; set; } = string.Empty;

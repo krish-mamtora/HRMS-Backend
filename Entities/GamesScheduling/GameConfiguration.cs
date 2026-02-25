@@ -4,12 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.Games_Scheduling
 {
+    [Index(nameof(GamesId), IsUnique = true)]
     public class GameConfiguration
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int GamesId { get; set; }
+
         [ForeignKey("GamesId")]
         public Games Games { get; set; }
 

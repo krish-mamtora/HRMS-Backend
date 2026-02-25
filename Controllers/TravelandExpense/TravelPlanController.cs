@@ -18,6 +18,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
 
         [HttpPost]
+        [Authorize(Roles = "HR")]
         public async  Task<ActionResult> CreateTravelPlan([FromBody] TravelCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -54,8 +55,18 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             }
             return Ok(plans);
         }
-
+        //[HttpGet("employee/{id}", Name = "GetPlanByUserId")]
+        //public async Task<IActionResult> GetPlanByUserId(int id)
+        //{
+        //    var plans = await _service.GetPlanByIdAsync(id);
+        //    if (plans == null)
+        //    {
+        //        return NotFound("No plans found");
+        //    }
+        //    return Ok(plans);
+        //}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "HR")]
         public async Task<IActionResult> DeletePlanById(int id)
         {
             var result = await _service.DeletePlanById(id);
@@ -68,6 +79,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "HR")]
         public async Task<IActionResult> UpdatePlanById(int id , [FromBody] TravelCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)

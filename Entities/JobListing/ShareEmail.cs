@@ -25,7 +25,12 @@ namespace HRMS_Backend.Entities.JobListing
         [StringLength(200)]
         public string Message { get; set; } = string.Empty;
 
+        [StringLength(200)]
+        public string? AttachedFileName { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+
 
     }
 }

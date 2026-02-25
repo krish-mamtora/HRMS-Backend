@@ -1,9 +1,11 @@
 ﻿using HRMS_Backend.Model.TravelandExpense;
 using HRMS_Backend.Services.TravelandExpenses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS_Backend.Controllers.TravelandExpense
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TravelDocumentController : ControllerBase
@@ -26,6 +28,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
 
         [HttpPost]
+        [Authorize(Roles = "Employee,HR")]
         public async Task<IActionResult> uploadTravelDocument([FromForm] TravelDocumentsCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)

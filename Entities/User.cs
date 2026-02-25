@@ -1,13 +1,16 @@
 ﻿using HRMS_Backend.Entities.Achievements;
 using HRMS_Backend.Entities.FixEntityUserProfile;
+using HRMS_Backend.Entities.GamesScheduling;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
+using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities
 {
+    [Index(nameof(Email), IsUnique = true)]
     public class User
     {
 
@@ -18,6 +21,7 @@ namespace HRMS_Backend.Entities
 
         public UserProfile UserProfile { get; set; }
 
+        
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
         [MaxLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
@@ -39,6 +43,9 @@ namespace HRMS_Backend.Entities
         public ICollection<TravelExpense> TravelExpense { get; set; }
         public ICollection<TravelDocuments> TravelDocuments { get; set; }
         public ICollection<TravelAssignEmail> TravelAssignEmail { get; set; }
+        public ICollection<BookingParticipants> BookingParticipants { get; set; }
+        public ICollection<EmployeeCycleStats> EmployeeCycleStats { get; set; }
+
     }
 }
 

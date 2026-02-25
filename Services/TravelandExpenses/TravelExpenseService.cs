@@ -28,9 +28,11 @@ namespace HRMS_Backend.Services.TravelandExpenses
                 ExpenseType = dto.ExpenseType,
                 Amount = dto.Amount,
                 Status = dto.Status,
+                ExpenseDate = dto.ExpenseDate,
                 Description = dto.Description,
                 ApprovedBy = dto.ApprovedBy,
-                CreatedAt = dto.CreatedAt
+                CreatedAt = dto.CreatedAt,
+                UpdatedAt = dto.UpdatedAt
             };
 
             _context.TravelExpense.Add(travelPlanExpense);

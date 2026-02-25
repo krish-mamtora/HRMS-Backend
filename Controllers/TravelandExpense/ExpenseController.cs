@@ -1,8 +1,11 @@
-﻿using HRMS_Backend.Entities.TravelandExpense;
+﻿using HRMS_Backend.Data;
+using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.TravelandExpense;
+using HRMS_Backend.Services.Email;
 using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Controllers.TravelandExpense
 {
@@ -12,13 +15,17 @@ namespace HRMS_Backend.Controllers.TravelandExpense
     public class ExpenseController : ControllerBase
     {
         private readonly ITravelExpenseService _service;
-
-        public ExpenseController(ITravelExpenseService service)
+        private readonly IEmailService _emailService;
+        private readonly MyDbContext _context;
+        public ExpenseController(ITravelExpenseService service , IEmailService emailservice, MyDbContext context)
         {
             _service = service;
+            _emailService = emailservice;
+            _context = context;
         }
        
         [HttpPost]
+        [Authorize(Roles = "Employee")]
         public async Task<ActionResult> CreateTravelExpense([FromBody] ExpenseCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -109,6 +116,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "HR")]
         public async Task<IActionResult> UpdateExpenseByIdAsync([FromBody] ExpenseCreateUpdateDto dto, int id)
         {
             if (!ModelState.IsValid)
@@ -122,5 +130,50 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             }
             return Ok("Expense updated successfully");
         }
+
+        [HttpPost("notifyExpenseCreate/", Name = "NotifyExpenseCreate")]
+        public async Task<IActionResult> NotifyForExpenseClaim([FromBody] ExpenseEmailCreateUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var expense = await _context.TravelExpense.FindAsync(dto.TravelExpenseId);
+            if (expense == null)
+            {
+                return NotFound("Travel Expense record not found.");
+            }
+            var expenseEmail = new ExpenseCreateEmail
+            {
+                TravelExpenseId = dto.TravelExpenseId,
+                RecipientEmail = dto.RecipientEmail,
+                SenderId = dto.SenderId,
+                Subject = dto.Subject,
+                Body = dto.Body,
+                Status = "Sent", 
+                CreatedAt = DateTime.UtcNow,
+                SentAt = DateTime.UtcNow
+            };
+            _context.ExpenseCreateEmail.Add(expenseEmail);
+            await _context.SaveChangesAsync();
+            var emailHtmlBody = $@"
+            <h2>Expense Claim Notification</h2>
+            <p><strong>Message:</strong> {dto.Body}</p>
+            <hr/>
+            <p><strong>Expense ID:</strong> {expense.Id}</p>
+            <p><strong>Amount:</strong> {expense.Amount}</p>
+            <p><strong>Date:</strong> {expense.ExpenseDate}</p>
+            <p><strong>Category:</strong> {expense.ExpenseType}</p>
+            <br/>
+            <h3>Please log in to the HRMS portal to review or approve this claim.</h3> ";
+
+            await _emailService.SendEmailAsync(
+               dto.RecipientEmail,
+               expenseEmail.Subject,
+               emailHtmlBody
+             );
+            return Ok(new { message = "Expense notification sent successfully!", id = expenseEmail.Id });
+        }
+
     }
 }

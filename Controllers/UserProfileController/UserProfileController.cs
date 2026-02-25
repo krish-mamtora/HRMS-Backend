@@ -38,7 +38,12 @@ namespace HRMS_Backend.Controllers.UserProfileController
             return Ok(user);
         }
 
-
+        [HttpGet("team/{id}", Name = "GetUsersByManagerIdAsync")]
+        public async Task<ActionResult> GetUsersByManagerIdAsync(int id)
+        {
+            var users = await _service.GetUsersByManagerIdAsync(id);
+            return Ok(users);
+        }
         [HttpPost]
         public async Task<ActionResult> CreateuserProfile([FromBody] UserProfileCreateUpdateDto dto)
         {
@@ -49,5 +54,7 @@ namespace HRMS_Backend.Controllers.UserProfileController
             var createProfile = await _service.CreateUserAsync(dto);
             return CreatedAtAction(nameof(GetUserById), new { id = createProfile.UserProfileId }, createProfile);
         }
+
+      
     }
 }

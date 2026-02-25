@@ -3,8 +3,11 @@ using HRMS_Backend.Data;
 using HRMS_Backend.Entities.Games_Scheduling;
 //using HRMS_Backend.Migrations;
 using HRMS_Backend.Model.GameScheduling;
+using HRMS_Backend.Model.JobListing;
+using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+using System.Numerics;
 
 namespace HRMS_Backend.Services.GameScheduling
 {
@@ -32,9 +35,14 @@ namespace HRMS_Backend.Services.GameScheduling
                 Capacity = dto.Capacity,
                 SlotDuration = dto.SlotDuration,
             };
-            _context.GameConfiguration.AddAsync(gameConfig);
+              await _context.GameConfiguration.AddAsync(gameConfig);
             await _context.SaveChangesAsync();
             return gameConfig;
+        }
+        public async Task<IEnumerable<GameConfigDisplayDto>> GetAllConfigAsync()
+        {
+            var config = await _context.GameConfiguration.ToListAsync();
+            return _mapper.Map<IEnumerable<GameConfigDisplayDto>>(config);
         }
         public async Task<bool> UpdateGameConfigurationAsync(int id, GameConfigCreateUpdateDto dto)
         {
@@ -57,15 +65,14 @@ namespace HRMS_Backend.Services.GameScheduling
                 return false;
             }
         }
-
-        //public async Task<GameConfigDisplayDto> getGameConfigById(int id)
-        //{
-        //    if (id == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(id));
-        //    }
-        //    var GameConfig = await _context.GameConfiguration.FindAsync(id);
-        //    _mapper.Map();
-        //}
+        public async Task<GameConfigDisplayDto> getGameConfigByIdAsync(int id)
+        {
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            var GameConfig = await _context.GameConfiguration.FindAsync(id);
+            return _mapper.Map<GameConfigDisplayDto>(GameConfig);
+        }
     }
 }

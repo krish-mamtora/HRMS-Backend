@@ -24,19 +24,33 @@ namespace HRMS_Backend.Services.Email
         }
 
 
-            public async Task SendEmailAsync (string toEmail , string subject , string message)
+            public async Task SendEmailAsync (string toEmail , string subject , string message , IFormFile? attachment = null)
         {
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress(senderName, senderEmail));
             email.To.Add( MailboxAddress.Parse(toEmail));
             email.Subject = subject;
 
-            email.Body = new TextPart("html")
+            //email.Body = new TextPart("html")
+            //{
+            //    Text = message
+            //};
+            var builder = new BodyBuilder
             {
-                Text = message
+                HtmlBody = message
             };
 
-             using var smtp = new SmtpClient();
+            if (attachment != null)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await attachment.CopyToAsync(ms);
+                    builder.Attachments.Add(attachment.FileName, ms.ToArray());
+                }
+            }
+
+            email.Body = builder.ToMessageBody();
+            using var smtp = new SmtpClient();
             await smtp.ConnectAsync(smtpServer, port , SecureSocketOptions.StartTls);
             await smtp.AuthenticateAsync(username , appPassword);
             await smtp.SendAsync(email);

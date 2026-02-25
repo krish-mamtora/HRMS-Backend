@@ -134,6 +134,10 @@ namespace HRMS_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FavouriteSport")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -166,6 +170,162 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("UserProfile");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.BookingParticipants", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BookingsBId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmpId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("BookingsBId");
+
+                    b.HasIndex("EmpId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BookingParticipants");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>
+                {
+                    b.Property<int>("BId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BId"));
+
+                    b.Property<string>("BookedAt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BookedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SlotPlayed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedAt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("BId");
+
+                    b.HasIndex("BookedBy");
+
+                    b.HasIndex("SlotId");
+
+                    b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.EmployeeCycleStats", b =>
+                {
+                    b.Property<int>("SId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SId"));
+
+                    b.Property<int>("GameCycleId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("SlotPlayed")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SId");
+
+                    b.HasIndex("GameCycleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmployeeCycleStats");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
+                {
+                    b.Property<int>("CycleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CycleId"));
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GamesId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CycleId");
+
+                    b.HasIndex("GamesId");
+
+                    b.ToTable("GameCycle");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.WaitingQueue", b =>
+                {
+                    b.Property<int>("QueueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QueueId"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CycleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("QueueId");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("CycleId");
+
+                    b.HasIndex("SlotId");
+
+                    b.ToTable("WaitingQueue");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
                 {
                     b.Property<int>("Id")
@@ -191,7 +351,8 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GamesId");
+                    b.HasIndex("GamesId")
+                        .IsUnique();
 
                     b.ToTable("GameConfiguration");
                 });
@@ -218,7 +379,8 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GamesId");
+                    b.HasIndex("GamesId", "StartTime")
+                        .IsUnique();
 
                     b.ToTable("GameSlots");
                 });
@@ -247,23 +409,6 @@ namespace HRMS_Backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Games");
-                });
-
-            modelBuilder.Entity("HRMS_Backend.Entities.JobListing.FileModel2", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FileModel2");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.JobListing.Jobs", b =>
@@ -296,6 +441,10 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<int>("ManagedBy")
                         .HasColumnType("int");
+
+                    b.Property<string>("ReviewerEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -390,6 +539,10 @@ namespace HRMS_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AttachedFileName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -426,6 +579,52 @@ namespace HRMS_Backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ShareEmail");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpenseCreateEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RecipientEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TravelExpenseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelExpenseId");
+
+                    b.ToTable("ExpenseCreateEmail");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpensePolicy", b =>
@@ -544,6 +743,47 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmpId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReceiverMail")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpId");
+
+                    b.HasIndex("PId");
+
+                    b.ToTable("TravelAssignEmail");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", b =>
                 {
                     b.Property<int>("Id")
@@ -573,13 +813,57 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmpId");
-
                     b.HasIndex("PId");
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("EmpId", "PId")
+                        .IsUnique();
+
                     b.ToTable("TravelAssignment");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelDocuments", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TravelAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TravelDocumentUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TravelPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UploadedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelAssignmentId");
+
+                    b.HasIndex("TravelPlanId");
+
+                    b.HasIndex("UploadedBy");
+
+                    b.ToTable("TravelDocuments");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelExpense", b =>
@@ -604,6 +888,9 @@ namespace HRMS_Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime>("ExpenseDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ExpenseType")
                         .HasColumnType("int");
 
@@ -619,6 +906,9 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<int?>("TravelAssignmentId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -723,6 +1013,9 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
@@ -773,6 +1066,109 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("Manager");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.BookingParticipants", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", "Bookings")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", null)
+                        .WithMany("BookingParticipants")
+                        .HasForeignKey("BookingsBId");
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("EmpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", null)
+                        .WithMany("BookingParticipants")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("BookedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
+                        .WithMany("Bookings")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameSlots");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.EmployeeCycleStats", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", "GameCycle")
+                        .WithMany("EmployeeCycleStats")
+                        .HasForeignKey("GameCycleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("EmployeeCycleStats")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameCycle");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.Games", "Games")
+                        .WithMany("GameCycle")
+                        .HasForeignKey("GamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.WaitingQueue", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", "Bookings")
+                        .WithMany("WaitingQueue")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.GameCycle", "GameCycle")
+                        .WithMany()
+                        .HasForeignKey("CycleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.Games_Scheduling.GameSlots", "GameSlots")
+                        .WithMany("WaitingQueue")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("GameCycle");
+
+                    b.Navigation("GameSlots");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameConfiguration", b =>
@@ -858,6 +1254,17 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpenseCreateEmail", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelExpense", "TravelExpense")
+                        .WithMany("ExpenseCreateEmail")
+                        .HasForeignKey("TravelExpenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelExpense");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.ExpenseProof", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelExpense", "TravelExpense")
@@ -913,6 +1320,25 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignEmail", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("TravelAssignEmail")
+                        .HasForeignKey("EmpId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelPlan", "TravelPlan")
+                        .WithMany("TravelAssignEmail")
+                        .HasForeignKey("PId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPlan");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.User", "User")
@@ -932,6 +1358,29 @@ namespace HRMS_Backend.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("TravelPlan");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelDocuments", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", "TravelAssignment")
+                        .WithMany("TravelDocuments")
+                        .HasForeignKey("TravelAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.TravelandExpense.TravelPlan", null)
+                        .WithMany("TravelDocuments")
+                        .HasForeignKey("TravelPlanId");
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany("TravelDocuments")
+                        .HasForeignKey("UploadedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelAssignment");
 
                     b.Navigation("User");
                 });
@@ -982,9 +1431,30 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("Posts");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>
+                {
+                    b.Navigation("BookingParticipants");
+
+                    b.Navigation("WaitingQueue");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.GameCycle", b =>
+                {
+                    b.Navigation("EmployeeCycleStats");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.GameSlots", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("WaitingQueue");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Games_Scheduling.Games", b =>
                 {
                     b.Navigation("GameConfigurations");
+
+                    b.Navigation("GameCycle");
 
                     b.Navigation("GameSlots");
                 });
@@ -1003,18 +1473,33 @@ namespace HRMS_Backend.Migrations
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignment", b =>
                 {
+                    b.Navigation("TravelDocuments");
+
                     b.Navigation("TravelExpense");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelExpense", b =>
+                {
+                    b.Navigation("ExpenseCreateEmail");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelPlan", b =>
                 {
                     b.Navigation("Expenses");
 
+                    b.Navigation("TravelAssignEmail");
+
                     b.Navigation("TravelAssignment");
+
+                    b.Navigation("TravelDocuments");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.User", b =>
                 {
+                    b.Navigation("BookingParticipants");
+
+                    b.Navigation("EmployeeCycleStats");
+
                     b.Navigation("Expenses");
 
                     b.Navigation("Jobs");
@@ -1027,7 +1512,11 @@ namespace HRMS_Backend.Migrations
 
                     b.Navigation("ShareEmail");
 
+                    b.Navigation("TravelAssignEmail");
+
                     b.Navigation("TravelAssignment");
+
+                    b.Navigation("TravelDocuments");
 
                     b.Navigation("TravelExpense");
 

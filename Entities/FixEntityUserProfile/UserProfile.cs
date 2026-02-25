@@ -1,6 +1,7 @@
 ﻿using HRMS_Backend.Entities.TravelandExpense;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HRMS_Backend.Entities.FixEntityUserProfile
 {
@@ -13,6 +14,7 @@ namespace HRMS_Backend.Entities.FixEntityUserProfile
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
+        public string Designation { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int ManagerId { get; set; }
         [ForeignKey("ManagerId")]
@@ -22,6 +24,7 @@ namespace HRMS_Backend.Entities.FixEntityUserProfile
         public string FavouriteSport { get; set; } = string.Empty;
         public DateTime JoinDate { get; set; }
         public bool IsActive { get; set; }
+        [JsonIgnore]
         public User User { get; set; }
     }
 }

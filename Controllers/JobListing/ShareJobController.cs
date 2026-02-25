@@ -22,8 +22,9 @@ namespace HRMS_Backend.Controllers.JobListing
             _context = context;
         }
 
+        [Authorize(Roles = "Employee")]
         [HttpPost]
-        public async Task<IActionResult> ShareJob([FromBody] ShareMailCreateUpdateDto dto)
+        public async Task<IActionResult> ShareJob([FromForm] ShareMailCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -42,6 +43,7 @@ namespace HRMS_Backend.Controllers.JobListing
                 EmpId = dto.EmpId,
                 Subject = dto.Subject,
                 Message = dto.Message,
+                AttachedFileName = dto.JobDescriptionPdf?.FileName,
                 CreatedAt = DateTime.UtcNow,
             };
 
@@ -53,11 +55,16 @@ namespace HRMS_Backend.Controllers.JobListing
                    <p>{dto.Message}</p>   
                         <br/>
                         <p>Experiance Required {job.ExpYearsReq}</p>
+                          <p>Role :  {job.Role}</p>
+                          <p>Description :  {job.Description}</p>
+                          <p>Contact Mail :  {job.ContactMail}</p>
+                            
             ";
             await _emailService.SendEmailAsync(
                 dto.ReceiverMail,
                 string.IsNullOrEmpty(dto.Subject) ? "Job Opportunity" : dto.Subject,
-                body
+                body,
+                dto.JobDescriptionPdf
             );
 
             return Ok(new { message = "Email send successfully!" });

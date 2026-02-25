@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HRMS_Backend.Entities.GamesScheduling;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.Games_Scheduling
@@ -10,15 +11,16 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         public int Id { get; set; }
 
         [StringLength(50)]
-        [Required(ErrorMessage = "Game ID is required")]
+        [Required(ErrorMessage = "Game Name is required")]
         public string Name { get; set; } = string.Empty;
 
         [StringLength(100)]
-        [Required(ErrorMessage = "Game Name is required")]
+        [Required(ErrorMessage = "Game Location is required")]
         public string Location { get; set; } = string.Empty;
         [Required]
         public bool IsAvailable { get; set; }
-        public ICollection<GameConfiguration> GameConfigurations { get; set; } = new List<GameConfiguration>();
-        public ICollection<GameSlots> GameSlots { get; set; } = new HashSet<GameSlots>();
+        public ICollection<GameConfiguration> GameConfigurations { get; set; }
+        public ICollection<GameSlots> GameSlots { get; set; }
+        public ICollection<GameCycle> GameCycle { get; set; }
     }
 }

@@ -1,8 +1,12 @@
-﻿using HRMS_Backend.Model.JobListing;
+﻿using HRMS_Backend.Data;
+using HRMS_Backend.Entities.JobListing;
+using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using HRMS_Backend.Services.Email;
 using HRMS_Backend.Services.JobListing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 namespace HRMS_Backend.Controllers.JobListing
 {
     [Authorize]
@@ -12,11 +16,15 @@ namespace HRMS_Backend.Controllers.JobListing
     public class ReferalController : ControllerBase
     {
         private readonly IReferService _service;
-        public ReferalController(IReferService service)
+        private readonly MyDbContext _context;
+        private readonly IEmailService _emailService;
+        public ReferalController(IReferService service , MyDbContext context , IEmailService emailService)
         {
             _service = service;
+            _context = context;
+            _emailService = emailService;
         }
-
+        [Authorize(Roles = "Employee")]
         [HttpPost]
         public async Task<IActionResult?> CreateReferalAsync([FromForm] JobRefferalCreateUpdateDto dto)
         {
@@ -35,7 +43,37 @@ namespace HRMS_Backend.Controllers.JobListing
                 }
             }
             var createjob = await _service.createReferalAsync(dto);
-            return CreatedAtAction(nameof(getReferalById), new { id = createjob.Id }, createjob);
+            if (dto.ReceiverEmails != null)
+            {
+                var job = await _context.Jobs.FindAsync(dto.JobId);
+                
+
+            var body = $@"
+                <h2>New Referral: {dto.ReffName}</h2>
+                <p><strong>Job Title:</strong> {job?.Title}</p>
+                <p><strong>Role:</strong> {job?.Role}</p>
+                <p><strong>Experience Required:</strong> {job?.ExpYearsReq}</p>
+                <p><strong>Candidate Email:</strong> {dto.ReffMail}</p>
+                <p><strong>Referral Note:</strong> {dto.Description}</p>
+                <br/>
+                <p>Please find the candidate's resume attached to this email.</p>";
+
+                foreach (var email in dto.ReceiverEmails)
+                {
+                    await _emailService.SendEmailAsync(
+                        email,
+                        $"Referral: {dto.ReffName} for {job?.Title}",
+                        body,
+                        dto.ReffResume 
+                    );
+                }
+            }
+            return Ok(new
+            {
+                id = createjob.Id,
+                message = "Referral created and emails sent successfully"
+            });            
+            //return CreatedAtAction(nameof(getReferalById), new { id = createjob.Id }, createjob);
         }
 
 

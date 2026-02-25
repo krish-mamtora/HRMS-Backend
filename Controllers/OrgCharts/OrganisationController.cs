@@ -27,11 +27,19 @@ namespace HRMS_Backend.Controllers.OrgCharts
         {
             var allManagers = new List<UserProfile>();
             var currentEmployee = await _context.UserProfile.FindAsync(employeeId);
+            if (currentEmployee == null)
+            {
+                return NotFound();
+            }
             allManagers.Add(currentEmployee);
-            int? currentManagerId = currentEmployee?.ManagerId;
+            int? currentManagerId = currentEmployee.ManagerId;
 
             while (currentManagerId.HasValue)
             {
+                if (currentManagerId == allManagers.Last().UserProfileId)
+                {
+                    break;
+                }
                 var manager = await _context.UserProfile.FindAsync(currentManagerId.Value);
                 if (manager == null) break;
 

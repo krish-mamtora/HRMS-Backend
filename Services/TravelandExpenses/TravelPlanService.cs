@@ -48,7 +48,6 @@ namespace HRMS_Backend.Services.TravelandExpenses
             var plans = await _context.TravelPlan.ToListAsync();
             return _mapper.Map<IEnumerable<TravelResponseDto>>(plans);
         }
-
         public async Task<TravelResponseDto> GetPlanByIdAsync(int id)
         {
             var plan = await _context.TravelPlan.FindAsync(id);
