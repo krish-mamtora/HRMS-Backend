@@ -8,11 +8,19 @@ namespace HRMS_Backend.Entities.Achievements
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int PostID {  get; set; }
-        public int LikeCount {  get; set; }
-        //add all types 
-        public int CommentCount { get; set; }
-        public DateTime LastUpdatedAt { get; set; }
+
+        [Required]
+        public int PostId { get; set; }
+
+        [ForeignKey("PostId")]
+        public Posts Post { get; set; } 
+        public int LikeCount { get; set; } = 0;
+        public int CelebrateCount { get; set; } = 0;
+        public int LoveCount { get; set; } = 0;
+        public int InsightfulCount { get; set; } = 0;
+        public int CommentCount { get; set; } = 0;
+
+        public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
 
     }
 }

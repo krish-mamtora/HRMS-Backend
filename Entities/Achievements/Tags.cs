@@ -9,8 +9,10 @@ namespace HRMS_Backend.Entities.Achievements
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        [StringLength(20)]
         public string TagName { get; set; }  = string.Empty;
 
-        public ICollection<Posts> Posts { get; set; } = new List<Posts>();
+        public ICollection<PostTagMap> PostTagMaps { get; set; } = new List<PostTagMap>();
     }
 }
+
