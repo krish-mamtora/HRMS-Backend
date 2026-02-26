@@ -29,49 +29,54 @@ namespace HRMS_Backend.Services.GameScheduling
         }
         public async Task<GameCycleDisplayDto> CreateGameCycleAsync(GameCycleCreateUpdateDto dto)
         {
-            
-            var gameCycle = new GameCycle
-            {
-                GamesId = dto.GamesId,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                isActive = dto.isActive
-            };
-            _context.GameCycle.Add(gameCycle);
-            await _context.SaveChangesAsync();
-
-            var game = await _context.Games.FindAsync(dto.GamesId);
-            var interestedEmployee = await _context.UserProfile.Where(up => up.FavouriteSport == game.Name).Select(ep => ep.UserProfileId).ToListAsync();
-
-            Console.Write(interestedEmployee);
-            Console.Write("list is here");
-            if (interestedEmployee.Count > 0)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
 
+                var gameCycle = new GameCycle
+                {
+                    GamesId = dto.GamesId,
+                    StartTime = dto.StartTime,
+                    EndTime = dto.EndTime,
+                    isActive = dto.isActive
+                };
+                await _context.GameCycle.AddAsync(gameCycle);
+                await _context.SaveChangesAsync();
+                var gameName = await _context.Games.Where(g => g.Id == dto.GamesId).Select(g => g.Name).FirstOrDefaultAsync();
+                if (gameName!=null)
+                {
+                    var interestedEmployee = await _context.UserProfile.Where(up => up.FavouriteSport == gameName).Select(ep => ep.UserProfileId).ToListAsync();
 
-                 await InitializeCycleStatsAsyc(gameCycle.CycleId, interestedEmployee);
-                 await _context.SaveChangesAsync();
-                 return _mapper.Map<GameCycleDisplayDto>(gameCycle);
+                    //Console.Write(interestedEmployee);
+                    //Console.Write("list is here");
+
+                    if (interestedEmployee.Count > 0)
+                    {
+                         await InitializeCycleStatsAsyc(gameCycle.CycleId, interestedEmployee);
+                    }
+                }
+                await transaction.CommitAsync();
+                         return _mapper.Map<GameCycleDisplayDto>(gameCycle);
+
             }
-            else
+            catch
             {
-                throw new Exception("Failed to create Cycle");
+                await transaction.RollbackAsync(); throw;
             }
-            
         }
-       
+
         public async Task<GameCycleDisplayDto> getCycleById(int id)
         {
-            if (id == null)
+            if (id <= 0)
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentNullException("Game id must br greater than 0");
             }
             var gameCycle = await _context.GameCycle.FindAsync(id);
             var GameCycleDto = _mapper.Map<GameCycleDisplayDto>(gameCycle);
             return GameCycleDto;
         }
 
-        public async Task<int> GetActiveCycleIdAsync(int gameId)
+        public async Task<int?> GetActiveCycleIdAsync(int gameId)
         {
             if (gameId <= 0)
             {
@@ -84,12 +89,17 @@ namespace HRMS_Backend.Services.GameScheduling
         }
         public async Task<int> getLowsetGamePlayedInCurrentCycle(int cycleId)
         {
+            var statsExist = await _context.EmployeeCycleStats.AnyAsync(es => es.GameCycleId == cycleId);
+            if (!statsExist) {
+                return 0;
+            }
             var lowestGamePlayedVal = await _context.EmployeeCycleStats
              .Where(es => es.GameCycleId == cycleId)
-             .MinAsync(e => Convert.ToInt32(e.GamePlayed));
+             .MinAsync(es=>es.GamePlayed);
+
             return lowestGamePlayedVal;
         }
-        public async Task<Boolean> InitializeCycleStatsAsyc(int cycleId, List<int> InteretedUser)
+        public async Task InitializeCycleStatsAsyc(int cycleId, List<int> InteretedUser)
         {
             var stats = InteretedUser.Select(userId => new EmployeeCycleStats
             {
@@ -101,7 +111,6 @@ namespace HRMS_Backend.Services.GameScheduling
             await _context.EmployeeCycleStats.AddRangeAsync(stats);
 
             await _context.SaveChangesAsync();
-            return true;
         }
 
 

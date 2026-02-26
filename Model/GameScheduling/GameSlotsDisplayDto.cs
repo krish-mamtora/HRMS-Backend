@@ -8,7 +8,6 @@
         public DateTime EndTime { get; set; }
         public int Capacity { get; set; }
         public int Assigned { get; set; }
-        public int AvailableSeats { get; set; }
         public bool IsBookingOpen { get; set; }
 
     }

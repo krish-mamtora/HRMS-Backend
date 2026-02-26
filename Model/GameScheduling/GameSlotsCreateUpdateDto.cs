@@ -14,7 +14,7 @@ namespace HRMS_Backend.Model.GameScheduling
         public DateTime EndTime { get; set; }
         public int Capacity { get; set; }
         public int Assigned { get; set; }
-        public int AvailableSeats { get; set; }
+      
         [Required]
         public bool IsBookingOpen { get; set; }
 

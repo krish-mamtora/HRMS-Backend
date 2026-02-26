@@ -30,7 +30,6 @@ namespace HRMS_Backend.Entities.Games_Scheduling
 
         public int Capacity { get; set;  }
         public int Assigned { get; set;  }
-        public int AvailableSeats { get;set;  }
 
         public bool SlotPlayed { get; set; }
         [Required]

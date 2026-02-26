@@ -44,19 +44,35 @@ namespace HRMS_Backend.Controllers.GameScheduling
             var booking = await _service.getBookingById(id);
             if (booking == null)
             {
-                return BadRequest(ModelState);
+                return  NotFound();
             }
             return Ok(booking);
         }
-        [HttpGet("/user/{id}" , Name ="getUserBookings")]
+        [HttpGet("user/{id}" , Name ="getUserBookings")]
         public async Task<IActionResult> getBookingsByUserId(int id)
         {
-            var bookings = await _service.getBookingsByUserId(int id);
+            var bookings = await _service.getBookingsByUserId(id);
             if(bookings == null)
             {
                 return BadRequest(ModelState);
             }
             return Ok(bookings);
+        }
+
+       
+        [HttpDelete("{bookingId}", Name = "CancelBooking")]
+        public async Task<IActionResult> CancelBooking(int bookingId)
+        {
+            if (bookingId <= 0)
+            {
+                return BadRequest("Invalid booking ID.");
+            }
+            var result = await _service.CancelBooking(bookingId);
+            if (!result)
+            {
+                return NotFound(new { Message = $"Booking with ID {bookingId} not found." });
+            }
+            return Ok(new { Message = $"Booking {bookingId} cancelled" });
         }
     }
 }

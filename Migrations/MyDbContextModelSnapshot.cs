@@ -395,9 +395,6 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("Assigned")
                         .HasColumnType("int");
 
-                    b.Property<int>("AvailableSeats")
-                        .HasColumnType("int");
-
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
 
