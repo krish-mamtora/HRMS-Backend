@@ -10,10 +10,11 @@ namespace HRMS_Backend.Entities.Achievements
         public int ImageId { get; set; }
 
         [Required]
-        [StringLength(255, ErrorMessage = "Image path/URL cannot exceed 255 characters.")]
+        [StringLength(255)]
         public string ImagePath { get; set; } = null!;
+
         public int PostId { get; set; }
         [ForeignKey("PostId")]
-        public Posts Post { get; set; } = null!;
+        public virtual Posts Post { get; set; } = null!;
     }
 }

@@ -22,6 +22,40 @@ namespace HRMS_Backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.AchievementNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int?>("ModerationLogId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModerationLogId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AchievementNotification");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
                 {
                     b.Property<int>("Id")
@@ -35,25 +69,173 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<string>("Comment")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DeletedByUserId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ParentComment")
+                    b.Property<int?>("ParentCommentId")
                         .HasColumnType("int");
 
                     b.Property<int>("PostsId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("PostsId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostImages", b =>
+                {
+                    b.Property<int>("ImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImageId"));
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ImageId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("PostsId");
+
+                    b.ToTable("PostImages");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostInteraction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CelebrateCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InsightfulCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LoveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId")
+                        .IsUnique();
+
+                    b.ToTable("PostInteraction");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostModerationLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ModeratedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("TargetUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModeratedByUserId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("PostModerationLog");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostTagMap", b =>
+                {
+                    b.Property<int>("PostTagMapId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostTagMapId"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostTagMapId");
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("PostId", "TagId")
+                        .IsUnique();
+
+                    b.ToTable("PostTagMaps");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
@@ -67,18 +249,24 @@ namespace HRMS_Backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DeletedByUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsSystemGenerated")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ModeratedByUserId")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("TagsId")
+                    b.Property<int?>("ModeratedByUserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -94,7 +282,9 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TagsId");
+                    b.HasIndex("DeletedByUserId");
+
+                    b.HasIndex("ModeratedByUserId");
 
                     b.HasIndex("UserId");
 
@@ -111,7 +301,8 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<string>("TagName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -790,7 +981,7 @@ namespace HRMS_Backend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.TravelAssignEmail", b =>
@@ -1069,34 +1260,141 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.AchievementNotification", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Achievements.PostModerationLog", "ModerationLog")
+                        .WithMany()
+                        .HasForeignKey("ModerationLogId");
+
+                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ModerationLog");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
                 {
-                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Posts")
+                    b.HasOne("HRMS_Backend.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "Deleter")
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId");
+
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Comments", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Posts");
+                    b.Navigation("Author");
+
+                    b.Navigation("Deleter");
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostImages", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", null)
+                        .WithMany("PostImages")
+                        .HasForeignKey("PostsId");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostInteraction", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Post")
+                        .WithOne("Interactions")
+                        .HasForeignKey("HRMS_Backend.Entities.Achievements.PostInteraction", "PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostModerationLog", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.User", "Moderator")
+                        .WithMany()
+                        .HasForeignKey("ModeratedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Moderator");
+
+                    b.Navigation("TargetUser");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostTagMap", b =>
+                {
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Post")
+                        .WithMany("PostTagMaps")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HRMS_Backend.Entities.Achievements.Tags", "Tag")
+                        .WithMany("PostTagMaps")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
                 {
-                    b.HasOne("HRMS_Backend.Entities.Achievements.Tags", "Tags")
-                        .WithMany("Posts")
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("HRMS_Backend.Entities.User", "Deleter")
+                        .WithMany()
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("HRMS_Backend.Entities.User", "User")
+                    b.HasOne("HRMS_Backend.Entities.User", "Moderator")
                         .WithMany("Posts")
+                        .HasForeignKey("ModeratedByUserId");
+
+                    b.HasOne("HRMS_Backend.Entities.User", "Author")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Tags");
+                    b.Navigation("Author");
 
-                    b.Navigation("User");
+                    b.Navigation("Deleter");
+
+                    b.Navigation("Moderator");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.FixEntityUserProfile.UserProfile", b =>
@@ -1507,14 +1805,26 @@ namespace HRMS_Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Comments", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Posts", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Interactions")
+                        .IsRequired();
+
+                    b.Navigation("PostImages");
+
+                    b.Navigation("PostTagMaps");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.Tags", b =>
                 {
-                    b.Navigation("Posts");
+                    b.Navigation("PostTagMaps");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.Bookings", b =>

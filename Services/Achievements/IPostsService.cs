@@ -1,0 +1,15 @@
+﻿using HRMS_Backend.Entities.Achievements;
+using HRMS_Backend.Model.Achievements;
+
+namespace HRMS_Backend.Services.Achievements
+{
+    public interface IPostsService
+    {
+        Task<PostsDisplayDto> CreatePostAsync(PostsCreateUpdateDto command, int currentUserId);
+        Task<IEnumerable<PostsDisplayDto>> GetAllVisiblePostsAsync();
+        Task<bool> ToggleReactionAsync(PostInteractionCreateUpdateDto interaction, int userId);
+        Task<PostsDisplayDto?> GetPostByIdAsync(int id);
+        Task<bool> SoftDeletePostAsync(int id, int currentUserId, string reason);
+        Task<bool>  UpdatePostAsync(int id , PostsCreateUpdateDto dto);
+    }
+}

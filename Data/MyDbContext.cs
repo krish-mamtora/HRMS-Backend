@@ -12,7 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using TravelDocuments = HRMS_Backend.Entities.TravelandExpense.TravelDocuments;
 using ShareEmail = HRMS_Backend.Entities.JobListing.ShareEmail;
 using HRMS_Backend.Entities.GamesScheduling;
-using Notification = HRMS_Backend.Entities.Achievements.Notification;
+using AchievementNotification = HRMS_Backend.Entities.Achievements.AchievementNotification;
 
 namespace HRMS_Backend.Data
 {
@@ -150,6 +150,12 @@ namespace HRMS_Backend.Data
                .HasForeignKey(p => p.UserId)
                .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Posts>()
+              .HasOne(p => p.Deleter) 
+              .WithMany() 
+              .HasForeignKey(p => p.DeletedByUserId) 
+              .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Comments>()
                    .HasOne(c => c.ParentComment)
                    .WithMany(c => c.Replies)
@@ -164,7 +170,7 @@ namespace HRMS_Backend.Data
 
             modelBuilder.Entity<PostImages>()
                   .HasOne(i => i.Post)
-                  .WithMany() 
+                  .WithMany(p => p.PostImages) 
                   .HasForeignKey(i => i.PostId)
                   .OnDelete(DeleteBehavior.Cascade);
 
@@ -206,7 +212,7 @@ namespace HRMS_Backend.Data
                .HasForeignKey(m => m.TargetUserId)
                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Notification>()
+            modelBuilder.Entity<AchievementNotification>()
                .HasOne(n => n.User)
               .WithMany() 
               .HasForeignKey(n => n.UserId)
@@ -222,7 +228,7 @@ namespace HRMS_Backend.Data
         public DbSet<GameSlots> GameSlots { get; set; }
         public DbSet<Jobs> Jobs { get; set; }
         public DbSet<Tags> Tags { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<AchievementNotification> Notifications { get; set; }
         public DbSet<TravelPlan> TravelPlan { get; set; }
         public DbSet<Referals> Referals { get; set; }
         public DbSet<TravelAssignment> TravelAssignment { get; set; }
@@ -241,6 +247,15 @@ namespace HRMS_Backend.Data
         public DbSet<Bookings> Bookings { get; set; }
         public DbSet<WaitingQueue> WaitingQueue { get; set; }
         public DbSet<BookingParticipants> BookingParticipants { get; set; }
+
+        public DbSet<AchievementNotification> AchievementNotification { get; set; }
+        public DbSet<Comments> Comments { get; set; }
+        public DbSet<PostInteraction> PostInteraction { get; set; }
+        public DbSet<PostModerationLog> PostModerationLog { get; set; }
+        public DbSet<Posts> Posts { get; set; }
+        public DbSet<PostTagMap> PostTagMaps { get; set; }
+        public DbSet<PostImages> PostImages { get; set; }
+
     }
 
 }

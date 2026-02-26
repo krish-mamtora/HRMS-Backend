@@ -21,6 +21,7 @@ using HRMS_Backend.Model;
 using HRMS_Backend.Services.Email;
 using Quartz;
 using HRMS_Backend.Services.Quartz;
+using HRMS_Backend.Services.Achievements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +100,7 @@ builder.Services.AddScoped<IWaitingQueueService, WaitingQueueService>();
 builder.Services.AddScoped<IGameCycleService, GameCycleService>();
 builder.Services.AddScoped<IFairnessService, FairnessService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IPostsService , PostsService>();
 builder.Services.AddScoped<IEmployeeCycleStatsService, EmployeeCycleStatsService>();
 //builder.Services.AddQuartzHostedService(options =>
 //{

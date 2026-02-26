@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.Achievements
 {
-    public class Notification
+    public class AchievementNotification
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

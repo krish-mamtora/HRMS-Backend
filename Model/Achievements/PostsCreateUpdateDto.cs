@@ -14,8 +14,7 @@ namespace HRMS_Backend.Model.Achievements
         public string Description { get; set; } = string.Empty;
         public bool IsVisible { get; set; } = true;
         public bool IsSystemGenerated { get; set; } = false;
-
-
+        public List<IFormFile>? Images { get; set; }
         public List<int> TagIds { get; set; } = new();
     }
 }

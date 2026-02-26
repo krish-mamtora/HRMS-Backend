@@ -35,6 +35,7 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="JD\" />
+    <Folder Include="AchievementImages\" />
     <Folder Include="TravelDocuments\" />
     <Folder Include="UploadedExpenseProof\" />
     <Folder Include="uploads\" />

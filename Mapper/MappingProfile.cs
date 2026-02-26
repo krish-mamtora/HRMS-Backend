@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
+using HRMS_Backend.Entities.Achievements;
 using HRMS_Backend.Entities.FixEntityUserProfile;
 using HRMS_Backend.Entities.Games_Scheduling;
 using HRMS_Backend.Entities.GamesScheduling;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
+using HRMS_Backend.Model.Achievements;
 using HRMS_Backend.Model.DtoUserProfile;
 using HRMS_Backend.Model.GameScheduling;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using Microsoft.Extensions.Hosting;
 
 namespace HRMS_Backend.Mapper
 {
@@ -32,6 +35,18 @@ namespace HRMS_Backend.Mapper
             CreateMap<EmployeeCycleStats, EmployeeCycleStatsDisplayDto>();
             CreateMap<GameCycle, GameCycleDisplayDto>();
             CreateMap<Bookings, BookingsDisplayDto>();
+            CreateMap<Posts, PostsCreateUpdateDto>();
+            CreateMap<PostsCreateUpdateDto, Posts>();
+            CreateMap<Posts, PostsDisplayDto>()
+                .ForMember(dest => dest.ImageUrls, 
+                        opt => opt.MapFrom(src =>
+                             src.PostImages.Select(i => i.ImagePath).ToList()))
+                .ForMember(dest => dest.TagNames, 
+                        opt => opt.MapFrom(src =>
+                            src.PostTagMaps.Select(ptm => ptm.Tag.TagName).ToList()))
+
+                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
+                    src.Author.Email));
         }
     }
 }

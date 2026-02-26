@@ -13,7 +13,7 @@ namespace HRMS_Backend.Entities.Achievements
         [Required]
         public int PostId { get; set; }
 
-        [ForeignKey("PostId")]
+        [ForeignKey("PostId")] 
         public Posts Post { get; set; }
 
         [Required]
