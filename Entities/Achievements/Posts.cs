@@ -36,6 +36,9 @@ namespace HRMS_Backend.Entities.Achievements
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        public bool IsSystemGenerated { get; set; } = false;
+        public DateTime? ExpiresAt { get; set; }
+        public bool IsCurrentlyVisible => IsVisible && (!ExpiresAt.HasValue || ExpiresAt > DateTime.UtcNow);
         public ICollection<Comments> Comments { get; set; } = new List<Comments>();
         public ICollection<PostImages> PostImages { get; set; }
         public  PostInteraction Interactions { get; set; }
