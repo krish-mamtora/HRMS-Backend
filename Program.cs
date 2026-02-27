@@ -1,10 +1,14 @@
 using HRMS_Backend.Data;
 using HRMS_Backend.Mapper;
+using HRMS_Backend.Model;
 using HRMS_Backend.Services;
+using HRMS_Backend.Services.Achievements;
+using HRMS_Backend.Services.Email;
 using HRMS_Backend.Services.GameScheduling;
 using HRMS_Backend.Services.JobListing;
-using HRMS_Backend.Services.TravelandExpenses;
+using HRMS_Backend.Services.Quartz;
 using HRMS_Backend.Services.ServiceUserProfile;
+using HRMS_Backend.Services.TravelandExpenses;
 //using HRMS_Backend.Services.User;
 //using HRMS_Backend.Services.UserProfile;
 
@@ -14,14 +18,11 @@ using HRMS_Backend.Services.ServiceUserProfile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 using Scalar.AspNetCore;
 using System.Text;
-using HRMS_Backend.Model;
-using HRMS_Backend.Services.Email;
-using Quartz;
-using HRMS_Backend.Services.Quartz;
-using HRMS_Backend.Services.Achievements;
 //using PostInteractionService = HRMS_Backend.Services.Achievements.PostInteractionService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,10 +46,18 @@ builder.Services.AddQuartz(q =>
     var jobKey = new JobKey("ExampleJob");
     q.AddJob<ExampleJob>(opts => opts.WithIdentity(jobKey));
 
+    //q.AddTrigger(opts => opts
+    //    .ForJob(jobKey)
+    //    .WithSimpleSchedule(x => x.WithIntervalInSeconds(15).RepeatForever())
+    //);
     q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithSimpleSchedule(x => x.WithIntervalInSeconds(15).RepeatForever())
-    );
+      .ForJob(jobKey)
+      .WithIdentity("ExampleJob-trigger")
+      .StartNow()
+      .WithSimpleSchedule(x => x
+          .WithIntervalInHours(24) 
+          .RepeatForever())
+  );
 });
 
 // Add services to the container.
@@ -116,9 +125,16 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+
 }
 app.UseCors("AllowdFrontend");
-
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "AchievementImages")),
+    RequestPath = "/content/achievements" 
+});
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

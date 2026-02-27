@@ -145,7 +145,7 @@ namespace HRMS_Backend.Services.Achievements
                 Action = "SoftDelete",
                 Reason = reason,
                 ModeratedByUserId = userId,
-                TargetUserId = post.UserId,
+                TargetUserId = post.UserId??0,
                 CreatedAt = DateTime.UtcNow
             });
 
@@ -180,6 +180,120 @@ namespace HRMS_Backend.Services.Achievements
 
             return _mapper.Map<List<PostsDisplayDto>>(posts);
         }
+        public async Task<int> GenerateSystemPosts()
+        {
+          
+            DateOnly todayDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            DateTime now = DateTime.UtcNow;
+            var expiredPosts = await _context.Posts
+                .Where(p => p.IsSystemGenerated && p.ExpiresAt < now && p.IsVisible)
+                .ToListAsync();
+
+            foreach (var oldPost in expiredPosts)
+            {
+                oldPost.IsVisible = false;
+            }
+            var birthdayUsers = await _context.UserProfile
+                .Where(up => up.Birthday.Month == todayDate.Month &&
+                             up.Birthday.Day == todayDate.Day)
+                .ToListAsync();
+
+            int createdCount = 0;
+
+            foreach (var user in birthdayUsers)
+            {
+                var birthdayPost = new Posts
+                {
+                    UserId = user.UserProfileId,
+                    Title = "Happy Birthday! 🎂",
+                    Description = $"Wishing {user.FirstName} a wonderful birthday today!",
+                    CreatedAt = now,
+                    ExpiresAt = now.AddDays(1), 
+                    IsVisible = true,
+                    IsSystemGenerated = true
+                };
+
+                _context.Posts.Add(birthdayPost);
+                await _context.SaveChangesAsync();
+
+              
+                _context.PostTagMaps.Add(new PostTagMap
+                {
+                    PostId = birthdayPost.Id,
+                    TagId = 4
+                });
+
+                _context.PostInteraction.Add(new PostInteraction
+                {
+                    PostId = birthdayPost.Id,
+                    LastUpdatedAt = now
+                });
+
+                createdCount++;
+            }
+
+            await _context.SaveChangesAsync();
+            return createdCount;
+        }
+
+        public async Task<int> GenerateAnniversaryPosts()
+        {
+            DateTime now = DateTime.UtcNow;
+            DateOnly todayDate = DateOnly.FromDateTime(now);
+            int currentYear = now.Year;
+
+            var anniversaryUsers = await _context.UserProfile
+                .Where(up => up.JoinDate.Month == todayDate.Month &&
+                             up.JoinDate.Day == todayDate.Day &&
+                             up.JoinDate.Year < currentYear)
+                .ToListAsync();
+
+            int createdCount = 0;
+
+            var newPosts = new List<Posts>();
+            var newInteractions = new List<PostInteraction>();
+            var newTagMaps = new List<PostTagMap>();
+
+            foreach (var user in anniversaryUsers)
+            {
+                int yearsCompleted = currentYear - user.JoinDate.Year;
+                var anniversaryPost = new Posts
+                {
+                    UserId = user.UserProfileId,
+                    Title = "Work Anniversary! 🎊",
+                    Description = $"Congratulations to {user.FirstName} for completing {yearsCompleted} years! 🚀",
+                    CreatedAt = now,
+                    ExpiresAt = now.AddDays(1),
+                    IsVisible = true,
+                    IsSystemGenerated = true
+                };
+
+                newPosts.Add(anniversaryPost);
+                createdCount++;
+            }
+
+            _context.Posts.AddRange(newPosts);
+            await _context.SaveChangesAsync();
+
+            foreach (var post in newPosts)
+            {
+                _context.PostTagMaps.Add(new PostTagMap { PostId = post.Id, TagId = 5 });
+                _context.PostInteraction.Add(new PostInteraction { PostId = post.Id, LastUpdatedAt = now });
+            }
+            await _context.SaveChangesAsync();
+
+            return createdCount;
+        }
+
+
+        //find all posts which are system generated and whose expires at time > cur time make them isvisible false
+
+        //const fetchUsersWhoHasTodayBirthday = await _context.UserProfile.Where(up => up.Birthday == todaysDaye).FindAsync();
+        //for all users create one post 
+        //    which has title happy bitrh day and desc somehting 
+        //    create post and upload and in Posts IsSystemGenerated kee True and Expires at current time + 1day
+
+
         public async Task<bool> ToggleReactionAsync(PostInteractionCreateUpdateDto dto, int userId)
         {
             var interaction = await _context.PostInteraction

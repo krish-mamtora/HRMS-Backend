@@ -272,7 +272,7 @@ namespace HRMS_Backend.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -315,6 +315,9 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<int>("Age")
                         .HasColumnType("int");
+
+                    b.Property<DateOnly>("Birthday")
+                        .HasColumnType("date");
 
                     b.Property<string>("Department")
                         .IsRequired()
@@ -1314,7 +1317,7 @@ namespace HRMS_Backend.Migrations
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostInteraction", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Post")
-                        .WithOne("Interactions")
+                        .WithOne("PostInteraction")
                         .HasForeignKey("HRMS_Backend.Entities.Achievements.PostInteraction", "PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1374,8 +1377,7 @@ namespace HRMS_Backend.Migrations
                     b.HasOne("HRMS_Backend.Entities.User", "Author")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Author");
 
@@ -1793,10 +1795,10 @@ namespace HRMS_Backend.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Interactions")
-                        .IsRequired();
-
                     b.Navigation("PostImages");
+
+                    b.Navigation("PostInteraction")
+                        .IsRequired();
 
                     b.Navigation("PostTagMaps");
                 });

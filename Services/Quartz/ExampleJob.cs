@@ -1,4 +1,5 @@
 ﻿using HRMS_Backend.Entities.Games_Scheduling;
+using HRMS_Backend.Services.Achievements;
 using HRMS_Backend.Services.GameScheduling;
 using Quartz;
 using System.ComponentModel.DataAnnotations;
@@ -6,28 +7,32 @@ using System.ComponentModel.DataAnnotations;
 namespace HRMS_Backend.Services.Quartz
 {
     public class ExampleJob : IJob
-    {       
-        private readonly IGameSlotService _gameSlotService;
-        private readonly IGamesService _gamesService;
-        public ExampleJob(IGameSlotService gameSlotService ,IGamesService gamesService)
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public ExampleJob(IServiceProvider serviceProvider)
         {
-            _gameSlotService = gameSlotService;
-            _gamesService = gamesService;
+            _serviceProvider = serviceProvider;
         }
-        public async Task  Execute(IJobExecutionContext context)
+
+        public async Task Execute(IJobExecutionContext context)
         {
-
-            var games = await _gamesService.GetAllGamesAsync(); 
-
-            foreach (var game in games)
+            using (var scope = _serviceProvider.CreateScope())
             {
+                //var gameSlotService = scope.ServiceProvider.GetRequiredService<IGameSlotService>();
+                //var gamesService = scope.ServiceProvider.GetRequiredService<IGamesService>();
+                var postService = scope.ServiceProvider.GetRequiredService<IPostsService>();
 
-                var added = await _gameSlotService.GenerateGameSlotAsync(game.Id, DateOnly.FromDateTime(DateTime.Now));
-                Console.WriteLine(added);
-                Console.WriteLine("ExampleJob is running: " + DateTime.Now + " And :  "+added+" slot added ");
+                await postService.GenerateSystemPosts();
+                await postService.GenerateAnniversaryPosts();
+
+                //var games = await gamesService.GetAllGamesAsync();
+                //foreach (var game in games)
+                //{
+                //    var added = await gameSlotService.GenerateGameSlotAsync(game.Id, DateOnly.FromDateTime(DateTime.Now));
+                //    Console.WriteLine($"[Quartz Job] {DateTime.Now}: Added slot: {added}");
+                //}
             }
-
-            //return Task.CompletedTask;
         }
     }
 }

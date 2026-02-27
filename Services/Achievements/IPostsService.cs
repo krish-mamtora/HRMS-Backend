@@ -12,5 +12,7 @@ namespace HRMS_Backend.Services.Achievements
         Task<Posts?> SoftDeletePostAsync(int id, int currentUserId, string reason);
         Task<bool>  UpdatePostAsync(int id , PostsCreateUpdateDto dto);
         Task<IEnumerable<PostsDisplayDto>> GetUserPostsHistoryAsync(int userId);
+        Task<int> GenerateSystemPosts();
+        Task<int> GenerateAnniversaryPosts();
     }
 }

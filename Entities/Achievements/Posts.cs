@@ -12,7 +12,7 @@ namespace HRMS_Backend.Entities.Achievements
         public int Id { get; set; }
 
 
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         [ForeignKey("UserId")]
         public User Author { get; set; } 
 

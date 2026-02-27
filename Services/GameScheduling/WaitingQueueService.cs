@@ -5,6 +5,7 @@ using HRMS_Backend.Entities.Games_Scheduling;
 using HRMS_Backend.Entities.GamesScheduling;
 using HRMS_Backend.Model.GameScheduling;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Nist;
 
 namespace HRMS_Backend.Services.GameScheduling
 {
@@ -63,10 +64,30 @@ namespace HRMS_Backend.Services.GameScheduling
         {
             return await _context.WaitingQueue.AnyAsync(wq => wq.SlotId == slotId && wq.PlayerId == userId && wq.Status == "Waiting");
         }
+        public async Task<IEnumerable<WaitingQueueDisplayDto>> GetWaitingQueueByPlayerId(int playerId)
+        {
+            if (playerId <= 0)
+                throw new ArgumentException("Invalid Player ID", nameof(playerId));
 
-        //public async Task<int> GetNextEligiblePerson(int slotId)S
-        //{
-        //    var nextPerson = await _context.WaitingQueue.Where(wq=> wq.Status=="Waiting").OrderBy(wq.)
-        //}
+            var queueItems = await _context.WaitingQueue
+                   .Where(wq => wq.PlayerId == playerId)
+                   //.Select(wq => wq.SlotId)
+                   // .Include()
+                   //.Distinct()
+                   .ToListAsync();
+
+            //    var queueItems = await _context.WaitingQueue
+            //        .Include(wq=>wq.SlotId)
+            //.Include(wq => wq.GameCycle)
+            //    .ThenInclude(gc => gc.Games) 
+            //        .ThenInclude(gm=>gm.Name)
+            //.Include(wq => wq.GameSlots)     
+            //    .ThenInclude(gs=>gs.StartTime)
+            //     .Include(wq => wq.GameSlots)
+            //    .ThenInclude(gs => gs.EndTime)
+            //.Where(wq => wq.PlayerId == playerId)
+            //.ToListAsync();
+            return _mapper.Map<IEnumerable<WaitingQueueDisplayDto>>(queueItems);
+        }
     }
 }
