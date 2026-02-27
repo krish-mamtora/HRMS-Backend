@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.Games_Scheduling
 {
-    //[Index(nameof(GamesId), nameof(StartTime), IsUnique = true)]
+    [Index(nameof(GamesId), nameof(StartTime), IsUnique = true)]
     public class GameSlots
     {
         [Key]
@@ -27,6 +27,8 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         [ForeignKey("CycleId")]
         public GameCycle GameCycle { get; set; }
 
+        //[Timestamp]
+        //public byte[] RowVersion { get; set; }
 
         public int Capacity { get; set;  }
         public int Assigned { get; set;  }

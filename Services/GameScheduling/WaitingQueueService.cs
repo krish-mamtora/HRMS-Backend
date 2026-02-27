@@ -23,7 +23,6 @@ namespace HRMS_Backend.Services.GameScheduling
         {
             var waitingQueue = new WaitingQueue
             {
-                BookingId = bookingId,
                 SlotId = slotId,
                 CycleId = cycleId,
                 Status = "Waiting"

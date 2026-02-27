@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.GamesScheduling
 {
+    [Index(nameof(BookingId) , nameof(EmpId)  , IsUnique = true)]
     public class BookingParticipants
     {
         public int Id { get; set; }

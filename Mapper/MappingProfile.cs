@@ -10,6 +10,7 @@ using HRMS_Backend.Model.DtoUserProfile;
 using HRMS_Backend.Model.GameScheduling;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace HRMS_Backend.Mapper
@@ -47,6 +48,12 @@ namespace HRMS_Backend.Mapper
 
                 .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
                     src.Author.Email));
+
+            //CreateMap<Comments, CommentsDisplayDto>()
+            //.ForMember(dest => dest.CommentText, opt => opt.MapFrom(src => src.Comment))
+            //.ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.Email))
+            //.ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.Replies.Where(r => !r.IsDeleted)));
+
         }
     }
 }

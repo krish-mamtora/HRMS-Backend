@@ -60,19 +60,31 @@ namespace HRMS_Backend.Controllers.GameScheduling
         }
 
        
-        [HttpDelete("{bookingId}", Name = "CancelBooking")]
+        [HttpPut("cancel/{bookingId}", Name = "CancelBooking")]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
             if (bookingId <= 0)
             {
                 return BadRequest("Invalid booking ID.");
             }
-            var result = await _service.CancelBooking(bookingId);
-            if (!result)
+            try
             {
-                return NotFound(new { Message = $"Booking with ID {bookingId} not found." });
+                await _service.CancelBookingAsync(bookingId);
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Booking Cancelled Successfully , waiting queue updated"
+                }); 
             }
-            return Ok(new { Message = $"Booking {bookingId} cancelled" });
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message,
+                });
+            }
+           
         }
     }
 }

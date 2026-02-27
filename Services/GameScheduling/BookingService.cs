@@ -19,96 +19,129 @@ namespace HRMS_Backend.Services.GameScheduling
         IFairnessService _fairnessService;
         IGameSlotService _gameSlotService;
         IUserProfileService _userProfileService;
-        public BookingService(MyDbContext context, IMapper mapper, IFairnessService fairnessService, IGameSlotService gameSlotService, IUserProfileService userProfileService)
+        IEmployeeCycleStatsService _employeeCycleStatsService;
+        public BookingService(MyDbContext context, IMapper mapper, IFairnessService fairnessService, IGameSlotService gameSlotService, IUserProfileService userProfileService, IEmployeeCycleStatsService employeeCycleStatsService )
         {
             _context = context;
             _mapper = mapper;
             _fairnessService = fairnessService;
             _gameSlotService = gameSlotService;
             _userProfileService = userProfileService;
+            _employeeCycleStatsService = employeeCycleStatsService;
         }
         public async Task<BookingResultDto> RequestBookingAsync(BookingRequestCreateDto dto)
         {
-            if (dto == null) {
-                throw new ArgumentNullException(nameof(dto));
-            }
-            if (dto.userIds == null || !dto.userIds.Any()) {
-                throw new ArgumentException("User list cannot be empty");
-            }
-            var transection = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var result = new BookingResultDto
                 {
-                    UserResults  = new List<UserBookingDetail>(),
+                    UserResults = new List<UserBookingDetail>(),
                     BookedUsers = new List<int>(),
                     WaitingUsers = new List<int>()
                 };
-                var slot = await _context.GameSlots.FirstOrDefaultAsync(s=>s.Id== dto.SlotId);
-                if (slot == null)
-                {
-                    throw new Exception("Invalid Slot");
-                }
+
+                var slot = await _context.GameSlots
+                    .Include(s => s.GameCycle)
+                    .FirstOrDefaultAsync(s => s.Id == dto.SlotId);
+
+                if (slot == null || !slot.IsBookingOpen)
+                    throw new Exception("Slot unavailable");
+
                 int availableSeats = slot.Capacity - slot.Assigned;
-                var eligibleUsers = new List<int>();
-                var waitingUsers = new List<int>();
+
+                var eligibleForBooking = new List<int>();
+                var queueUsers = new List<int>();
 
                 foreach (var userId in dto.userIds.Distinct())
                 {
-                    if(await _userProfileService.IsUserBannedAsync(userId))
+                  
+                    var (rejected, message) =
+                        await _fairnessService.IsHardRejectedAsync(userId, dto.SlotId);
+
+                    if (rejected)
                     {
-                        result.UserResults.Add(new UserBookingDetail { UserId = userId, Status = "Failed", Message = "User is banned" });
+                        result.UserResults.Add(new UserBookingDetail
+                        {
+                            UserId = userId,
+                            Status = "Failed",
+                            Message = message
+                        });
                         continue;
                     }
-                    Boolean alreadyBooked = await _context.BookingParticipants.AnyAsync(p=>p.EmpId== userId && p.Bookings.SlotId == dto.SlotId && p.Bookings.Status == "Booked");
-                    if (alreadyBooked) {
-                        result.UserResults.Add(new UserBookingDetail { UserId = userId, Status = "Failed", Message = "User already booked for this slot" });
-                        continue;
-                    }
-                    bool isEligible = await _fairnessService.IsUsersEligibleAsync(dto.SlotId, userId, slot.CycleId);
-                    if(isEligible && slot.IsBookingOpen && availableSeats > 0)
+
+                    bool eligible =
+                        await _fairnessService.IsEligibleForDirectBookingAsync(userId, slot.CycleId);
+
+                    if (eligible && availableSeats > 0)
                     {
-                        result.UserResults.Add(new UserBookingDetail { UserId = userId, Status = "Booked", Message = "Successfully booked" });
-                        eligibleUsers.Add(userId);
+                        eligibleForBooking.Add(userId);
                         availableSeats--;
+
+                        result.UserResults.Add(new UserBookingDetail
+                        {
+                            UserId = userId,
+                            Status = "Booked",
+                            Message = "Slot booked successfully"
+                        });
                     }
                     else
                     {
-                        result.UserResults.Add(new UserBookingDetail { UserId = userId, Status = "Waiting", Message = "Slot full/closed, added to waiting queue" });
-                        waitingUsers.Add(userId);
+                        queueUsers.Add(userId);
+
+                        result.UserResults.Add(new UserBookingDetail
+                        {
+                            UserId = userId,
+                            Status = "Waiting",
+                            Message = eligible
+                                ? "Slot full. Added to queue"
+                                : "Not eligible now. Added to queue"
+                        });
                     }
                 }
 
-            if (eligibleUsers.Any())
-            {
-                var booking = new Bookings
+                if (eligibleForBooking.Any())
                 {
-                    SlotId = dto.SlotId,
-                    BookedBy = dto.BookedBy,
-                    SlotPlayed = false,
-                    Status = "Booked",
-                };
-                await _context.Bookings.AddAsync(booking);
-                await _context.SaveChangesAsync();
+                    int bookedBy = eligibleForBooking.Contains(dto.BookedBy)
+                        ? dto.BookedBy
+                        : eligibleForBooking.First();
 
+                    var booking = new Bookings
+                    {
+                        SlotId = dto.SlotId,
+                        BookedBy = bookedBy,
+                        Status = "Booked",
+                        BookedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
 
-                foreach (var userId in eligibleUsers)
-                {
-                    await _context.BookingParticipants.AddAsync(
-                        new BookingParticipants
-                        {
-                            BookingId = booking.BId,
-                            EmpId = userId
-                        }
-                    );
+                    await _context.Bookings.AddAsync(booking);
+                    await _context.SaveChangesAsync();
+
+                    foreach (var userId in eligibleForBooking)
+                    {
+                        await _context.BookingParticipants.AddAsync(
+                            new BookingParticipants
+                            {
+                                BookingId = booking.BId,
+                                EmpId = userId
+                            });
+                    }
+
+                    slot.Assigned += eligibleForBooking.Count;
+                    result.BookedUsers.AddRange(eligibleForBooking);
                 }
-                slot.Assigned += eligibleUsers.Count;
-                result.BookedUsers.AddRange(eligibleUsers);
-            }
-                foreach (var userId in waitingUsers)
+
+               
+                foreach (var userId in queueUsers)
                 {
-                    Boolean alreadyInQueue = await _context.WaitingQueue.AnyAsync(q => q.PlayerId == userId && q.SlotId == dto.SlotId && q.Status == "Waiting");
-                    if (!alreadyInQueue)
+                    bool exists = await _context.WaitingQueue.AnyAsync(q =>
+                        q.PlayerId == userId &&
+                        q.SlotId == dto.SlotId &&
+                        q.Status == "Waiting");
+
+                    if (!exists)
                     {
                         await _context.WaitingQueue.AddAsync(new WaitingQueue
                         {
@@ -116,90 +149,154 @@ namespace HRMS_Backend.Services.GameScheduling
                             SlotId = dto.SlotId,
                             CycleId = slot.CycleId,
                             Status = "Waiting",
-                            InsertionTime = DateTime.UtcNow,
+                            InsertionTime = DateTime.UtcNow
                         });
                     }
+
                     result.WaitingUsers.Add(userId);
                 }
-                  await _context.SaveChangesAsync();
-                await transection.CommitAsync();
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 return result;
-
             }
             catch
             {
-                await transection.RollbackAsync();
+                await transaction.RollbackAsync();
                 throw;
             }
-        
         }
-
-        public async Task<Boolean> CancelBooking(int bookingId)
+        public async Task CancelBookingAsync(int bookingId)
         {
-            var transection = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                var booking = await _context.Bookings.Include(b => b.BookingParticipants).FirstOrDefaultAsync(b => b.BId == bookingId);
+                var booking = await _context.Bookings
+                    .Include(b => b.GameSlots)
+                    .Include(b => b.BookingParticipants)
+                    .FirstOrDefaultAsync(b => b.BId == bookingId);
 
                 if (booking == null)
-                {
-                    return false;
-                }
-                booking.Status = "Cancelled";
+                    throw new Exception("Booking not found");
 
-                var slot = await _context.GameSlots.FirstAsync(s => s.Id == booking.SlotId);
-                int relaesedSeats = booking.BookingParticipants.Count();
+                if (booking.Status != "Booked")
+                    throw new Exception("Only booked slots can be cancelled");
 
-                slot.Assigned -= relaesedSeats;
+                var slot = booking.GameSlots;
 
-                var queueUsers = await _context.WaitingQueue.Where(q => q.SlotId == slot.Id && q.Status == "Waiting").OrderBy(q => q.InsertionTime).ToListAsync();
               
-                foreach (var user in queueUsers)
+                booking.Status = "Cancelled";
+                booking.UpdatedAt = DateTime.UtcNow;
+
+              
+                slot.Assigned -= booking.BookingParticipants.Count;
+                if (slot.Assigned < 0)
+                    slot.Assigned = 0;
+
+             
+                foreach (var participant in booking.BookingParticipants)
                 {
-                    if (relaesedSeats == 0)
-                    {
-                        break;
-                    }
-                    Boolean eligible = await _fairnessService.IsUsersEligibleAsync(slot.Id, user.PlayerId, slot.CycleId);
-                    
-                    if (!eligible)
-                    {
-                        continue;
-                    }
-                    var newBooking = new Bookings
-                    {
-                        SlotId = slot.Id,
-                        BookedBy = user.PlayerId,
-                        SlotPlayed = false,
-                        Status = "Booked",
-                    };
-
-                    await _context.Bookings.AddAsync(newBooking);
-
-                    await _context.SaveChangesAsync();
-
-                    await _context.BookingParticipants.AddAsync(
-                        new BookingParticipants
-                        {
-                            BookingId = newBooking.BId,
-                            EmpId = user.PlayerId,
-                        });
-
-                    user.Status = "Promoted";
-                    slot.Assigned++;
-                    relaesedSeats--;
+                    await _employeeCycleStatsService
+                        .DecreaseGamePlayedAsync(participant.EmpId, slot.CycleId);
                 }
-                await _context.SaveChangesAsync();
-                await transection.CommitAsync();
 
-                return true;
+                await _context.SaveChangesAsync();
+
+                await PromoteFromWaitingQueueAsync(slot.Id);
+
+                await transaction.CommitAsync();
             }
             catch
             {
-                await transection.RollbackAsync();
+                await transaction.RollbackAsync();
                 throw;
             }
+        }
+        private async Task PromoteFromWaitingQueueAsync(int slotId)
+        {
+            var slot = await _context.GameSlots
+                .FirstOrDefaultAsync(s => s.Id == slotId);
+
+            if (slot == null)
+                return;
+
+            int availableSeats = slot.Capacity - slot.Assigned;
+
+            if (availableSeats <= 0)
+                return;
+
+            var waitingList = await _context.WaitingQueue
+                .Where(q => q.SlotId == slotId && q.Status == "Waiting")
+                .ToListAsync();
+
+            if (!waitingList.Any())
+                return;
+
+            var priorityList = new List<(WaitingQueue Queue, int Priority)>();
+
+            foreach (var q in waitingList)
+            {
+                var (isRejected, _) = await _fairnessService
+                    .IsHardRejectedAsync(q.PlayerId, slotId);
+
+                if (isRejected)
+                {
+                    q.Status = "Removed";
+                    continue;
+                }
+
+                int priority = await _fairnessService
+                    .GetUserPriorityAsync(q.PlayerId, slot.CycleId);
+
+                priorityList.Add((q, priority));
+            }
+
+            if (!priorityList.Any())
+                return;
+
+            var orderedQueue = priorityList
+                .OrderBy(x => x.Priority)            
+                .ThenBy(x => x.Queue.InsertionTime)   
+                .ToList();
+
+            var usersToPromote = orderedQueue
+                .Take(availableSeats)
+                .ToList();
+
+            if (!usersToPromote.Any())
+                return;
+
+            var newBooking = new Bookings
+            {
+                SlotId = slotId,
+                BookedBy = usersToPromote.First().Queue.PlayerId,
+                Status = "Booked",
+                BookedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _context.Bookings.AddAsync(newBooking);
+            await _context.SaveChangesAsync();
+
+            foreach (var item in usersToPromote)
+            {
+                await _context.BookingParticipants.AddAsync(new BookingParticipants
+                {
+                    BookingId = newBooking.BId,
+                    EmpId = item.Queue.PlayerId
+                });
+
+                await _employeeCycleStatsService
+                    .IncreaseGamePlayedAsync(item.Queue.PlayerId, slot.CycleId);
+
+                item.Queue.Status = "Promoted";
+            }
+
+            slot.Assigned += usersToPromote.Count;
+
+            await _context.SaveChangesAsync();
         }
         public async Task<BookingsDisplayDto> getBookingById(int id)
         {
@@ -216,5 +313,6 @@ namespace HRMS_Backend.Services.GameScheduling
             return _mapper.Map<IEnumerable<BookingsDisplayDto>>(bookings);
         }
 
+     
     }
 }

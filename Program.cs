@@ -102,6 +102,7 @@ builder.Services.AddScoped<IFairnessService, FairnessService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPostsService , PostsService>();
 builder.Services.AddScoped<IEmployeeCycleStatsService, EmployeeCycleStatsService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 //builder.Services.AddQuartzHostedService(options =>
 //{
 //    options.WaitForJobsToComplete = true;

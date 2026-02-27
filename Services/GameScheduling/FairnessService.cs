@@ -10,60 +10,83 @@ namespace HRMS_Backend.Services.GameScheduling
     public class FairnessService : IFairnessService
     {
         private readonly MyDbContext _context;
-        private readonly IMapper _mapper;
-        private readonly IGameCycleService _gameCycleService;
-        private readonly IEmployeeCycleStatsService _employeeCycleStatsService;
         private readonly IUserProfileService _userProfileService;
-      
-        public FairnessService(MyDbContext context, IMapper mapper , IGameCycleService gameCycleService, IEmployeeCycleStatsService employeeCycleStatsService ,IUserProfileService userProfileService)
+        private readonly IEmployeeCycleStatsService _employeeCycleStatsService;
+        private readonly IGameCycleService _gameCycleService;
+
+        public FairnessService(
+            MyDbContext context,
+            IUserProfileService userProfileService,
+            IEmployeeCycleStatsService employeeCycleStatsService,
+            IGameCycleService gameCycleService)
         {
             _context = context;
-            _mapper = mapper;
-            _gameCycleService = gameCycleService;
-            _employeeCycleStatsService = employeeCycleStatsService;
             _userProfileService = userProfileService;
-        
+            _employeeCycleStatsService = employeeCycleStatsService;
+            _gameCycleService = gameCycleService;
         }
 
-        public async Task<Boolean> IsUsersEligibleAsync(int slotId, int userId , int cycleId)
+        public async Task<(bool IsRejected, string Message)> IsHardRejectedAsync(int userId, int slotId)
         {
-            var slotGameName = await _context.GameSlots.Where(s=>s.Id == slotId).Select(s=>s.Games.Name).FirstOrDefaultAsync();
+            if (await _userProfileService.IsUserBannedAsync(userId))
+                return (true, "User is banned");
 
-            if(slotGameName == null)
-            {
-                return false;
-            }
+            var slot = await _context.GameSlots.Include(s => s.Games)
+                .FirstOrDefaultAsync(s => s.Id == slotId);
+
+            if (slot == null)
+                return (true, "Invalid slot");
+
             var interestedGame = await _userProfileService.GetGameInterestedByIdAsync(userId);
 
-            if (interestedGame != slotGameName)
-            {
-                return false;
-            }
-            var todayStart = DateTime.UtcNow.Date;
-            var tommorowStart = todayStart.AddDays(1);
+            if (slot.Games.Name != interestedGame)
+                return (true, "You can only book your interested game");
 
-            Boolean playedToday = await _context.BookingParticipants.Where(p=>p.EmpId == userId && p.Bookings.SlotPlayed == true)
-                .AnyAsync(p=>p.Bookings.GameSlots.StartTime >= todayStart && p.Bookings.GameSlots.StartTime < tommorowStart);
-            //Console.WriteLine($"Played TOday state : {playedToday}");
+            //var todayStart = DateTime.UtcNow.Date;
+            //var tomorrowStart = todayStart.AddDays(1);
+            var targetDayStart = slot.StartTime.Date;
+            var targetDayEnd = targetDayStart.AddDays(1);
 
-            if (playedToday) {
-                return false;
-            }
+            //bool alreadyBookedToday = await _context.BookingParticipants
+            //    .Where(p => p.EmpId == userId && p.Bookings.Status == "Booked")
+            //    .AnyAsync(p =>
+            //        p.Bookings.GameSlots.StartTime >= todayStart &&
+            //        p.Bookings.GameSlots.StartTime < tomorrowStart);
 
-            var lowestGamePlayed = await _gameCycleService.getLowsetGamePlayedInCurrentCycle(cycleId);
-            //Console.WriteLine($"CHECK lowest state : {lowestGamePlayed}");
+            //if (alreadyBookedToday)
+            //    return (true, "You can only book one slot per day");
+            bool alreadyBookedOnThatDay = await _context.BookingParticipants
+                .Where(p => p.EmpId == userId && (p.Bookings.Status == "Booked" || p.Bookings.Status == "Confirmed"))
+                .AnyAsync(p =>
+                p.Bookings.GameSlots.StartTime >= targetDayStart &&
+                p.Bookings.GameSlots.StartTime < targetDayEnd);
 
-            var stats = await _employeeCycleStatsService.GetUserCycleStatsAsync(userId, cycleId);
+            if (alreadyBookedOnThatDay)
+                return (true, $"You already have a booking for {targetDayStart:yyyy-MM-dd}. Only one slot per day is allowed.");
 
-            int userPlayed = (stats != null) ? (stats.GamePlayed != null ? stats.GamePlayed : 0) : 0;
- 
-            //Console.WriteLine($"CHECK EMP cycle state : {userPlayed}");
-            if (userPlayed > lowestGamePlayed) {
-                return false;
-            }
-            return true;
+            return (false, "");
         }
-       
+        public async Task<bool> IsEligibleForDirectBookingAsync(int userId, int cycleId)
+        {
+            var lowestPlayed = await _gameCycleService
+                .getLowsetGamePlayedInCurrentCycle(cycleId);
+
+            var stats = await _employeeCycleStatsService
+                .GetUserCycleStatsAsync(userId, cycleId);
+
+            int userPlayed = stats?.GamePlayed ?? 0;
+
+            return userPlayed <= lowestPlayed;
+        }
+
+
+        public async Task<int> GetUserPriorityAsync(int userId, int cycleId)
+        {
+            var stats = await _employeeCycleStatsService
+                .GetUserCycleStatsAsync(userId, cycleId);
+
+            return stats?.GamePlayed ?? 0;
+        }
     }
 
 }

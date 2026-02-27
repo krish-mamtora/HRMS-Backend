@@ -112,11 +112,11 @@ namespace HRMS_Backend.Data
                 .HasForeignKey(bp=>bp.BookingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<WaitingQueue>()
-               .HasOne(wq => wq.Bookings)
-               .WithMany()
-               .HasForeignKey(wq => wq.BookingId)
-               .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<WaitingQueue>()
+            //   .HasOne(wq => wq.Bookings)
+            //   .WithMany()
+            //   .HasForeignKey(wq => wq.BookingId)
+            //   .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<WaitingQueue>()
                 .HasOne(wq => wq.GameCycle)

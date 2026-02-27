@@ -30,17 +30,18 @@ namespace HRMS_Backend.Services.GameScheduling
         }
 
   
-        public async Task<EmployeeCycleStatsDisplayDto> GetUserCycleStatsAsync(int userId, int cycleId)
+        public async Task<EmployeeCycleStats?> GetUserCycleStatsAsync(int userId, int cycleId)
         {
             var cyclestatus = await _context.EmployeeCycleStats
                 .FirstOrDefaultAsync(es => es.UserId == userId && es.GameCycleId == cycleId);
-            return _mapper.Map<EmployeeCycleStatsDisplayDto>(cyclestatus);
+            return cyclestatus;
         }
 
         public async Task<Boolean> IncrementCompletedPlayCountAsync(List<int> userIds, int CycleId)
         {
-            var stats = await _context.EmployeeCycleStats.Where(es => es.GameCycleId == CycleId && userIds.Contains(es.UserId)).ToListAsync();
-
+            var stats = await _context.EmployeeCycleStats
+                .Where(es => es.GameCycleId == CycleId && userIds.Contains(es.UserId))
+                .ToListAsync();
             foreach (var stat in stats)
             {
                 stat.GamePlayed++;
@@ -48,8 +49,48 @@ namespace HRMS_Backend.Services.GameScheduling
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task DecreaseGamePlayedAsync(int userId, int gameCycleId)
+        {
+          
+            var stat = await _context.EmployeeCycleStats
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.GameCycleId == gameCycleId);
 
+            if (stat == null) return;
+            if (stat.GamePlayed > 0) stat.GamePlayed -= 1;
+            await _context.SaveChangesAsync();
+        }
+        public async Task ResetCycleStatsAsync(int gameCycleId)
+        {
+            var statsList = await _context.EmployeeCycleStats
+                .Where(x => x.GameCycleId == gameCycleId)
+                .ToListAsync();
+            foreach (var stats in statsList)
+            {
+                stats.GamePlayed = 0;
+            }
+            await _context.SaveChangesAsync();
+        }
+        public async Task IncreaseGamePlayedAsync(int userId, int gameCycleId)
+        {
+            var stats = await _context.EmployeeCycleStats
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.GameCycleId == gameCycleId);
 
+            if (stats == null)
+            {
+                stats = new EmployeeCycleStats
+                {
+                    UserId = userId,
+                    GameCycleId = gameCycleId,
+                    GamePlayed = 1
+                };
+                await _context.EmployeeCycleStats.AddAsync(stats);
+            }
+            else
+            {
+                stats.GamePlayed += 1;
+            }
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

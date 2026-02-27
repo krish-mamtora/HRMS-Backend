@@ -2,7 +2,13 @@
 {
     public interface IFairnessService
     {
-        public Task<Boolean> IsUsersEligibleAsync(int slotId, int userId, int cycleId);
-        
+       
+        Task<(bool IsRejected, string Message)> IsHardRejectedAsync(int userId, int slotId);
+
+        Task<bool> IsEligibleForDirectBookingAsync(int userId, int cycleId);
+
+     
+        Task<int> GetUserPriorityAsync(int userId, int cycleId);
     }
 }
+

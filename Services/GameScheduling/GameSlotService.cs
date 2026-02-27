@@ -19,57 +19,113 @@ namespace HRMS_Backend.Services.GameScheduling
             _mapper = mapper;
            _gameCycleService = gameCycleService;
         }
-        public async Task<int?> GenerateGameSlotAsync(int gamesId, DateOnly gameDate)
+        public async Task<int?> GenerateGameSlotAsync(int gamesId, DateOnly ignoredDate)
         {
-          
             int totalSlotAdded = 0;
+
             var gameConfig = await _context.GameConfiguration.FirstOrDefaultAsync(gc => gc.GamesId == gamesId);
-            //Console.Write(gameConfig);
-            if (gameConfig == null)
-            {
-                return null;
-            }
-            var cycleId = await _gameCycleService.GetActiveCycleIdAsync(gamesId);
-            if (cycleId == null)
-            {
-                return null;
-            }
-            var slotDuration = gameConfig.SlotDuration;  // minute ma 
-            var startTime = gameConfig.StartTime;       
-            var endTime = gameConfig.OverTime;         
-            
-            var totalMinutes = (endTime- startTime).TotalMinutes;
+            if (gameConfig == null) return null;
 
-            if (totalMinutes <= 0)
-            {
-                return null;
-            }
+            var activeCycle = await _context.GameCycle
+                .FirstOrDefaultAsync(gc => gc.GamesId == gamesId && gc.isActive);
+
+            if (activeCycle == null) return null;
+
+            DateOnly cycleStartDate = DateOnly.FromDateTime(activeCycle.StartTime);
+            DateOnly cycleEndDate = DateOnly.FromDateTime(activeCycle.EndTime);
+
+            var slotDuration = gameConfig.SlotDuration;
+            var dayStartTime = gameConfig.StartTime; 
+            var dayEndTime = gameConfig.OverTime;   
+
             var slotToInsert = new List<GameSlots>();
-            var currentStart = startTime;
-            while (currentStart.AddMinutes(slotDuration)<=endTime)
-            {
-                var slotStartDateTime = gameDate.ToDateTime(currentStart);
-                var slotEndDateTime = slotStartDateTime.AddMinutes(slotDuration);
-                slotToInsert.Add(new GameSlots 
-                {
-                    GamesId = gamesId,
-                    StartTime = slotStartDateTime,
-                    Capacity = gameConfig.Capacity,
-                    Assigned = 0,
-                    CycleId = cycleId.Value,
-                    EndTime = slotEndDateTime,
-                    IsBookingOpen = true
-                });
-                currentStart = currentStart.AddMinutes(slotDuration);
-               
-                    totalSlotAdded++;
 
+          
+            for (DateOnly currentDate = cycleStartDate; currentDate <= cycleEndDate; currentDate = currentDate.AddDays(1))
+            {
+                TimeOnly currentStart = dayStartTime;
+
+                while (currentStart.AddMinutes(slotDuration) <= dayEndTime)
+                {
+                    var slotStartDateTime = currentDate.ToDateTime(currentStart);
+                    var slotEndDateTime = slotStartDateTime.AddMinutes(slotDuration);
+
+                    slotToInsert.Add(new GameSlots
+                    {
+                        GamesId = gamesId,
+                        StartTime = slotStartDateTime,
+                        EndTime = slotEndDateTime,
+                        Capacity = gameConfig.Capacity,
+                        Assigned = 0,
+                        CycleId = activeCycle.CycleId,
+                        IsBookingOpen = true,
+                        SlotPlayed = false
+                    });
+
+                    currentStart = currentStart.AddMinutes(slotDuration);
+                    totalSlotAdded++;
+                }
             }
-                    await _context.GameSlots.AddRangeAsync(slotToInsert);
-                    await _context.SaveChangesAsync();
+
+            if (slotToInsert.Any())
+            {
+                await _context.GameSlots.AddRangeAsync(slotToInsert);
+                await _context.SaveChangesAsync();
+            }
 
             return totalSlotAdded;
         }
+        //public async Task<int?> GenerateGameSlotAsync(int gamesId, DateOnly gameDate)
+        //{
+
+        //    int totalSlotAdded = 0;
+        //    var gameConfig = await _context.GameConfiguration.FirstOrDefaultAsync(gc => gc.GamesId == gamesId);
+        //    //Console.Write(gameConfig);
+        //    if (gameConfig == null)
+        //    {
+        //        return null;
+        //    }
+        //    var cycleId = await _gameCycleService.GetActiveCycleIdAsync(gamesId);
+        //    if (cycleId == null)
+        //    {
+        //        return null;
+        //    }
+        //    var slotDuration = gameConfig.SlotDuration;  // minute ma 
+        //    var startTime = gameConfig.StartTime;       
+        //    var endTime = gameConfig.OverTime;         
+
+        //    var totalMinutes = (endTime- startTime).TotalMinutes;
+
+        //    if (totalMinutes <= 0)
+        //    {
+        //        return null;
+        //    }
+        //    var slotToInsert = new List<GameSlots>();
+        //    var currentStart = startTime;
+        //    while (currentStart.AddMinutes(slotDuration)<=endTime)
+        //    {
+        //        var slotStartDateTime = gameDate.ToDateTime(currentStart);
+        //        var slotEndDateTime = slotStartDateTime.AddMinutes(slotDuration);
+        //        slotToInsert.Add(new GameSlots 
+        //        {
+        //            GamesId = gamesId,
+        //            StartTime = slotStartDateTime,
+        //            Capacity = gameConfig.Capacity,
+        //            Assigned = 0,
+        //            CycleId = cycleId.Value,
+        //            EndTime = slotEndDateTime,
+        //            IsBookingOpen = true
+        //        });
+        //        currentStart = currentStart.AddMinutes(slotDuration);
+
+        //            totalSlotAdded++;
+
+        //    }
+        //            await _context.GameSlots.AddRangeAsync(slotToInsert);
+        //            await _context.SaveChangesAsync();
+
+        //    return totalSlotAdded;
+        //}
         public async Task<IEnumerable<GameSlotsDisplayDto>> GetAllGamesSlotAsync()
         {
             var slots = await _context.GameSlots.ToListAsync();
@@ -114,7 +170,6 @@ namespace HRMS_Backend.Services.GameScheduling
                 foreach (var booking in confirmedBookings)
                 {
                     booking.Status = "Completed";
-                    booking.SlotPlayed = true;
                 }
 
                 await _context.SaveChangesAsync();

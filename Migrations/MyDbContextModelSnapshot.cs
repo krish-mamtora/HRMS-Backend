@@ -119,14 +119,9 @@ namespace HRMS_Backend.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PostsId")
-                        .HasColumnType("int");
-
                     b.HasKey("ImageId");
 
                     b.HasIndex("PostId");
-
-                    b.HasIndex("PostsId");
 
                     b.ToTable("PostImages");
                 });
@@ -386,13 +381,14 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookingId");
-
                     b.HasIndex("BookingsBId");
 
                     b.HasIndex("EmpId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("BookingId", "EmpId")
+                        .IsUnique();
 
                     b.ToTable("BookingParticipants");
                 });
@@ -413,9 +409,6 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<int>("SlotId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("SlotPlayed")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -454,7 +447,8 @@ namespace HRMS_Backend.Migrations
 
                     b.HasIndex("GameCycleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "GameCycleId")
+                        .IsUnique();
 
                     b.ToTable("EmployeeCycleStats");
                 });
@@ -494,9 +488,6 @@ namespace HRMS_Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QueueId"));
 
-                    b.Property<int>("BookingId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("BookingsBId")
                         .HasColumnType("int");
 
@@ -527,8 +518,6 @@ namespace HRMS_Backend.Migrations
 
                     b.HasKey("QueueId");
 
-                    b.HasIndex("BookingId");
-
                     b.HasIndex("BookingsBId");
 
                     b.HasIndex("CycleId");
@@ -537,9 +526,10 @@ namespace HRMS_Backend.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.HasIndex("SlotId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("SlotId", "PlayerId")
+                        .IsUnique();
 
                     b.ToTable("WaitingQueue");
                 });
@@ -619,9 +609,10 @@ namespace HRMS_Backend.Migrations
 
                     b.HasIndex("GameCycleCycleId");
 
-                    b.HasIndex("GamesId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("GamesId", "StartTime")
+                        .IsUnique();
 
                     b.ToTable("GameSlots");
                 });
@@ -1312,14 +1303,10 @@ namespace HRMS_Backend.Migrations
             modelBuilder.Entity("HRMS_Backend.Entities.Achievements.PostImages", b =>
                 {
                     b.HasOne("HRMS_Backend.Entities.Achievements.Posts", "Post")
-                        .WithMany()
+                        .WithMany("PostImages")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HRMS_Backend.Entities.Achievements.Posts", null)
-                        .WithMany("PostImages")
-                        .HasForeignKey("PostsId");
 
                     b.Navigation("Post");
                 });
@@ -1494,12 +1481,6 @@ namespace HRMS_Backend.Migrations
 
             modelBuilder.Entity("HRMS_Backend.Entities.GamesScheduling.WaitingQueue", b =>
                 {
-                    b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", "Bookings")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HRMS_Backend.Entities.GamesScheduling.Bookings", null)
                         .WithMany("WaitingQueue")
                         .HasForeignKey("BookingsBId");
@@ -1529,8 +1510,6 @@ namespace HRMS_Backend.Migrations
                     b.HasOne("HRMS_Backend.Entities.User", null)
                         .WithMany("WaitingQueue")
                         .HasForeignKey("UserId");
-
-                    b.Navigation("Bookings");
 
                     b.Navigation("GameCycle");
 

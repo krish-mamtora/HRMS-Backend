@@ -8,7 +8,8 @@ namespace HRMS_Backend.Services.GameScheduling
         public Task<BookingsDisplayDto> getBookingById(int id);
         public Task<IEnumerable<BookingsDisplayDto>> getBookingsByUserId(int id);
 
-        public Task<Boolean> CancelBooking(int bookingId);
+        //public Task<Boolean> CancelBooking(int bookingId);
+       public  Task CancelBookingAsync(int bookingId);
 
     }
 }

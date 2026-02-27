@@ -4,7 +4,7 @@ namespace HRMS_Backend.Model.GameScheduling
 {
     public class WaitingQueueCreateUpdateDto
     {
-        [Required]
+
         public int BookingId { get; set; }
 
         [Required]
