@@ -15,7 +15,6 @@ namespace HRMS_Backend.Controllers.GameScheduling
         {
             _service = service;
         }
-
         [HttpPost]
         public async Task<IActionResult> RequestBookingAsync([FromBody] BookingRequestCreateDto dto)
         {

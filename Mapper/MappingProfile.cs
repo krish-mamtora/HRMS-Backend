@@ -38,6 +38,7 @@ namespace HRMS_Backend.Mapper
             CreateMap<Bookings, BookingsDisplayDto>();
             CreateMap<Posts, PostsCreateUpdateDto>();
             CreateMap<PostInteraction, PostInteractionDisplayDto>();
+            CreateMap<BookingParticipants, BookingsDisplayDto>();
             CreateMap<PostsCreateUpdateDto, Posts>();
 
             CreateMap<Posts, PostsDisplayDto>()

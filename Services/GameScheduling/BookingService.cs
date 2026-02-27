@@ -303,16 +303,43 @@ namespace HRMS_Backend.Services.GameScheduling
             var booking = await _context.Bookings.Include(b=>b.BookingParticipants).FirstOrDefaultAsync(b=>b.BId == id);
             return _mapper.Map<BookingsDisplayDto>(booking);
         }
+        //public async Task<IEnumerable<BookingsDisplayDto>> getBookingsByUserId(int id)
+        //{
+        //    if (id<=0)
+        //    {
+        //        throw new ArgumentNullException(nameof(id));
+        //    }
+
+            //var bookings = await _context.BookingParticipants.Where(bk => bk.EmpId==id).Select(bp=>bp.BookingId).Distinct().ToListAsync();
+            //var response = List<BookingsDisplayDto>;
+            //foreach (var booking in bookings) { 
+            //    response.Add(getBookingById(booking);
+            //}
+            //return _mapper.Map<IEnumerable<BookingsDisplayDto>>(bookings);
+        //    var bookings = await _context.Bookings
+        //      .Where(b => b.BookingParticipants.Any(bp => bp.EmpId == id))
+        //      .ToListAsync();
+        //    return _mapper.Map<IEnumerable<BookingsDisplayDto>>(bookings);
+
+        //}
         public async Task<IEnumerable<BookingsDisplayDto>> getBookingsByUserId(int id)
         {
-            if (id<=0)
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-            var bookings = await _context.BookingParticipants.Where(bk => bk.EmpId==id).Select(bp=>bp.BookingId).Distinct().ToListAsync();
+            if (id <= 0) throw new ArgumentException("Invalid User ID", nameof(id));
+
+            var bookingIds = await _context.BookingParticipants
+                .Where(bp => bp.EmpId == id)
+                .Select(bp => bp.BookingId)
+                .Distinct()
+                .ToListAsync();
+
+            if (!bookingIds.Any()) return new List<BookingsDisplayDto>();
+
+            var bookings = await _context.Bookings
+                .Include(b => b.BookingParticipants) 
+                .Where(b => bookingIds.Contains(b.BId))
+                .ToListAsync();
+
             return _mapper.Map<IEnumerable<BookingsDisplayDto>>(bookings);
         }
-
-     
     }
 }
