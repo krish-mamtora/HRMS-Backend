@@ -20,11 +20,15 @@ namespace HRMS_Backend.Controllers.Achievements
             _commentService = commentService;
         }
 
-        [HttpPost("{userId}")]
-        public async Task<ActionResult<CommentsDisplayDto>> UpsertComment([FromBody] CommentsCreateUpdateDto dto, int userId)
+        [HttpPost]
+        public async Task<ActionResult<CommentsDisplayDto>> UpsertComment([FromBody] CommentsCreateUpdateDto dto)
         {
             try
             {
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+                int userId = int.Parse(userIdClaim);
                 var result = await _commentService.CreateOrUpdateCommentAsync(userId, dto);
                 return Ok(result);
             }

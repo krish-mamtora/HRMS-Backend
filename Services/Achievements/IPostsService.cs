@@ -9,7 +9,8 @@ namespace HRMS_Backend.Services.Achievements
         Task<IEnumerable<PostsDisplayDto>> GetAllVisiblePostsAsync();
         Task<bool> ToggleReactionAsync(PostInteractionCreateUpdateDto interaction, int userId);
         Task<PostsDisplayDto?> GetPostByIdAsync(int id);
-        Task<bool> SoftDeletePostAsync(int id, int currentUserId, string reason);
+        Task<Posts?> SoftDeletePostAsync(int id, int currentUserId, string reason);
         Task<bool>  UpdatePostAsync(int id , PostsCreateUpdateDto dto);
+        Task<IEnumerable<PostsDisplayDto>> GetUserPostsHistoryAsync(int userId);
     }
 }

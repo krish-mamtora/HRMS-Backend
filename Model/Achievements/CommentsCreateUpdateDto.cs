@@ -13,6 +13,6 @@ namespace HRMS_Backend.Model.Achievements
 
         [Required]
         [StringLength(500)]
-        public string CommentText { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
     }
 }

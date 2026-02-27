@@ -27,13 +27,13 @@ namespace HRMS_Backend.Services.Achievements
 
             if (dto.Id.HasValue && dto.Id > 0)
             {
-                //comment = await _context.Comments
-                //         .FirstOrDefaultAsync(c => c.Id == dto.Id && c.AuthorId == userId && !c.IsDeleted);
+                comment = await _context.Comments
+                 .FirstOrDefaultAsync(c => c.Id == dto.Id && c.AuthorId == userId && !c.IsDeleted);
 
-                //if (comment == null) throw new Exception("Comment not found or unauthorized.");
+                if (comment == null) throw new Exception("Comment not found or unauthorized.");
 
-                //comment.Comment = dto.CommentText;
-                //comment.UpdatedAt = DateTime.UtcNow;
+                comment.Comment = dto.Comment; 
+                comment.UpdatedAt = DateTime.UtcNow;
             }
             else
             {
@@ -41,18 +41,19 @@ namespace HRMS_Backend.Services.Achievements
                 {
                     PostsId = dto.PostId,
                     AuthorId = userId,
-                    Comment = dto.CommentText,
+                    Comment = dto.Comment,
                     ParentCommentId = dto.ParentCommentId,
                     CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
+                    IsDeleted = false
                 };
                 _context.Comments.Add(comment);
-                 await _context.SaveChangesAsync();
             }
+             await _context.SaveChangesAsync();
 
 
             var result = await GetCommentByIdAsync(comment.Id);
-            return result!;
+            return _mapper.Map<CommentsDisplayDto>(result);
         }
 
 

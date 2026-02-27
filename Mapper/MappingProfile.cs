@@ -37,23 +37,21 @@ namespace HRMS_Backend.Mapper
             CreateMap<GameCycle, GameCycleDisplayDto>();
             CreateMap<Bookings, BookingsDisplayDto>();
             CreateMap<Posts, PostsCreateUpdateDto>();
+            CreateMap<PostInteraction, PostInteractionDisplayDto>();
             CreateMap<PostsCreateUpdateDto, Posts>();
+
             CreateMap<Posts, PostsDisplayDto>()
-                .ForMember(dest => dest.ImageUrls, 
-                        opt => opt.MapFrom(src =>
-                             src.PostImages.Select(i => i.ImagePath).ToList()))
-                .ForMember(dest => dest.TagNames, 
-                        opt => opt.MapFrom(src =>
-                            src.PostTagMaps.Select(ptm => ptm.Tag.TagName).ToList()))
+               .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.Email))
+               .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src =>
+                   src.PostImages.Select(i => i.ImagePath).ToList()))
+               .ForMember(dest => dest.TagNames, opt => opt.MapFrom(src =>
+                   src.PostTagMaps.Select(ptm => ptm.Tag.TagName).ToList()))
+               .ForMember(dest => dest.PostInteraction, opt => opt.MapFrom(src => src.PostInteraction));
 
-                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
-                    src.Author.Email));
-
-            //CreateMap<Comments, CommentsDisplayDto>()
-            //.ForMember(dest => dest.CommentText, opt => opt.MapFrom(src => src.Comment))
-            //.ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.Email))
-            //.ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.Replies.Where(r => !r.IsDeleted)));
-
+            CreateMap<Comments, CommentsDisplayDto>()
+          .ForMember(dest => dest.AuthorEmail, opt => opt.MapFrom(src => src.Author.Email))
+          .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.Replies))
+          .MaxDepth(3);
         }
     }
 }

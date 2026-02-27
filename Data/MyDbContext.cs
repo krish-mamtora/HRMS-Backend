@@ -180,7 +180,7 @@ namespace HRMS_Backend.Data
 
             modelBuilder.Entity<PostInteraction>()
                 .HasOne(i => i.Post)
-                .WithOne(p => p.Interactions)
+                .WithOne(p => p.PostInteraction)
                 .HasForeignKey<PostInteraction>(i => i.PostId) 
                 .OnDelete(DeleteBehavior.Cascade);
 

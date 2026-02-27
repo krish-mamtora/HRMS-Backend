@@ -1,7 +1,10 @@
-﻿using HRMS_Backend.Model.Achievements;
+﻿using HRMS_Backend.Data;
+using HRMS_Backend.Model.Achievements;
 using HRMS_Backend.Services.Achievements;
+using HRMS_Backend.Services.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace HRMS_Backend.Controllers.Achievements
@@ -13,9 +16,11 @@ namespace HRMS_Backend.Controllers.Achievements
     {
         private readonly IPostsService _postsService;
 
-        public PostsController(IPostsService postsService)
+        private readonly IEmailService _emailService;
+        public PostsController(IPostsService postsService , IEmailService emailService)
         {
             _postsService = postsService;
+            _emailService = emailService;
         }
         [HttpPost("upsert")]
         [Consumes("multipart/form-data")]
@@ -27,7 +32,7 @@ namespace HRMS_Backend.Controllers.Achievements
             {
                 return Unauthorized("User ID not found in token.");
             }
-
+        
             try{    
                 if (dto.Id.HasValue && dto.Id > 0)
                 {
@@ -51,6 +56,18 @@ namespace HRMS_Backend.Controllers.Achievements
             var posts = await _postsService.GetAllVisiblePostsAsync();
             return Ok(posts);
         }
+        [HttpGet("user/history")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> GetMyPostsHistory()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+            int userId = int.Parse(userIdClaim);
+            var posts = await _postsService.GetUserPostsHistoryAsync(userId);
+
+            return Ok(posts);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PostsDisplayDto>> GetPost(int id)
@@ -60,17 +77,59 @@ namespace HRMS_Backend.Controllers.Achievements
             return Ok(post);
         }
         [HttpPost("react")]
-        public async Task<IActionResult> ToggleReaction([FromBody] PostInteractionCreateUpdateDto dto , int userId)
+        public async Task<IActionResult> ToggleReaction([FromBody] PostInteractionCreateUpdateDto dto)
         {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+            int userId = int.Parse(userIdClaim);
+
             var result = await _postsService.ToggleReactionAsync(dto, userId);
             return result ? Ok("Reaction Updated") : BadRequest("Could not process reaction");
         }
 
+        [Authorize(Roles = "HR")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePost(int id, [FromQuery] int userId , string reason)
+        public async Task<IActionResult> DeletePost(int id, [FromQuery] int userId, string reason)
         {
-            var result = await _postsService.SoftDeletePostAsync(id, userId, reason);
-            return result ? Ok("Post Deleted Successfully") : NotFound("Post not found or already deleted");
+            if (string.IsNullOrWhiteSpace(reason)) return BadRequest("A reason is required.");
+
+            var post = await _postsService.SoftDeletePostAsync(id, userId, reason);
+
+            if (post == null) return NotFound("Post not found or already deleted");
+
+            if (post.Author != null && !string.IsNullOrEmpty(post.Author.Email))
+            {
+                try
+                {
+                    var subject = $"Action Required: Your post '{post.Title}' has been removed";
+
+                    var body = $@"
+                        Post Removal Notification
+        
+                        Hello,
+
+                        Your post has been removed by HR.
+
+                        --- Post Details ---
+                        Title: {post.Title}
+                        Description: {post.Description}
+        
+                        Reason for Removal: 
+                        {reason}
+
+                        Date: {DateTime.UtcNow:f} UTC
+
+                        If you have any questions, please contact the HR department.";
+
+                    await _emailService.SendEmailAsync(post.Author.Email, subject, body);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email to {post.Author.Email}: {ex.Message}");
+                }
+            }
+            return Ok("Post Deleted Successfully");
+
         }
     }
 }

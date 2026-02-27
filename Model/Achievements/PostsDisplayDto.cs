@@ -9,8 +9,10 @@
         public string AuthorName { get; set; } = string.Empty;
         public List<string> ImageUrls { get; set; } = new();
         public List<string> TagNames { get; set; } = new();
-        public int LikeCount { get; set; }
-        public int CommentCount { get; set; }
+        public bool IsVisible { get; set; }
+        //public int LikeCount { get; set; }
+        //public int CommentCount { get; set; }
+        public PostInteractionDisplayDto PostInteraction { get; set; } = new();
         public DateTime CreatedAt { get; set; }
     }
 }

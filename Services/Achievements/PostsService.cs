@@ -81,7 +81,7 @@ namespace HRMS_Backend.Services.Achievements
                 .Include(p => p.Author)
                 .Include(p => p.PostImages)
                 .Include(p => p.PostTagMaps).ThenInclude(pt => pt.Tag)
-                .Include(p => p.Interactions)
+                .Include(p => p.PostInteraction)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             return  _mapper.Map<PostsDisplayDto>(post);
@@ -92,7 +92,7 @@ namespace HRMS_Backend.Services.Achievements
             var posts = await _context.Posts
                 .Where(p => p.IsVisible && p.DeletedByUserId == null)
                 .Include(p => p.Author)
-                .Include(p => p.Interactions)
+                .Include(p => p.PostInteraction)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
@@ -126,11 +126,15 @@ namespace HRMS_Backend.Services.Achievements
             }
         }
 
-        public async Task<bool> SoftDeletePostAsync(int id, int userId, string reason)
+        public async Task<Posts?> SoftDeletePostAsync(int id, int userId, string reason)
         {
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null) return false;
+            //var post = await _context.Posts.FindAsync(id);
 
+            var post = await _context.Posts
+               .Include(p => p.Author)
+               .FirstOrDefaultAsync(p => p.Id == id);
+
+            //if (post == null) return false;
             post.IsVisible = false;
             post.DeletedByUserId = userId;
 
@@ -145,20 +149,36 @@ namespace HRMS_Backend.Services.Achievements
                 CreatedAt = DateTime.UtcNow
             });
 
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            return post;
         }
         public async Task<IEnumerable<PostsDisplayDto>> GetAllVisiblePostsAsync()
         {
             var posts = await _context.Posts
-                .Where(p => p.IsVisible && p.DeletedByUserId == null)
+               .Where(p => p.IsVisible && p.DeletedByUserId == null)
+               .Include(p => p.Author)
+               .Include(p => p.PostImages)
+               .Include(p => p.PostTagMaps)
+                   .ThenInclude(ptm => ptm.Tag)
+      
+               .Include(p => p.PostInteraction)
+               .OrderByDescending(p => p.CreatedAt)
+               .ToListAsync();
+            return  _mapper.Map<List<PostsDisplayDto>>(posts);
+        }
+        public async Task<IEnumerable<PostsDisplayDto>> GetUserPostsHistoryAsync(int userId)
+        {
+            var posts = await _context.Posts
+                .Where(p => p.UserId == userId) 
                 .Include(p => p.Author)
                 .Include(p => p.PostImages)
-                .Include(p => p.PostTagMaps).ThenInclude(ptm => ptm.Tag)
-                .Include(p => p.Interactions)
+                .Include(p => p.PostTagMaps)
+                    .ThenInclude(ptm => ptm.Tag)
+                .Include(p => p.PostInteraction)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
-            return  _mapper.Map<List<PostsDisplayDto>>(posts);
+            return _mapper.Map<List<PostsDisplayDto>>(posts);
         }
         public async Task<bool> ToggleReactionAsync(PostInteractionCreateUpdateDto dto, int userId)
         {

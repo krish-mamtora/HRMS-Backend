@@ -41,7 +41,7 @@ namespace HRMS_Backend.Entities.Achievements
         public bool IsCurrentlyVisible => IsVisible && (!ExpiresAt.HasValue || ExpiresAt > DateTime.UtcNow);
         public ICollection<Comments> Comments { get; set; } = new List<Comments>();
         public  ICollection<PostImages> PostImages { get; set; } = new List<PostImages>();
-        public  PostInteraction Interactions { get; set; }
+        public PostInteraction PostInteraction { get; set; }
         public virtual ICollection<PostTagMap> PostTagMaps { get; set; } = new List<PostTagMap>();
 
 
