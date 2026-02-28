@@ -304,6 +304,32 @@ namespace HRMS_Backend.Migrations
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("HRMS_Backend.Entities.Achievements.UserPostReaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReactedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReactionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserPostReaction");
+                });
+
             modelBuilder.Entity("HRMS_Backend.Entities.FixEntityUserProfile.UserProfile", b =>
                 {
                     b.Property<int>("UserProfileId")

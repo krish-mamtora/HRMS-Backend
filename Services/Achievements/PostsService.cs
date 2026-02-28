@@ -285,49 +285,46 @@ namespace HRMS_Backend.Services.Achievements
             return createdCount;
         }
 
-
-        //find all posts which are system generated and whose expires at time > cur time make them isvisible false
-
-        //const fetchUsersWhoHasTodayBirthday = await _context.UserProfile.Where(up => up.Birthday == todaysDaye).FindAsync();
-        //for all users create one post 
-        //    which has title happy bitrh day and desc somehting 
-        //    create post and upload and in Posts IsSystemGenerated kee True and Expires at current time + 1day
-
-
         public async Task<bool> ToggleReactionAsync(PostInteractionCreateUpdateDto dto, int userId)
         {
+            var existingReaction = await _context.UserPostReaction
+                .FirstOrDefaultAsync(r => r.PostId == dto.PostId &&
+                                          r.UserId == userId &&
+                                          r.ReactionType.ToLower() == dto.ReactionType.ToLower());
+
             var interaction = await _context.PostInteraction
                 .FirstOrDefaultAsync(i => i.PostId == dto.PostId);
 
             if (interaction == null) return false;
-            int adjustment = dto.IsActive ? 1 : -1;
 
-            switch (dto.ReactionType.ToLower())
+            if (existingReaction != null)
             {
-                case "like":
-                    interaction.LikeCount = Math.Max(0, interaction.LikeCount + adjustment);
-                    break;
-                case "celebrate":
-                    interaction.CelebrateCount = Math.Max(0, interaction.CelebrateCount + adjustment);
-                    break;
-                case "love":
-                    interaction.LoveCount = Math.Max(0, interaction.LoveCount + adjustment);
-                    break;
-                case "insightful":
-                    interaction.InsightfulCount = Math.Max(0, interaction.InsightfulCount + adjustment);
-                    break;
-                default:
-                    return false;
+                _context.UserPostReaction.Remove(existingReaction);
+                UpdateCounter(interaction, dto.ReactionType, -1);
             }
+            else
+            {
+                var newReaction = new UserPostReaction
+                {
+                    PostId = dto.PostId,
+                    UserId = userId,
+                    ReactionType = dto.ReactionType
+                };
+                _context.UserPostReaction.Add(newReaction);
+                UpdateCounter(interaction, dto.ReactionType, 1);
+            }
+
             interaction.LastUpdatedAt = DateTime.UtcNow;
-
-            try
+            return await _context.SaveChangesAsync() > 0;
+        }
+        private void UpdateCounter(PostInteraction interaction, string type, int adjustment)
+        {
+            switch (type.ToLower())
             {
-                return await _context.SaveChangesAsync() > 0;
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return false;
+                case "like": interaction.LikeCount = Math.Max(0, interaction.LikeCount + adjustment); break;
+                case "celebrate": interaction.CelebrateCount = Math.Max(0, interaction.CelebrateCount + adjustment); break;
+                case "love": interaction.LoveCount = Math.Max(0, interaction.LoveCount + adjustment); break;
+                case "insightful": interaction.InsightfulCount = Math.Max(0, interaction.InsightfulCount + adjustment); break;
             }
         }
     }
