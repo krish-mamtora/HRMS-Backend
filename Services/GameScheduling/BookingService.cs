@@ -172,13 +172,9 @@ namespace HRMS_Backend.Services.GameScheduling
         public async Task CancelBookingAsync(int bookingId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
-
             try
             {
-                var booking = await _context.Bookings
-                    .Include(b => b.GameSlots)
-                    .Include(b => b.BookingParticipants)
-                    .FirstOrDefaultAsync(b => b.BId == bookingId);
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.BId == bookingId);
 
                 if (booking == null)
                     throw new Exception("Booking not found");
@@ -186,23 +182,32 @@ namespace HRMS_Backend.Services.GameScheduling
                 if (booking.Status != "Booked")
                     throw new Exception("Only booked slots can be cancelled");
 
-                var slot = booking.GameSlots;
+                //if (booking == null) return;
+                //var booking = await _context.Bookings
+                //    .Include(b => b.GameSlots)
+                //    .Include(b => b.BookingParticipants)
+                //    .FirstOrDefaultAsync(b => b.BId == bookingId);
+              
+
+                int participantCount = await _context.BookingParticipants.CountAsync(p => p.BookingId == booking.BId);
+
+                var slot = await _context.GameSlots.FirstOrDefaultAsync(s => s.Id == booking.SlotId);
+                Console.WriteLine($"After total participants Assigned : {slot.Assigned}");
+
+                if (slot != null)
+                {
+                    slot.Assigned -= participantCount;
+                    Console.WriteLine($"Before total participants Assigned : {slot.Assigned}");
+                    if (slot.Assigned < 0) slot.Assigned = 0;
+
+                }
+
+
+                //var slot = booking.GameSlots;
 
               
                 booking.Status = "Cancelled";
                 booking.UpdatedAt = DateTime.UtcNow;
-
-              
-                slot.Assigned -= booking.BookingParticipants.Count;
-                if (slot.Assigned < 0)
-                    slot.Assigned = 0;
-
-
-                foreach (var participant in booking.BookingParticipants)
-                {
-                    await _employeeCycleStatsService
-                        .DecreaseGamePlayedAsync(participant.EmpId, slot.CycleId);
-                }
 
                 await _context.SaveChangesAsync();
 
@@ -218,13 +223,18 @@ namespace HRMS_Backend.Services.GameScheduling
         }
         private async Task PromoteFromWaitingQueueAsync(int slotId, bool sendEmail = true)
         {
+            Console.Write($"Promoting ....+ {slotId}");
+
             var slot = await _context.GameSlots
                 .FirstOrDefaultAsync(s => s.Id == slotId);
+
 
             if (slot == null)
                 return;
 
             int availableSeats = slot.Capacity - slot.Assigned;
+
+            Console.Write($"availableSeats ....+ {availableSeats}");
 
             if (availableSeats <= 0)
                 return;
@@ -401,24 +411,28 @@ namespace HRMS_Backend.Services.GameScheduling
 
                 activeBooking.Status = "Completed";
                 activeBooking.UpdatedAt = DateTime.UtcNow;
+                Console.WriteLine($"{activeBooking.BId}");
 
-                var participantIds = activeBooking.BookingParticipants.Select(p => p.EmpId).ToList();
-
-
-                var userStats = await _context.EmployeeCycleStats
-                   .Where(es => es.UserId == completedByUserId)
-                   .OrderByDescending(es => es.GameCycleId) 
-                   .FirstOrDefaultAsync();
-
-                if (userStats != null)
+                var participantIds = await _context.BookingParticipants.Where(p => p.BookingId == activeBooking.BId).Select(p => p.EmpId).ToListAsync();
+                //var participantIds = activeBooking.BookingParticipants.Where(p => p.BookingId == activeBooking.BId).Select(p => p.EmpId).ToList();
+                //var participantIds = activeBooking.
+                Console.WriteLine($"Found participants: ");
+                foreach (var i in participantIds)
                 {
-                    userStats.GamePlayed++;
-                    Console.WriteLine("++++++++++++++++");
+                    Console.WriteLine($"{i}");
                 }
 
+                if (participantIds.Any())
+                {
+                    //Console.WriteLine("Updateig game played");
+                    await _employeeCycleStatsService.IncrementCompletedPlayCountAsync(participantIds, slot.CycleId);
+                }
+                //Console.WriteLine("++++++++++++++++");
                 slot.Assigned -= activeBooking.BookingParticipants.Count;
                 if (slot.Assigned < 0)
-                    slot.Assigned = 0;
+                { 
+                    slot.Assigned = 0; 
+                }
 
                 var remainingMinutes = (slot.EndTime - DateTime.UtcNow).TotalMinutes;
                 int minimumPlayableMinutes = 15;
