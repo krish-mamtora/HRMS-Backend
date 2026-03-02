@@ -427,8 +427,9 @@ namespace HRMS_Backend.Services.GameScheduling
                     //Console.WriteLine("Updateig game played");
                     await _employeeCycleStatsService.IncrementCompletedPlayCountAsync(participantIds, slot.CycleId);
                 }
-                //Console.WriteLine("++++++++++++++++");
-                slot.Assigned -= activeBooking.BookingParticipants.Count;
+                Console.WriteLine($"activeBooking.BookingParticipants.Count + {activeBooking.BookingParticipants.Count}");
+                slot.Assigned -= participantIds.Count;
+                //slot.Assigned -= activeBooking.BookingParticipants.Count;
                 if (slot.Assigned < 0)
                 { 
                     slot.Assigned = 0; 
@@ -439,6 +440,7 @@ namespace HRMS_Backend.Services.GameScheduling
 
                 if (remainingMinutes >= minimumPlayableMinutes)
                 {
+                    Console.WriteLine("UUUUUUUUUU");
                     await PromoteFromWaitingQueueAsync(slotId, true);
                 }
                 else
