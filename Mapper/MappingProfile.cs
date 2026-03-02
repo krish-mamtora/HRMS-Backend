@@ -41,7 +41,7 @@ namespace HRMS_Backend.Mapper
             CreateMap<BookingParticipants, BookingsDisplayDto>();
             CreateMap<PostsCreateUpdateDto, Posts>();
             CreateMap<WaitingQueue, WaitingQueueDisplayDto>();
-
+            CreateMap<Tags, TagsDisplayDto>();
             CreateMap<Posts, PostsDisplayDto>()
                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.Email))
                .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src =>

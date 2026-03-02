@@ -182,24 +182,30 @@ namespace HRMS_Backend.Services.Achievements
         }
         public async Task<int> GenerateSystemPosts()
         {
-          
-            DateOnly todayDate = DateOnly.FromDateTime(DateTime.UtcNow);
             DateTime now = DateTime.UtcNow;
-            var expiredPosts = await _context.Posts
+            DateOnly todayDate = DateOnly.FromDateTime(now);
+
+            var expiredPostIds = await _context.Posts
                 .Where(p => p.IsSystemGenerated && p.ExpiresAt < now && p.IsVisible)
+                .Select(p => p.Id)
                 .ToListAsync();
 
-            foreach (var oldPost in expiredPosts)
+            if (expiredPostIds.Any())
             {
-                oldPost.IsVisible = false;
+                var postsToUpdate = await _context.Posts.Where(p => expiredPostIds.Contains(p.Id)).ToListAsync();
+                foreach (var p in postsToUpdate) { p.IsVisible = false; }
+
+                var commentsToUpdate = await _context.Comments.Where(c => expiredPostIds.Contains(c.PostsId)).ToListAsync();
+                foreach (var c in commentsToUpdate) { c.IsDeleted = true; }
+
+                await _context.SaveChangesAsync();
             }
+
             var birthdayUsers = await _context.UserProfile
-                .Where(up => up.Birthday.Month == todayDate.Month &&
-                             up.Birthday.Day == todayDate.Day)
+                .Where(up => up.Birthday.Month == todayDate.Month && up.Birthday.Day == todayDate.Day)
                 .ToListAsync();
 
             int createdCount = 0;
-
             foreach (var user in birthdayUsers)
             {
                 var birthdayPost = new Posts
@@ -208,7 +214,7 @@ namespace HRMS_Backend.Services.Achievements
                     Title = "Happy Birthday! 🎂",
                     Description = $"Wishing {user.FirstName} a wonderful birthday today!",
                     CreatedAt = now,
-                    ExpiresAt = now.AddDays(1), 
+                    ExpiresAt = now.AddDays(1),
                     IsVisible = true,
                     IsSystemGenerated = true
                 };
@@ -216,18 +222,8 @@ namespace HRMS_Backend.Services.Achievements
                 _context.Posts.Add(birthdayPost);
                 await _context.SaveChangesAsync();
 
-              
-                _context.PostTagMaps.Add(new PostTagMap
-                {
-                    PostId = birthdayPost.Id,
-                    TagId = 4
-                });
-
-                _context.PostInteraction.Add(new PostInteraction
-                {
-                    PostId = birthdayPost.Id,
-                    LastUpdatedAt = now
-                });
+                _context.PostTagMaps.Add(new PostTagMap { PostId = birthdayPost.Id, TagId = 4 });
+                _context.PostInteraction.Add(new PostInteraction { PostId = birthdayPost.Id, LastUpdatedAt = now });
 
                 createdCount++;
             }
@@ -242,22 +238,33 @@ namespace HRMS_Backend.Services.Achievements
             DateOnly todayDate = DateOnly.FromDateTime(now);
             int currentYear = now.Year;
 
+            var expiredPostIds = await _context.Posts
+                .Where(p => p.IsSystemGenerated && p.ExpiresAt < now && p.IsVisible)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (expiredPostIds.Any())
+            {
+                var postsToHide = await _context.Posts.Where(p => expiredPostIds.Contains(p.Id)).ToListAsync();
+                var commentsToDelete = await _context.Comments.Where(c => expiredPostIds.Contains(c.PostsId)).ToListAsync();
+
+                postsToHide.ForEach(p => p.IsVisible = false);
+                commentsToDelete.ForEach(c => c.IsDeleted = true);
+
+                await _context.SaveChangesAsync();
+            }
+
             var anniversaryUsers = await _context.UserProfile
                 .Where(up => up.JoinDate.Month == todayDate.Month &&
                              up.JoinDate.Day == todayDate.Day &&
                              up.JoinDate.Year < currentYear)
                 .ToListAsync();
 
-            int createdCount = 0;
-
             var newPosts = new List<Posts>();
-            var newInteractions = new List<PostInteraction>();
-            var newTagMaps = new List<PostTagMap>();
-
             foreach (var user in anniversaryUsers)
             {
                 int yearsCompleted = currentYear - user.JoinDate.Year;
-                var anniversaryPost = new Posts
+                newPosts.Add(new Posts
                 {
                     UserId = user.UserProfileId,
                     Title = "Work Anniversary! 🎊",
@@ -266,10 +273,7 @@ namespace HRMS_Backend.Services.Achievements
                     ExpiresAt = now.AddDays(1),
                     IsVisible = true,
                     IsSystemGenerated = true
-                };
-
-                newPosts.Add(anniversaryPost);
-                createdCount++;
+                });
             }
 
             _context.Posts.AddRange(newPosts);
@@ -280,11 +284,10 @@ namespace HRMS_Backend.Services.Achievements
                 _context.PostTagMaps.Add(new PostTagMap { PostId = post.Id, TagId = 5 });
                 _context.PostInteraction.Add(new PostInteraction { PostId = post.Id, LastUpdatedAt = now });
             }
+
             await _context.SaveChangesAsync();
-
-            return createdCount;
+            return newPosts.Count;
         }
-
         public async Task<bool> ToggleReactionAsync(PostInteractionCreateUpdateDto dto, int userId)
         {
             var existingReaction = await _context.UserPostReaction
@@ -326,6 +329,14 @@ namespace HRMS_Backend.Services.Achievements
                 case "love": interaction.LoveCount = Math.Max(0, interaction.LoveCount + adjustment); break;
                 case "insightful": interaction.InsightfulCount = Math.Max(0, interaction.InsightfulCount + adjustment); break;
             }
+        }
+        public async Task<IEnumerable<TagsDisplayDto>> GetAllTagsAsync()
+        {
+            var tags = await _context.Tags
+                .OrderBy(t => t.TagName)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<TagsDisplayDto>>(tags);
         }
     }
 }

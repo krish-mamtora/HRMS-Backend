@@ -85,5 +85,27 @@ namespace HRMS_Backend.Controllers.GameScheduling
             }
            
         }
+
+        [HttpPost("slot/{slotId}/complete")]
+        public async Task<IActionResult> CompleteSlot(int slotId)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                    return Unauthorized();
+
+                int completedByUserId = int.Parse(userIdClaim);
+
+                await _service.MarkSlotCompletedAsync(slotId, completedByUserId);
+
+                return Ok(new { message = "Slot marked as completed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }

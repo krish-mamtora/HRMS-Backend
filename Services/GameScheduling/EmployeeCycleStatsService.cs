@@ -39,21 +39,19 @@ namespace HRMS_Backend.Services.GameScheduling
 
         public async Task<Boolean> IncrementCompletedPlayCountAsync(List<int> userIds, int CycleId)
         {
-            var stats = await _context.EmployeeCycleStats
-                .Where(es => es.GameCycleId == CycleId && userIds.Contains(es.UserId))
-                .ToListAsync();
+            var stats = await _context.EmployeeCycleStats.Where(es => es.GameCycleId == CycleId && userIds.Contains(es.UserId)).ToListAsync();
             foreach (var stat in stats)
             {
+                Console.WriteLine($"Redirect - +{stat.SId}");
                 stat.GamePlayed++;
             }
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             return true;
         }
         public async Task DecreaseGamePlayedAsync(int userId, int gameCycleId)
         {
           
-            var stat = await _context.EmployeeCycleStats
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.GameCycleId == gameCycleId);
+            var stat = await _context.EmployeeCycleStats.FirstOrDefaultAsync(x => x.UserId == userId && x.GameCycleId == gameCycleId);
 
             if (stat == null) return;
             if (stat.GamePlayed > 0) stat.GamePlayed -= 1;
@@ -72,8 +70,7 @@ namespace HRMS_Backend.Services.GameScheduling
         }
         public async Task IncreaseGamePlayedAsync(int userId, int gameCycleId)
         {
-            var stats = await _context.EmployeeCycleStats
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.GameCycleId == gameCycleId);
+            var stats = await _context.EmployeeCycleStats.FirstOrDefaultAsync(x => x.UserId == userId && x.GameCycleId == gameCycleId);
 
             if (stats == null)
             {

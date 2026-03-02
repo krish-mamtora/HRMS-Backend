@@ -86,7 +86,7 @@ namespace HRMS_Backend.Controllers.Achievements
             var result = await _postsService.ToggleReactionAsync(dto, userId);
             return result ? Ok("Reaction Updated") : BadRequest("Could not process reaction");
         }
-
+     
         [Authorize(Roles = "HR")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePost(int id, [FromQuery] int userId, string reason)
@@ -130,6 +130,13 @@ namespace HRMS_Backend.Controllers.Achievements
             }
             return Ok("Post Deleted Successfully");
 
+        }
+
+        [HttpGet("tags")]
+        public async Task<IActionResult> GetTags()
+        {
+            var tags = await _postsService.GetAllTagsAsync();
+            return Ok(tags);
         }
     }
 }

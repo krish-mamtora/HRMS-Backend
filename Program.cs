@@ -9,6 +9,8 @@ using HRMS_Backend.Services.JobListing;
 using HRMS_Backend.Services.Quartz;
 using HRMS_Backend.Services.ServiceUserProfile;
 using HRMS_Backend.Services.TravelandExpenses;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 //using HRMS_Backend.Services.User;
 //using HRMS_Backend.Services.UserProfile;
 
@@ -60,7 +62,11 @@ builder.Services.AddQuartz(q =>
   );
 });
 
-// Add services to the container.
+// savepoint issue
+//builder.Services.AddDbContext<MyDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+//           .ConfigureWarnings(w => w.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS)));
+
 
 builder.Services.AddControllers();
     

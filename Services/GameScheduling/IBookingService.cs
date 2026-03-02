@@ -10,6 +10,7 @@ namespace HRMS_Backend.Services.GameScheduling
 
         //public Task<Boolean> CancelBooking(int bookingId);
        public  Task CancelBookingAsync(int bookingId);
+        public Task MarkSlotCompletedAsync(int slotId, int completedByUserId);
 
     }
 }

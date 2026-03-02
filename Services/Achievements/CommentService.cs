@@ -80,16 +80,25 @@ namespace HRMS_Backend.Services.Achievements
             return _mapper.Map<List<CommentsDisplayDto>>(comments);
         }
 
-        public async Task<bool> DeleteCommentAsync(int commentId, int userId)
+        public async Task<Comments?> DeleteCommentAsync(int id, int userId, bool isHr)
         {
-            var comment = await _context.Comments.FindAsync(commentId);
-            if (comment == null || comment.AuthorId != userId) return false;
+            // Eager Load Author and Post for the email logic
+            var comment = await _context.Comments
+                .Include(c => c.Author)
+                .Include(c => c.Post)
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+
+            if (comment == null) return null;
+
+            // Check if user is Author OR if user has the HR role
+            if (comment.AuthorId != userId && !isHr) return null;
 
             comment.IsDeleted = true;
             comment.DeletedByUserId = userId;
             comment.UpdatedAt = DateTime.UtcNow;
 
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            return comment;
         }
     }
 }

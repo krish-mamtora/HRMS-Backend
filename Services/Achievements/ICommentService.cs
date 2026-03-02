@@ -7,6 +7,6 @@ namespace HRMS_Backend.Services.Achievements
     {
         Task<CommentsDisplayDto> CreateOrUpdateCommentAsync(int userId, CommentsCreateUpdateDto dto);
         Task<List<CommentsDisplayDto>> GetCommentsByPostIdAsync(int postId);
-        Task<bool> DeleteCommentAsync(int commentId, int userId);
+        Task<Comments?> DeleteCommentAsync(int id, int userId, bool isHr);
     }
 }
