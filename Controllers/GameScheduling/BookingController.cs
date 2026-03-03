@@ -107,5 +107,16 @@ namespace HRMS_Backend.Controllers.GameScheduling
                 return BadRequest(new { error = ex.Message });
             }
         }
+        [AllowAnonymous]
+        [HttpGet("respond")] 
+        public async Task<IActionResult> Respond([FromQuery] string token, [FromQuery] bool accept)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Invalid invitation token.");
+            }
+            var resultMessage = await _service.ProcessInviteResponseAsync(token, accept);
+            return Ok(new { message = resultMessage });
+        }
     }
 }

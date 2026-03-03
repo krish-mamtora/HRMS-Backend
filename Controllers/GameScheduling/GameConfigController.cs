@@ -1,20 +1,25 @@
-﻿using HRMS_Backend.Entities.JobListing;
+﻿using HRMS_Backend.Data;
+using HRMS_Backend.Entities.Games_Scheduling;
+using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model.GameScheduling;
 using HRMS_Backend.Services.GameScheduling;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Controllers.GameScheduling
 {
-    //[Authorize(Roles ="HR")]
+    [Authorize(Roles ="HR")]
     [Route("api/[controller]")]
     [ApiController]
     public class GameConfigController : ControllerBase
     {
 
         private readonly IGameConfigService _service;
-        public GameConfigController(IGameConfigService service) {
+        private readonly MyDbContext _context;
+        public GameConfigController(IGameConfigService service , MyDbContext context) {
             _service = service;
+            _context = context;
         }
         [HttpPost]
         public async Task<IActionResult> CreateGameConfig([FromBody] GameConfigCreateUpdateDto dto)
@@ -49,5 +54,17 @@ namespace HRMS_Backend.Controllers.GameScheduling
             }
             return Ok(gameConfig);
         }
+
+        //[HttpPut("update")]
+        //public async Task<IActionResult> UpdateGame(UpdateGameDto dto)
+        //{
+        //    var game = await _context.Games.Include(g => g.GameConfigurations).ToListAsync();
+        //    if(game == null)
+        //    {
+        //        return NotFound();
+        //    }
+          
+        //}
+
     }
 }

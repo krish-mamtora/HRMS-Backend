@@ -39,6 +39,6 @@ namespace HRMS_Backend.Entities.Games_Scheduling
         public ICollection<Bookings> Bookings { get; set; }
 
         public ICollection<WaitingQueue> WaitingQueue { get; set; }
-
+        public ICollection<BookingInvite> BookingInvite {  get; set; }
     }
 }

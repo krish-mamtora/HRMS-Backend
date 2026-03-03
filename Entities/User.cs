@@ -51,6 +51,8 @@ namespace HRMS_Backend.Entities
 
         public ICollection<GameSlots> GameSlots { get; set; }
 
+        public ICollection<BookingInvite> BookingInvite {  get; set; }
+
     }
 }
 

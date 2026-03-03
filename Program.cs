@@ -1,5 +1,6 @@
 using HRMS_Backend.Data;
 using HRMS_Backend.Mapper;
+using HRMS_Backend.Middleware;
 using HRMS_Backend.Model;
 using HRMS_Backend.Services;
 using HRMS_Backend.Services.Achievements;
@@ -9,8 +10,6 @@ using HRMS_Backend.Services.JobListing;
 using HRMS_Backend.Services.Quartz;
 using HRMS_Backend.Services.ServiceUserProfile;
 using HRMS_Backend.Services.TravelandExpenses;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
 //using HRMS_Backend.Services.User;
 //using HRMS_Backend.Services.UserProfile;
 
@@ -19,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 //using HRMS_Backend.Services.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -119,11 +119,13 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPostsService , PostsService>();
 builder.Services.AddScoped<IEmployeeCycleStatsService, EmployeeCycleStatsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 //builder.Services.AddScoped<IPostInteractionService, PostInteractionService>();
-//builder.Services.AddQuartzHostedService(options =>
-//{
-//    options.WaitForJobsToComplete = true;
-//});
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -146,5 +148,6 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 app.MapControllers();
+app.UseExceptionHandler();
 
 app.Run();

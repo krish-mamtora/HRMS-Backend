@@ -21,6 +21,9 @@ namespace HRMS_Backend.Services.GameScheduling
         }
         public async Task<int?> GenerateGameSlotAsync(int gamesId, DateOnly ignoredDate)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
             int totalSlotAdded = 0;
 
             var gameConfig = await _context.GameConfiguration.FirstOrDefaultAsync(gc => gc.GamesId == gamesId);
@@ -72,8 +75,14 @@ namespace HRMS_Backend.Services.GameScheduling
                 await _context.GameSlots.AddRangeAsync(slotToInsert);
                 await _context.SaveChangesAsync();
             }
-
-            return totalSlotAdded;
+                await transaction.CommitAsync();
+                return totalSlotAdded;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         //public async Task<int?> GenerateGameSlotAsync(int gamesId, DateOnly gameDate)
         //{

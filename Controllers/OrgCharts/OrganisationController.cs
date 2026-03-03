@@ -49,7 +49,17 @@ namespace HRMS_Backend.Controllers.OrgCharts
 
             return Ok(allManagers);
         }
+        [HttpGet("direct-reports/{employeeId}")]
+        public async Task<ActionResult<List<UserProfile>>> GetEmployeeList(int employeeId)
+        {
+            if (employeeId <= 0)
+            {
+                return BadRequest("Invalid Employee ID.");
+            }
+            var allEmp = await _context.UserProfile.Where(up => up.ManagerId == employeeId).ToListAsync();
 
+            return Ok(allEmp);
+        }
     }
 }
 
