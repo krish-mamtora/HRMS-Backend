@@ -902,6 +902,9 @@ namespace HRMS_Backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateOnly>("ExpenseDate")
+                        .HasColumnType("date");
+
                     b.Property<string>("RecipientEmail")
                         .IsRequired()
                         .HasMaxLength(255)

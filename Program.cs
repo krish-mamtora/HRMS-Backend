@@ -122,10 +122,10 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 //builder.Services.AddScoped<IPostInteractionService, PostInteractionService>();
-builder.Services.AddQuartzHostedService(options =>
-{
-    options.WaitForJobsToComplete = true;
-});
+//builder.Services.AddQuartzHostedService(options =>
+//{
+//    options.WaitForJobsToComplete = true;
+//});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

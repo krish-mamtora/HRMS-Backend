@@ -77,8 +77,17 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             if (user == null) return false;
 
             _mapper.Map(updateUserDto, user);
-            await _context.SaveChangesAsync();
-            return true;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+                return false;
+            }
         }
 
         public async Task<Boolean> IsUserBannedAsync(int userId)

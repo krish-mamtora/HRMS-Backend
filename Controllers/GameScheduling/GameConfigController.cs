@@ -55,16 +55,21 @@ namespace HRMS_Backend.Controllers.GameScheduling
             return Ok(gameConfig);
         }
 
-        //[HttpPut("update")]
-        //public async Task<IActionResult> UpdateGame(UpdateGameDto dto)
-        //{
-        //    var game = await _context.Games.Include(g => g.GameConfigurations).ToListAsync();
-        //    if(game == null)
-        //    {
-        //        return NotFound();
-        //    }
-          
-        //}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateGameConfig(int id, [FromBody] GameConfigCreateUpdateDto dto)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _service.UpdateGameConfigurationAsync(id, dto);
+            if(!result)
+            {
+                return NotFound($"Configuration with id {id} not found");
+            }
+
+            return Ok(new { message = "Game configuration updated successfully" });
+        }
 
     }
 }

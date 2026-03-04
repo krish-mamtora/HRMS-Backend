@@ -22,8 +22,15 @@ namespace HRMS_Backend.Services.TravelandExpenses
 
         public async Task<TravelExpense> CreateTravelExpenseAsync(ExpenseCreateUpdateDto dto)
         {
+          
+            DateOnly DateOnly = DateOnly.FromDateTime(dto.ExpenseDate);
+            var checkDailyLimit = await getExpenseListForEmployeeByDate(dto.TravelAssignId, dto.ExpenseType.Value, DateOnly, dto.Amount);
+            if (!checkDailyLimit)
+            {
+                throw new InvalidOperationException("Daily expense limit exceeded for this category.");
+            }
             var travelPlanExpense = new TravelExpense
-            {         /// TravelAssignId , Id ,ExpenseType ,ExpensePolicy ,Amount ,Status ,HrRemarks, CreatedAt , ApprovedBy
+            {      
                 TravelAssignId = dto.TravelAssignId,
                 ExpenseType = dto.ExpenseType,
                 Amount = dto.Amount,
@@ -33,7 +40,7 @@ namespace HRMS_Backend.Services.TravelandExpenses
                 ApprovedBy = dto.ApprovedBy,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt
-            };
+            }; 
 
             _context.TravelExpense.Add(travelPlanExpense);
             await _context.SaveChangesAsync();
@@ -104,6 +111,16 @@ namespace HRMS_Backend.Services.TravelandExpenses
                 return null;
             }
             return _mapper.Map<List<ExpenseDisplayDto>>(expense);
+        }
+        public async Task<bool> getExpenseListForEmployeeByDate(int travelAssignId , int expenseType , DateOnly date , decimal newAmount)
+        {
+            DateTime filterDate = date.ToDateTime(TimeOnly.MinValue);
+
+            var ans = await _context.TravelExpense.Where(te => te.TravelAssignId == travelAssignId && te.ExpenseDate.Date == filterDate.Date && te.ExpenseType == expenseType).SumAsync(te => te.Amount);
+
+            var cmp = await _context.ExpensePolicy.Where(ep => ep.Id == expenseType).Select(ep => ep.MaxAmout).FirstOrDefaultAsync();
+
+            return (ans + newAmount ) <= cmp;
         }
     }
 }

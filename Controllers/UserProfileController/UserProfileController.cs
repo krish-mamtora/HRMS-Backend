@@ -54,7 +54,22 @@ namespace HRMS_Backend.Controllers.UserProfileController
             var createProfile = await _service.CreateUserAsync(dto);
             return CreatedAtAction(nameof(GetUserById), new { id = createProfile.UserProfileId }, createProfile);
         }
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
+        {
+            if(!ModelState.IsValid)
+            { 
+                return BadRequest(ModelState); 
+            }
 
-      
+            var result = await _service.UpdateUserAsync(id, dto);
+
+            if (!result)
+            {
+                return NotFound(new { message = "Could not update profile." });
+            }
+
+            return Ok(new { message = "Profile updated successfully!!!!" });
+        }
     }
 }

@@ -25,7 +25,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         }
        
         [HttpPost]
-        [Authorize(Roles = "Employee")]
+        //[Authorize(Roles = "Employee")]
         public async Task<ActionResult> CreateTravelExpense([FromBody] ExpenseCreateUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -37,9 +37,13 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 var CreateExpense = await _service.CreateTravelExpenseAsync(dto);
                 return CreatedAtAction(nameof(getExpenseById), new { id = CreateExpense.Id }, CreateExpense);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { message = "An internal error occurred." });
             }
 
         }
@@ -114,7 +118,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
             }
             return Ok(response);
         }
-
+     
         [HttpPut("{id}")]
         [Authorize(Roles = "HR")]
         public async Task<IActionResult> UpdateExpenseByIdAsync([FromBody] ExpenseCreateUpdateDto dto, int id)
@@ -150,6 +154,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 SenderId = dto.SenderId,
                 Subject = dto.Subject,
                 Body = dto.Body,
+                ExpenseDate = dto.ExpenseDate,
                 Status = "Sent", 
                 CreatedAt = DateTime.UtcNow,
                 SentAt = DateTime.UtcNow

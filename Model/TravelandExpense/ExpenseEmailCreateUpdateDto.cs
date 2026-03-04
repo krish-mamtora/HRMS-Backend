@@ -13,6 +13,7 @@ namespace HRMS_Backend.Model.TravelandExpense
         public string RecipientEmail { get; set; }
         public int SenderId { get; set; }
 
+        public DateOnly ExpenseDate { get; set; }
         [Required(ErrorMessage = "Subject is required.")]
         [StringLength(100)]
         public string Subject { get; set; }
