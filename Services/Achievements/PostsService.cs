@@ -5,6 +5,7 @@ using HRMS_Backend.Entities.Achievements;
 using HRMS_Backend.Model.Achievements;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Services.Achievements
@@ -86,7 +87,16 @@ namespace HRMS_Backend.Services.Achievements
 
             return  _mapper.Map<PostsDisplayDto>(post);
         }
-
+        public async Task<List<PostsDisplayDto>> getFeedItemsAsync(int pageNumber , int pageSize)
+        {
+            int skip = (pageNumber - 1) * pageSize;
+            var posts = await _context.Posts.Where(p => p.IsVisible && p.DeletedByUserId == null)
+                    .Include(p => p.Author).Include(p => p.PostImages)
+                     .Include(p => p.PostTagMaps).ThenInclude(pt => pt.Tag)
+                    .Include(p => p.PostInteraction).OrderByDescending(p => p.CreatedAt)
+                    .Skip(skip).Take(pageSize).ToListAsync(); 
+            return _mapper.Map<List<PostsDisplayDto>>(posts);
+        }
         public async Task<List<PostsDisplayDto>> GetAllPostsAsync()
         {
             var posts = await _context.Posts

@@ -56,6 +56,12 @@ namespace HRMS_Backend.Controllers.Achievements
             var posts = await _postsService.GetAllVisiblePostsAsync();
             return Ok(posts);
         }
+        [HttpGet("feed")]
+        public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> getFeed([FromQuery] int pageNumber=1  , [FromQuery] int pageSize = 10)
+        {
+            var items = await _postsService.getFeedItemsAsync(pageNumber, pageSize);
+            return Ok(items);
+        }
         [HttpGet("user/history")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> GetMyPostsHistory()

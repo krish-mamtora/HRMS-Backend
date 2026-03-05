@@ -15,5 +15,7 @@ namespace HRMS_Backend.Services.Achievements
         Task<int> GenerateSystemPosts();
         Task<int> GenerateAnniversaryPosts();
         Task<IEnumerable<TagsDisplayDto>> GetAllTagsAsync();
+
+        Task<List<PostsDisplayDto>> getFeedItemsAsync(int pageNumber, int pageSize);
     }
 }
