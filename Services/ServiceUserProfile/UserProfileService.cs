@@ -21,7 +21,11 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             var users = await _context.UserProfile.ToListAsync();
             return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
         }
-
+        public async Task<string?> getUserEmailfromId(int id)
+        {
+            var email = await _context.Users.Where(u => u.Id == id).Select(u => u.Email).FirstOrDefaultAsync();
+            return email;
+        }
         public async Task<UserProfileDisplayDto> GetUserByIdAsync(int id)
         {
             var user = await _context.UserProfile.FindAsync(id);

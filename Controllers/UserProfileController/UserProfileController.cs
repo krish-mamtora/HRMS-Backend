@@ -55,7 +55,7 @@ namespace HRMS_Backend.Controllers.UserProfileController
             return CreatedAtAction(nameof(GetUserById), new { id = createProfile.UserProfileId }, createProfile);
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
+        public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
         {
             if(!ModelState.IsValid)
             { 
@@ -70,6 +70,17 @@ namespace HRMS_Backend.Controllers.UserProfileController
             }
 
             return Ok(new { message = "Profile updated successfully!!!!" });
+        }
+        [HttpGet("getusetemailfromId/{id}")]
+        public async Task<IActionResult> GetUserEmailfromId(int id)
+        {
+            var email = await _service.getUserEmailfromId(id);
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return NotFound(new { message = "Email address not found for this employee." });
+            }
+            return Ok(new { email });
         }
     }
 }

@@ -13,5 +13,6 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         Task<string> GetGameInterestedByIdAsync(int id);
         Task<bool> DeleteUserAsync(int id);
         Task<Boolean> IsUserBannedAsync(int userId);
+        Task<string> getUserEmailfromId(int id);
     }
 }
