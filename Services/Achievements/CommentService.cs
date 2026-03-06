@@ -85,20 +85,86 @@ namespace HRMS_Backend.Services.Achievements
 
         public async Task<Comments?> DeleteCommentAsync(int id, int userId, bool isHr)
         {
-            // Eager Load Author and Post for the email logic
             var comment = await _context.Comments
                 .Include(c => c.Author)
                 .Include(c => c.Post)
                 .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
 
-            if (comment == null) return null;
+            if (comment == null)
+            {
+                return null;
+            }
 
-            // Check if user is Author OR if user has the HR role
-            if (comment.AuthorId != userId && !isHr) return null;
+            if (comment.AuthorId != userId && !isHr)
+            { 
+                return null; 
+            }
 
             comment.IsDeleted = true;
             comment.DeletedByUserId = userId;
             comment.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return comment;
+        }
+        public async Task<List<CommentsDisplayDto>> GetUserCommentHistoryAsync(int userId)
+        {
+            var comments = await _context.Comments.Include(c => c.Post).Where(c => c.AuthorId == userId).OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+
+            return _mapper.Map<List<CommentsDisplayDto>>(comments);
+        }
+
+        public async Task<bool> SoftDeleteOwnCommentAsync(int commentId, int userId)
+        {
+            var comment = await _context.Comments.FirstOrDefaultAsync(c => c.Id == commentId && c.AuthorId == userId);
+
+            if (comment == null)
+            {
+                return false;
+            }
+            Console.WriteLine($"####################### {comment.Id}");
+            comment.IsDeleted = true;
+            comment.DeletedByUserId = userId; 
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<(bool Success, string Message)> RestoreOwnCommentAsync(int commentId, int userId)
+        {
+            var comment = await _context.Comments
+                .FirstOrDefaultAsync(c => c.Id == commentId && c.AuthorId == userId);
+
+            if (comment == null)
+            {
+                return (false, "Comment not found.");
+            }
+
+            if (comment.DeletedByUserId != null && comment.DeletedByUserId != userId)
+            {
+                return (false, "HR_Removed");
+            }
+
+            comment.IsDeleted = true;
+            comment.DeletedByUserId = null;
+
+            await _context.SaveChangesAsync();
+            return (true, "Restored");
+        }
+
+        public async Task<Comments> RestoreModeratedCommentAsync(int commentId, int hrUserId)
+        {
+            var comment = await _context.Comments.Include(c => c.Author).Include(c => c.Post)
+                .FirstOrDefaultAsync(c => c.Id == commentId && c.DeletedByUserId == hrUserId);
+
+            if (comment == null)
+            {
+                return null;
+            }
+
+            comment.IsDeleted = true;
+            comment.DeletedByUserId = null;
 
             await _context.SaveChangesAsync();
             return comment;

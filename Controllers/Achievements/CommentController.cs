@@ -5,6 +5,7 @@ using HRMS_Backend.Services.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.Metrics;
 using System.Security.Claims;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
@@ -95,6 +96,84 @@ namespace HRMS_Backend.Controllers.Achievements
             }
 
             return Ok("Comment Deleted Successfully");
+        }
+        [HttpGet("user/history")]
+        public async Task<ActionResult<List<CommentsDisplayDto>>> GetUserCommentHistory()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId)) return Unauthorized();
+
+            var results = await _commentService.GetUserCommentHistoryAsync(currentUserId);
+            return Ok(results);
+        }
+        [HttpDelete("my-comment/{id}")]
+        public async Task<IActionResult> SoftDeleteMyComment(int id)
+        {
+            Console.Write("!!!!!!!!!!!!!!!!!!!!!!!!! deleting");
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId)) 
+            {
+                return Unauthorized();
+            }
+
+            var success = await _commentService.SoftDeleteOwnCommentAsync(id, currentUserId);
+            if (!success) return NotFound("Comment not found or already hidden.");
+
+            return Ok("Comment hidden successfully.");
+        }
+        [HttpPut("restore/{id}")]
+        public async Task<IActionResult> RestoreMyComment(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId))
+            {
+                return Unauthorized();
+            }
+            var result = await _commentService.RestoreOwnCommentAsync(id, currentUserId);
+
+            if (!result.Success)
+            {
+                if (result.Message == "HR_Removed") return Forbid();
+                return NotFound(result.Message);
+            }
+
+            return Ok("Comment restored successfully.");
+        }
+        [HttpPut("hr-restore/{id}")]
+        [Authorize(Roles = "HR")]
+        public async Task<IActionResult> RestoreAsHR(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var comment = await _commentService.RestoreModeratedCommentAsync(id, currentUserId);
+            if (comment == null) return NotFound("Comment not found or unauthorized.");
+
+            if (comment.Author != null && !string.IsNullOrEmpty(comment.Author.Email))
+            {
+                try
+                {
+                    var subject = $"Good News: Your comment on '{comment.Post?.Title}' has been restored";
+                    var body = $@"
+                Comment Restoration Notification
+
+                Hello,
+
+                Your comment '{comment.Comment}' has been reviewed and restored by HR.
+
+                Date: {DateTime.UtcNow:f} UTC
+
+                If you have any questions, please contact the HR department.";
+
+                    await _emailService.SendEmailAsync(comment.Author.Email, subject, body);
+                }
+                catch (Exception ex) { Console.WriteLine($"Email Error: {ex.Message}"); }
+            }
+
+            return Ok("Comment Restored Successfully");
         }
     }
 }

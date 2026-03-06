@@ -5,6 +5,8 @@
         public int Id { get; set; }
         public string Comment { get; set; } = string.Empty;
         public int AuthorId { get; set; }
+        public int PostId { get; set; }
+        public int IsDeleted { get; set; }
         //public string AuthorName { get; set; } = string.Empty;
         public string AuthorEmail { get; set; } = string.Empty;
         public int? ParentCommentId { get; set; }
