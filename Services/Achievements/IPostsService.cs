@@ -17,5 +17,10 @@ namespace HRMS_Backend.Services.Achievements
         Task<IEnumerable<TagsDisplayDto>> GetAllTagsAsync();
 
         Task<List<PostsDisplayDto>> getFeedItemsAsync(int pageNumber, int pageSize);
+
+        Task<bool> SoftDeleteOwnPostAsync(int id, int userId);
+        Task<(bool Success, string Message)> RestoreOwnPostAsync(int postId, int userId);
+        Task<IEnumerable<PostsDisplayDto>> GetModeratedPostsAsync(int hrUserId);
+        Task<Posts> RestoreModeratedPostAsync(int postId, int hrUserId);
     }
 }

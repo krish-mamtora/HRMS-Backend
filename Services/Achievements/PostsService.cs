@@ -110,14 +110,17 @@ namespace HRMS_Backend.Services.Achievements
         }
         public async Task<bool> UpdatePostAsync(int id, PostsCreateUpdateDto dto)
         {
-            var post = await _context.Posts.Include(p => p.PostTagMaps).FirstOrDefaultAsync(x => x.Id == id);
+            var post = await _context.Posts
+                .Include(p => p.PostTagMaps)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (post == null) return false;
 
             _mapper.Map(dto, post);
             post.UpdatedAt = DateTime.UtcNow;
 
             _context.PostTagMaps.RemoveRange(post.PostTagMaps);
-            if (dto.TagIds != null)
+            if (dto.TagIds != null && dto.TagIds.Any())
             {
                 foreach (var tagId in dto.TagIds)
                 {
@@ -125,12 +128,34 @@ namespace HRMS_Backend.Services.Achievements
                 }
             }
 
+            if (dto.Images != null && dto.Images.Count > 0)
+            {
+                string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "AchievementImages");
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                foreach (var file in dto.Images)
+                {
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+                    string filePath = Path.Combine(folderPath, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    _context.PostImages.Add(new PostImages
+                    {
+                        PostId = id,
+                        ImagePath = uniqueFileName
+                    });
+                }
+            }
+
             try
             {
-                await _context.SaveChangesAsync();
-                return true;
+                return await _context.SaveChangesAsync() > 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -162,6 +187,30 @@ namespace HRMS_Backend.Services.Achievements
             await _context.SaveChangesAsync();
             return post;
         }
+        public async Task<bool> SoftDeleteOwnPostAsync(int id, int userId)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+
+            if (post == null) return false;
+
+            post.IsVisible = false;
+            post.UpdatedAt = DateTime.UtcNow;
+            post.DeletedByUserId = userId; 
+
+            _context.PostModerationLog.Add(new PostModerationLog
+            {
+                EntityType = "Post",
+                EntityId = id,
+                Action = "UserSoftDelete",
+                Reason = "Deleted by Owner",
+                ModeratedByUserId = userId,
+                TargetUserId = userId,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public async Task<IEnumerable<PostsDisplayDto>> GetAllVisiblePostsAsync()
         {
             var posts = await _context.Posts
@@ -347,6 +396,59 @@ namespace HRMS_Backend.Services.Achievements
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<TagsDisplayDto>>(tags);
+        }
+        public async Task<(bool Success, string Message)> RestoreOwnPostAsync(int postId, int userId)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId && p.UserId == userId);
+
+            if (post == null)
+            {
+                return (false, "Post not found."); 
+            }
+
+            if (post.DeletedByUserId != null && post.DeletedByUserId != userId)
+            {
+                return (false, "HR_Removed");
+            }
+
+            post.IsVisible = true;
+            post.DeletedByUserId = null;
+
+            await _context.SaveChangesAsync();
+            return (true, "Restored");
+        }
+        public async Task<Posts> RestoreModeratedPostAsync(int postId, int hrUserId)
+        {
+            var post = await _context.Posts.Include(p => p.Author)
+                .FirstOrDefaultAsync(p => p.Id == postId && p.DeletedByUserId == hrUserId);
+
+            if (post == null)
+            {
+                return null;
+            }
+            post.IsVisible = true;
+            post.DeletedByUserId = null;
+
+            await _context.SaveChangesAsync();
+
+            return post;
+        }
+        public async Task<IEnumerable<PostsDisplayDto>> GetModeratedPostsAsync(int hrUserId)
+        {
+            return await _context.Posts
+                .Where(p => !p.IsVisible && p.DeletedByUserId == hrUserId)
+                .OrderByDescending(p => p.CreatedAt) 
+                .Select(p => new PostsDisplayDto
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Description = p.Description,
+                    CreatedAt = p.CreatedAt,
+                    IsVisible = p.IsVisible,
+                    ImageUrls = p.PostImages.Select(img => img.ImagePath).ToList(),
+                    AuthorName = p.Author.Email
+                })
+                .ToListAsync();
         }
     }
 }

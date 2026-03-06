@@ -137,7 +137,98 @@ namespace HRMS_Backend.Controllers.Achievements
             return Ok("Post Deleted Successfully");
 
         }
+        [HttpDelete("my-post/{id}")]
+        public async Task<IActionResult> DeleteMyPost(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int currentUserId))
+                return Unauthorized();
 
+            var success = await _postsService.SoftDeleteOwnPostAsync(id, currentUserId);
+
+            if (!success)
+                return NotFound("Post not found or you don't have permission to delete it.");
+
+            return Ok("Post hidden successfully.");
+        }
+        [HttpPut("restore/{id}")]
+        [Authorize]
+        public async Task<IActionResult> RestoreMyPost(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId))
+            {
+                return Unauthorized();
+            }
+            var result = await _postsService.RestoreOwnPostAsync(id, currentUserId);
+
+            if (!result.Success)
+            {
+                if (result.Message == "HR_Removed")
+                 {
+                    return Forbid(); 
+                }
+                return NotFound(result.Message);
+            }
+
+            return Ok("Post restored successfully.");
+        }
+
+        [HttpPut("hr-restore/{id}")]
+        [Authorize(Roles = "HR")]
+        public async Task<IActionResult> RestoreAsHR(int id)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId)) return Unauthorized();
+
+            var post = await _postsService.RestoreModeratedPostAsync(id, currentUserId);
+
+            if (post == null) return NotFound("Post not found or you don't have permission to restore it.");
+
+            if (post.Author != null && !string.IsNullOrEmpty(post.Author.Email))
+            {
+                try
+                {
+                    var subject = $"Good News: Your post '{post.Title}' has been restored";
+
+                    var body = $@"
+                        Post Restoration Notification
+
+                        Hello,
+
+                        Your post has been reviewed and restored by HR. It is now visible to the public feed again.
+
+                        --- Post Details ---
+                        Title: {post.Title}
+                        Description: {post.Description}
+
+                        Date: {DateTime.UtcNow:f} UTC
+
+                        If you have any questions, please contact the HR department.";
+
+                            await _emailService.SendEmailAsync(post.Author.Email, subject, body);
+                        }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email to {post.Author.Email}: {ex.Message}");
+                }
+            }
+
+            return Ok("Post Restored Successfully");
+        }
+        [HttpGet("moderated-history")]
+        [Authorize(Roles = "HR")]
+        public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> GetModeratedHistory()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int currentUserId))
+             {
+                return Unauthorized(); 
+            }
+
+            var posts = await _postsService.GetModeratedPostsAsync(currentUserId);
+            return Ok(posts);
+        }
         [HttpGet("tags")]
         public async Task<IActionResult> GetTags()
         {
