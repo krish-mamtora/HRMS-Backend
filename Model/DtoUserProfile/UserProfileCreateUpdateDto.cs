@@ -13,8 +13,10 @@ namespace HRMS_Backend.Model.DtoUserProfile
         [Required]
         public string LastName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
+
         [Required]
         public string Gender { get; set; } = string.Empty;
+        public DateOnly Birthday { get; set; }
         public string Designation { get; set; } = string.Empty;
         public int ManagerId { get; set; }
         [Range(1, 100, ErrorMessage = "Age must be between {1} and {2}.")]

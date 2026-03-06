@@ -21,11 +21,11 @@ namespace HRMS_Backend.Entities.GamesScheduling
         
         public string Status { get; set; }
 
-        public string BookedAt { get; set; }
-        public string UpdatedAt { get; set; }
+        public DateTime BookedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        [Required]
-        public Boolean SlotPlayed { get; set; }
+        //[Required]
+        //public Boolean SlotPlayed { get; set; }
         public ICollection<WaitingQueue> WaitingQueue {  get; set; }
         public ICollection<BookingParticipants> BookingParticipants { get; set; }
     }

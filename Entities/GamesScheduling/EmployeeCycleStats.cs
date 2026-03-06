@@ -1,9 +1,13 @@
 ﻿using HRMS_Backend.Entities.Games_Scheduling;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS_Backend.Entities.GamesScheduling
 {
+    [Index(nameof(UserId) , nameof(GameCycleId) , IsUnique = true)]
+
     public class EmployeeCycleStats
     {
         [Key]
@@ -22,6 +26,6 @@ namespace HRMS_Backend.Entities.GamesScheduling
         public GameCycle GameCycle { get; set; }
 
         [Required]
-        public byte SlotPlayed { get; set; }
+        public int GamePlayed { get; set; }
     }
 }

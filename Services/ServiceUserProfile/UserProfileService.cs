@@ -21,11 +21,20 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             var users = await _context.UserProfile.ToListAsync();
             return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
         }
-
+        public async Task<string?> getUserEmailfromId(int id)
+        {
+            var email = await _context.Users.Where(u => u.Id == id).Select(u => u.Email).FirstOrDefaultAsync();
+            return email;
+        }
         public async Task<UserProfileDisplayDto> GetUserByIdAsync(int id)
         {
             var user = await _context.UserProfile.FindAsync(id);
             return _mapper.Map<UserProfileDisplayDto>(user);
+        }
+        public async Task<string> GetGameInterestedByIdAsync(int id)
+        {
+            var sport = await _context.UserProfile.Where(u => u.UserProfileId == id).Select(u => u.FavouriteSport).FirstOrDefaultAsync();
+            return sport;
         }
         public async Task<IEnumerable<UserProfileDisplayDto>> GetUsersByManagerIdAsync(int id)
         {
@@ -34,11 +43,8 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         }
         public async Task<UserProfileDisplayDto> CreateUserAsync(UserProfileCreateUpdateDto createUserDto)
         {
-            //var user = _mapper.Map<UserProfile>(createUserDto);
-            //HRMS_Backend.Model.;
             var user = new HRMS_Backend.Entities.FixEntityUserProfile.UserProfile
             {
-                // Assuming properties like Name, Email, etc.
                 IsActive = createUserDto.IsActive,
                 FirstName = createUserDto.FirstName,
                 LastName = createUserDto.LastName,
@@ -68,10 +74,6 @@ namespace HRMS_Backend.Services.ServiceUserProfile
                 IsActive = user.IsActive,
             };
 
-            //_context.UserProfile.Add(user);
-
-            //await _context.SaveChangesAsync();
-            //return _mapper.Map<UserProfileDisplayDto>(user);
         }
         public async Task<bool> UpdateUserAsync(int id, UserProfileCreateUpdateDto updateUserDto)
         {
@@ -79,10 +81,30 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             if (user == null) return false;
 
             _mapper.Map(updateUserDto, user);
-            await _context.SaveChangesAsync();
-            return true;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+                return false;
+            }
         }
 
+        public async Task<Boolean> IsUserBannedAsync(int userId)
+        {
+            var user = await _context.UserProfile.FirstOrDefaultAsync(u => u.UserProfileId == userId);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+
+            }
+            return user.IsUserBanned;
+        }
         public async Task<bool> DeleteUserAsync(int id)
         {
             var user = await _context.UserProfile.FindAsync(id);

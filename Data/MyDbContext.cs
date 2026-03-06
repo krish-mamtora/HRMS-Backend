@@ -12,6 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using TravelDocuments = HRMS_Backend.Entities.TravelandExpense.TravelDocuments;
 using ShareEmail = HRMS_Backend.Entities.JobListing.ShareEmail;
 using HRMS_Backend.Entities.GamesScheduling;
+using AchievementNotification = HRMS_Backend.Entities.Achievements.AchievementNotification;
 
 namespace HRMS_Backend.Data
 {
@@ -112,7 +113,110 @@ namespace HRMS_Backend.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             //modelBuilder.Entity<WaitingQueue>()
-            //    .
+            //   .HasOne(wq => wq.Bookings)
+            //   .WithMany()
+            //   .HasForeignKey(wq => wq.BookingId)
+            //   .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WaitingQueue>()
+                .HasOne(wq => wq.GameCycle)
+                .WithMany()
+                .HasForeignKey(wq => wq.CycleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<WaitingQueue>()
+                .HasOne(wq => wq.GameSlots)
+                .WithMany()
+                .HasForeignKey(wq => wq.SlotId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<WaitingQueue>()
+                .HasOne(wq => wq.User)
+                .WithMany()
+                .HasForeignKey(wq => wq.PlayerId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<GameSlots>()
+                .HasOne(gs => gs.GameCycle)
+                .WithMany()
+                .HasForeignKey(gs => gs.CycleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<Posts>()
+               .HasOne(p => p.Author)
+               .WithMany() 
+               .HasForeignKey(p => p.UserId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Posts>()
+              .HasOne(p => p.Deleter) 
+              .WithMany() 
+              .HasForeignKey(p => p.DeletedByUserId) 
+              .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Comments>()
+                   .HasOne(c => c.ParentComment)
+                   .WithMany(c => c.Replies)
+                   .HasForeignKey(c => c.ParentCommentId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Comments>()
+               .HasOne(c => c.Author)
+               .WithMany()
+               .HasForeignKey(c => c.AuthorId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PostImages>()
+                  .HasOne(i => i.Post)
+                  .WithMany(p => p.PostImages) 
+                  .HasForeignKey(i => i.PostId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostInteraction>()
+                 .HasIndex(e => e.PostId)
+                 .IsUnique();
+
+            modelBuilder.Entity<PostInteraction>()
+                .HasOne(i => i.Post)
+                .WithOne(p => p.PostInteraction)
+                .HasForeignKey<PostInteraction>(i => i.PostId) 
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostTagMap>()
+                .HasIndex(pt => new { pt.PostId, pt.TagId })
+                .IsUnique();
+
+            modelBuilder.Entity<PostTagMap>()
+                .HasOne(pt => pt.Post)
+                .WithMany(p => p.PostTagMaps) 
+                .HasForeignKey(pt => pt.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostTagMap>()
+                  .HasOne(pt => pt.Tag)
+                 .WithMany(t => t.PostTagMaps) 
+                 .HasForeignKey(pt => pt.TagId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PostModerationLog>()
+                .HasOne(m => m.Moderator)
+                .WithMany() 
+                .HasForeignKey(m => m.ModeratedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PostModerationLog>()
+                .HasOne(m => m.TargetUser)
+               .WithMany()
+               .HasForeignKey(m => m.TargetUserId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AchievementNotification>()
+               .HasOne(n => n.User)
+              .WithMany() 
+              .HasForeignKey(n => n.UserId)
+              .OnDelete(DeleteBehavior.Cascade); 
 
         }
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
@@ -124,7 +228,7 @@ namespace HRMS_Backend.Data
         public DbSet<GameSlots> GameSlots { get; set; }
         public DbSet<Jobs> Jobs { get; set; }
         public DbSet<Tags> Tags { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<AchievementNotification> Notifications { get; set; }
         public DbSet<TravelPlan> TravelPlan { get; set; }
         public DbSet<Referals> Referals { get; set; }
         public DbSet<TravelAssignment> TravelAssignment { get; set; }
@@ -143,6 +247,18 @@ namespace HRMS_Backend.Data
         public DbSet<Bookings> Bookings { get; set; }
         public DbSet<WaitingQueue> WaitingQueue { get; set; }
         public DbSet<BookingParticipants> BookingParticipants { get; set; }
+
+        public DbSet<AchievementNotification> AchievementNotification { get; set; }
+        public DbSet<Comments> Comments { get; set; }
+        public DbSet<PostInteraction> PostInteraction { get; set; }
+        public DbSet<PostModerationLog> PostModerationLog { get; set; }
+        public DbSet<Posts> Posts { get; set; }
+        public DbSet<PostTagMap> PostTagMaps { get; set; }
+        public DbSet<PostImages> PostImages { get; set; }
+        public DbSet<BookingInvite> BookingInvite { get; set; }
+        public DbSet<UserPostReaction> UserPostReaction { get; set; }
+        public DbSet<InAppNotification> InAppNotifications { get; set; }
+
     }
 
 }

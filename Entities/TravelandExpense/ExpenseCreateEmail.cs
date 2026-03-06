@@ -19,6 +19,8 @@ namespace HRMS_Backend.Entities.TravelandExpense
         [Required]
         [StringLength(100)]
         public string Subject { get; set; }
+
+        public DateOnly ExpenseDate { get; set; }
         public string Body { get; set; }
         [Required]
         [StringLength(50)]

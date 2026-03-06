@@ -21,5 +21,6 @@ namespace HRMS_Backend.Entities.GamesScheduling
         public Boolean isActive { get; set; }
 
         public ICollection<EmployeeCycleStats> EmployeeCycleStats { get; set; }
+        public ICollection<GameSlots> GameSlots { get; set; }
     }
 }

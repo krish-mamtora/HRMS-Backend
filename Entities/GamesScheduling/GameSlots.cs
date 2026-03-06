@@ -8,25 +8,37 @@ namespace HRMS_Backend.Entities.Games_Scheduling
     [Index(nameof(GamesId), nameof(StartTime), IsUnique = true)]
     public class GameSlots
     {
-        //[Key]
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
-        public Games Games { get; set; }
-
-        [Required(ErrorMessage = "Game ID is required")]
+       
+      
         public int GamesId { get; set; }
+        [ForeignKey("GamesId")]
+        public Games Games { get; set; }
 
         [Required(ErrorMessage = "Start Time is required")]
         public DateTime StartTime {  get; set; }
 
         [Required(ErrorMessage = "End Time is required")]
         public DateTime EndTime { get; set; }
+
+        public int CycleId { get; set; }
+        [ForeignKey("CycleId")]
+        public GameCycle GameCycle { get; set; }
+
+        //[Timestamp]
+        //public byte[] RowVersion { get; set; }
+
+        public int Capacity { get; set;  }
+        public int Assigned { get; set;  }
+
+        public bool SlotPlayed { get; set; }
         [Required]
-        public bool IsAvailable { get; set; }
+        public bool IsBookingOpen { get; set; }
         public ICollection<Bookings> Bookings { get; set; }
 
         public ICollection<WaitingQueue> WaitingQueue { get; set; }
-
+        public ICollection<BookingInvite> BookingInvite {  get; set; }
     }
 }

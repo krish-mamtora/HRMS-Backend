@@ -56,7 +56,7 @@ namespace HRMS_Backend.Services.Email
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
             }
-       
+        
         }
     }
 //}

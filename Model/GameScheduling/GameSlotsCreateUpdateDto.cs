@@ -12,8 +12,11 @@ namespace HRMS_Backend.Model.GameScheduling
 
         [Required(ErrorMessage = "End Time is required")]
         public DateTime EndTime { get; set; }
+        public int Capacity { get; set; }
+        public int Assigned { get; set; }
+      
         [Required]
-        public bool IsAvailable { get; set; }
+        public bool IsBookingOpen { get; set; }
 
     }
 }

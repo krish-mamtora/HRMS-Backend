@@ -54,7 +54,33 @@ namespace HRMS_Backend.Controllers.UserProfileController
             var createProfile = await _service.CreateUserAsync(dto);
             return CreatedAtAction(nameof(GetUserById), new { id = createProfile.UserProfileId }, createProfile);
         }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
+        {
+            if(!ModelState.IsValid)
+            { 
+                return BadRequest(ModelState); 
+            }
 
-      
+            var result = await _service.UpdateUserAsync(id, dto);
+
+            if (!result)
+            {
+                return NotFound(new { message = "Could not update profile." });
+            }
+
+            return Ok(new { message = "Profile updated successfully!!!!" });
+        }
+        [HttpGet("getusetemailfromId/{id}")]
+        public async Task<IActionResult> GetUserEmailfromId(int id)
+        {
+            var email = await _service.getUserEmailfromId(id);
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return NotFound(new { message = "Email address not found for this employee." });
+            }
+            return Ok(new { email });
+        }
     }
 }
