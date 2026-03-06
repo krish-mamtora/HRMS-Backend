@@ -257,6 +257,7 @@ namespace HRMS_Backend.Data
         public DbSet<PostImages> PostImages { get; set; }
         public DbSet<BookingInvite> BookingInvite { get; set; }
         public DbSet<UserPostReaction> UserPostReaction { get; set; }
+        public DbSet<InAppNotification> InAppNotifications { get; set; }
 
     }
 

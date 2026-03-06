@@ -8,6 +8,7 @@ using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HRMS_Backend.Controllers.TravelandExpense
 {
@@ -76,7 +77,7 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                   <h2> Travel Plan Assigned: {travelplan.Purpose}</h2>
                    <p>{dto.Message}</p>   
                         <br/>
-                        <p>Experiance Required {travelplan.Destination}</p>
+                        <p>Destination : {travelplan.Destination}</p>
                           <p>Start Date  :  {travelplan.StartDate}</p>
                           <p>End Date :  {travelplan.EndDate}</p>
                           <p>Trip Type :  {travelplan.TripType}</p>
@@ -88,10 +89,39 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 body
             );
 
+            var inAppNotif = new InAppNotification
+            {
+                EmpId = dto.EmpId,
+                Message = $"New Travel Plan Assigned: {travelplan.Destination}",
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.InAppNotifications.Add(inAppNotif);
+            await _context.SaveChangesAsync();
+
             return Ok(new { message = "Email send successfully!" });
         }
 
+        [HttpGet("unread")]
+        public async Task<IActionResult> GetUnreadNotifications()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var notifications = await _context.InAppNotifications.AsNoTracking().Where(n => n.EmpId == int.Parse(userId) && !n.IsRead).ToListAsync();
+            return Ok(notifications);
+        }
 
+        [HttpPost("mark-as-read")]
+        public async Task<IActionResult> MarkAsRead([FromBody] NotificationReadDto dto)
+        {
+            var notifications = await _context.InAppNotifications.Where(n => dto.Ids.Contains(n.Id)).ToListAsync();
+
+            foreach (var n in notifications)
+            {
+                n.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
         [HttpGet("plan/", Name = "getAllAssignDetails")]
         public async Task<IActionResult> getAllAssignDetails()
         {
