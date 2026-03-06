@@ -48,6 +48,12 @@ namespace HRMS_Backend.Controllers.Achievements
             var results = await _commentService.GetCommentsByPostIdAsync(postId);
             return Ok(results);
         }
+        [HttpGet("commentcount/{postId}")]
+        public async Task<ActionResult> GetCommentCountByPost(int postId)
+        {
+            var results = await _commentService.GetCommentsCountByPostIdAsync(postId);
+            return Ok(results);
+        }
 
         [Authorize(Roles = "HR")]
         [HttpDelete("{id}")]

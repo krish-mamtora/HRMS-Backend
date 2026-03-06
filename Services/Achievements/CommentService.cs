@@ -66,8 +66,11 @@ namespace HRMS_Backend.Services.Achievements
             .FirstOrDefaultAsync(c => c.Id == id);  
             return _mapper.Map<CommentsDisplayDto>(comment);
         }
-
-
+        public async Task<int> GetCommentsCountByPostIdAsync(int id)
+        {
+            return await _context.Comments.Where(c => c.IsDeleted == false && c.PostsId == id).CountAsync();
+        }
+       
         public async Task<List<CommentsDisplayDto>> GetCommentsByPostIdAsync(int postId)
         {
             var comments = await _context.Comments
