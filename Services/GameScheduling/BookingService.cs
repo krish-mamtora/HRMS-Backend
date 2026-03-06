@@ -246,10 +246,17 @@ namespace HRMS_Backend.Services.GameScheduling
             if (!waitingList.Any())
                 return;
 
+            var ZeroplayedUsers = await _context.EmployeeCycleStats.Where(e => e.GameCycleId == slot.CycleId && e.GamePlayed == 0).Select(e => e.UserId).ToListAsync();
+
             var priorityList = new List<(WaitingQueue Queue, int Priority)>();
 
             foreach (var q in waitingList)
             {
+                if(ZeroplayedUsers.Any() && !ZeroplayedUsers.Contains(q.PlayerId))
+                {
+                    continue;
+                }
+
                 var (isRejected, _) = await _fairnessService
                     .IsHardRejectedAsync(q.PlayerId, slotId);
 
@@ -266,7 +273,10 @@ namespace HRMS_Backend.Services.GameScheduling
             }
 
             if (!priorityList.Any())
+            {
+                await _context.SaveChangesAsync();
                 return;
+            }
 
             var orderedQueue = priorityList
                 .OrderBy(x => x.Priority)
@@ -631,8 +641,29 @@ namespace HRMS_Backend.Services.GameScheduling
                 if(invite == null) { 
                     return "Link invalid or expired.";
                 }
+                if (invite.Status != "Pending")
+                {
+                    return "Invite already processed";
+                }
+
                 if(isAccepted)
                 {
+                    if(invite.Slot.Assigned >= invite.Slot.Capacity)
+                    {
+                        invite.Status = "Expired";
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return "Slot are already Full";
+                    }
+                    var (rejected, message) = await _fairnessService.IsHardRejectedAsync(invite.UserId, invite.SlotId);
+
+                    if (rejected)
+                    {
+                        invite.Status = "Rejcted";
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        return message;
+                    }
                     var booking = new Bookings
                     {
                         SlotId = invite.SlotId,
