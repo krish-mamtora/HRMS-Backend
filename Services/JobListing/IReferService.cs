@@ -7,7 +7,7 @@ namespace HRMS_Backend.Services.JobListing
     {
         Task<JobRefferalResponseDto> getReferalById(int id);
         Task<List<JobRefferalResponseDto>> getReferalByJobId(int id);
-        Task<JobRefferalResponseDto> getReferalByUserId(int id);
+        Task<List<JobRefferalResponseDto>> getReferalByUserId(int id);
         Task<Referals> createReferalAsync(JobRefferalCreateUpdateDto dto);
         Task<bool> UpdateReferalWithId(int id, JobRefferalCreateUpdateDto dto);
     }

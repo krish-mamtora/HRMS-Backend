@@ -3,6 +3,7 @@ using HRMS_Backend.Entities;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Services.Email;
+using HRMS_Backend.Services.JobListing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -16,10 +17,13 @@ namespace HRMS_Backend.Controllers.JobListing
     public class ShareJobController : ControllerBase
     {
        private readonly IEmailService _emailService;
+        private readonly IShareEmailService _shareEmailService;
         private readonly MyDbContext _context;
-        public ShareJobController(IEmailService emailService,MyDbContext context) {
+        public ShareJobController(IEmailService emailService,MyDbContext context, IShareEmailService shareEmailService)
+        {
             _emailService = emailService;
             _context = context;
+            _shareEmailService = shareEmailService;
         }
 
         [Authorize(Roles = "Employee")]
@@ -69,7 +73,18 @@ namespace HRMS_Backend.Controllers.JobListing
 
             return Ok(new { message = "Email send successfully!" });
         }
+        [Authorize(Roles = "Employee")]
+        [HttpGet("user/{id}", Name = "getJobShareByUserId")]
+        public async Task<IActionResult> getJobShareByUserId(int id)
+        {
+            var jobshare = await _shareEmailService.getJobShareByUserId(id);
+            if (jobshare == null || !jobshare.Any())
+            {
+                return NotFound(new { message = "No job shares found for this user." });
+            }
 
+            return Ok(jobshare);
+        }
     }
 }
 

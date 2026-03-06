@@ -42,6 +42,7 @@ namespace HRMS_Backend.Mapper
             CreateMap<PostsCreateUpdateDto, Posts>();
             CreateMap<WaitingQueue, WaitingQueueDisplayDto>();
             CreateMap<GameConfigCreateUpdateDto, GameConfiguration>();
+            CreateMap< ShareEmail ,ShareMailResponseDto>();
             CreateMap<Tags, TagsDisplayDto>();
             CreateMap<Posts, PostsDisplayDto>()
                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.Email))

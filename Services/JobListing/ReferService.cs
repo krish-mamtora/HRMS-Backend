@@ -75,15 +75,14 @@ namespace HRMS_Backend.Services.JobListing
             return ReferalsDto;
 
         }
-        public async Task<JobRefferalResponseDto> getReferalByUserId(int id)
+        public async Task<List<JobRefferalResponseDto>> getReferalByUserId(int id)
         {
+            var Referals = await _context.Referals.Where(x => x.EmpId == id).ToListAsync();
             if (id == null)
             {
                 throw new ArgumentNullException(nameof(id));
             }
-            var Referals = await _context.Referals.FirstOrDefaultAsync(x => x.EmpId == id);
-            var ReferalsDto = _mapper.Map<JobRefferalResponseDto>(Referals);
-            return ReferalsDto;
+           return _mapper.Map<List<JobRefferalResponseDto>>(Referals);
 
         }
 

@@ -103,7 +103,7 @@ namespace HRMS_Backend.Controllers.JobListing
         public async Task<IActionResult> getReferalByUserId(int id)
         {
             var referal =await  _service.getReferalByUserId(id);
-            if (referal == null)
+            if (referal == null || !referal.Any())
             {
                 return BadRequest(ModelState);
             }
