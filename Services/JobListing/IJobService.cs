@@ -10,6 +10,7 @@ namespace HRMS_Backend.Services.JobListing
         Task<IEnumerable<JobResponseDto>> GetAllJobsAsync();
         Task<JobResponseDto?> GetJobByIdAsync(int id);
         Task<Jobs> CreateJobAsync(JobCreateUpdateDto jobDto);
+        Task<Jobs?> UpdateJobAsync(int id, JobCreateUpdateDto dto);
         //Task<JobCreateUpdateDto> UpdateJobAsync(int id, JobCreateUpdateDto jobDto);
         //Task<bool> DeleteJobAsync(int id);
     }

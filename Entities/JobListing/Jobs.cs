@@ -30,7 +30,7 @@ namespace HRMS_Backend.Entities.JobListing
         [Required]
         public int TotalPositions { get; set; } = 1;
 
-        [StringLength(100)]
+        [StringLength(300)]
         [Required(ErrorMessage = "Job Description is required")]
         public string JdUrl { get; set; } = string.Empty;
 

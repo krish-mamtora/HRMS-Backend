@@ -71,5 +71,30 @@ namespace HRMS_Backend.Controllers.JobListing
             return CreatedAtAction(nameof(GetJobById), new { id = createjob.Id }, createjob);
         }
 
+        [Authorize(Roles = "HR")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateJob(int id, [FromForm] JobCreateUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (dto.JdUrl != null)
+            {
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                var extension = Path.GetExtension(dto.JdUrl.FileName).ToLowerInvariant();
+                if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+                {
+                    return BadRequest("Invalid file type.");
+                }
+            }
+                var updatedJob = await service.UpdateJobAsync(id, dto);
+
+                if (updatedJob == null)
+                {
+                    return NotFound($"Job with ID {id} not found.");
+                }
+                return Ok(updatedJob);
+        }
     }
 }

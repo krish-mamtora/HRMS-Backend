@@ -4,6 +4,7 @@ namespace HRMS_Backend.Model.JobListing
 {
     public class JobRefferalResponseDto
     {
+        public int Id { get; set; } 
         public int JobId { get; set; }
         public string ReffName { get; set; } = string.Empty;
         public string ReffMail { get; set; } = string.Empty;

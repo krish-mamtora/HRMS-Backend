@@ -42,6 +42,7 @@ namespace HRMS_Backend.Mapper
             CreateMap<PostsCreateUpdateDto, Posts>();
             CreateMap<WaitingQueue, WaitingQueueDisplayDto>();
             CreateMap<GameConfigCreateUpdateDto, GameConfiguration>();
+            CreateMap<JobRefferalCreateUpdateDto, Referals>();
             CreateMap< ShareEmail ,ShareMailResponseDto>();
             CreateMap<Tags, TagsDisplayDto>();
             CreateMap<Posts, PostsDisplayDto>()

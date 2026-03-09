@@ -6,6 +6,7 @@ using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 
 namespace HRMS_Backend.Services.TravelandExpenses
@@ -24,10 +25,19 @@ namespace HRMS_Backend.Services.TravelandExpenses
         {
           
             DateOnly DateOnly = DateOnly.FromDateTime(dto.ExpenseDate);
+            if (dto.Amount <= 0)
+            {
+                throw new InvalidOperationException("Amount must be greater than zero.");
+            }
             var checkDailyLimit = await getExpenseListForEmployeeByDate(dto.TravelAssignId, dto.ExpenseType.Value, DateOnly, dto.Amount);
             if (!checkDailyLimit)
             {
                 throw new InvalidOperationException("Daily expense limit exceeded for this category.");
+            }
+            var isExpenseDateValid = await checkExpenseDateValidation(dto.ExpenseDate, dto.TravelAssignId);
+            if (!isExpenseDateValid)
+            {
+                throw new InvalidOperationException("Expense date is not valid.");
             }
             var travelPlanExpense = new TravelExpense
             {      
@@ -122,5 +132,20 @@ namespace HRMS_Backend.Services.TravelandExpenses
 
             return (ans + newAmount ) <= cmp;
         }
+        public async Task<bool> checkExpenseDateValidation(DateTime ExpenseDate, int TravelAssignId)
+        {
+            var travelPlan = await _context.TravelAssignment.Where(ta => ta.Id == TravelAssignId).Select(ta => new
+            {
+                ta.TravelPlan.StartDate,
+                ta.TravelPlan.EndDate
+            }).FirstOrDefaultAsync();
+            if (travelPlan == null)
+            {
+                return false;
+            }
+            return ExpenseDate.Date >= travelPlan.StartDate.Date && ExpenseDate.Date <= travelPlan.EndDate.Date.AddDays(10);
+        }
+
+
     }
 }

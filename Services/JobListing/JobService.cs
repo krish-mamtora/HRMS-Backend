@@ -18,7 +18,7 @@ namespace HRMS_Backend.Services.JobListing
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        public JobService(MyDbContext context , IMapper mapper, IWebHostEnvironment hostingEnvironment = null)
+        public JobService(MyDbContext context, IMapper mapper, IWebHostEnvironment hostingEnvironment = null)
         {
             _context = context;
             _mapper = mapper;
@@ -35,7 +35,7 @@ namespace HRMS_Backend.Services.JobListing
             var plans = await _context.TravelPlan.ToListAsync();
             return _mapper.Map<IEnumerable<TravelResponseDto>>(plans);
         }
-        public async Task<Jobs> CreateJobAsync([FromForm]  JobCreateUpdateDto dto)
+        public async Task<Jobs> CreateJobAsync([FromForm] JobCreateUpdateDto dto)
         {
             if (dto == null)
                 throw new ArgumentNullException(nameof(dto));
@@ -77,5 +77,50 @@ namespace HRMS_Backend.Services.JobListing
             var JobDtos = _mapper.Map<JobResponseDto>(Jobs);
             return JobDtos;
         }
+        public async Task<Jobs?> UpdateJobAsync(int id, JobCreateUpdateDto dto)
+        {
+            var existingJob = await _context.Jobs.FindAsync(id);
+            if (existingJob == null)
+            {
+                return null;
+            }
+            existingJob.Title = dto.Title;
+            existingJob.Description = dto.Description;
+            existingJob.Status = dto.Status ?? existingJob.Status;
+            existingJob.ExpYearsReq = dto.ExpYearsReq;
+            existingJob.Role = dto.Role;
+            existingJob.TotalPositions = dto.TotalPositions;
+            existingJob.ContactMail = dto.ContactMail;
+            existingJob.ReviewerEmail = dto.ReviewerEmail;
+
+            if (dto.JdUrl != null)
+            {
+                if (!string.IsNullOrEmpty(existingJob.JdUrl))
+                {
+                    string oldPath = Path.Combine(_hostingEnvironment.ContentRootPath, "JD", existingJob.JdUrl);
+                    if (File.Exists(oldPath)) File.Delete(oldPath);
+                }
+                string uploadsFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "JD");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + dto.JdUrl.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.JdUrl.CopyToAsync(fileStream);
+                }
+                existingJob.JdUrl = uniqueFileName;
+            }
+            _context.Jobs.Update(existingJob);
+
+            await _context.SaveChangesAsync();
+
+            return existingJob;
+
+        }
     }
-}
+}   
