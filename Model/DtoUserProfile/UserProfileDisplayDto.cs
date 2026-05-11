@@ -10,6 +10,7 @@ namespace HRMS_Backend.Model.DtoUserProfile
         public string Address { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public int ManagerId { get; set; }
+        public string ManagerName { get; set; } = string.Empty;
         public string Designation { get; set; } = string.Empty;
         public DateOnly Birthday { get; set; }
         public int Age { get; set; }

@@ -16,8 +16,7 @@ namespace HRMS_Backend.Services.Achievements
         Task<int> GenerateAnniversaryPosts();
         Task<IEnumerable<TagsDisplayDto>> GetAllTagsAsync();
 
-        Task<List<PostsDisplayDto>> getFeedItemsAsync(int pageNumber, int pageSize);
-
+        Task<List<PostsDisplayDto>> GetFeedItemsAsync(int pageNumber, int pageSize, string? search, string? tag, DateTime? startDate, DateTime? endDate);
         Task<bool> SoftDeleteOwnPostAsync(int id, int userId);
         Task<(bool Success, string Message)> RestoreOwnPostAsync(int postId, int userId);
         Task<IEnumerable<PostsDisplayDto>> GetModeratedPostsAsync(int hrUserId);

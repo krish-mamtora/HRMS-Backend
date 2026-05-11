@@ -1,3 +1,4 @@
+using HRMS_Backend.Controllers.TravelandExpense;
 using HRMS_Backend.Data;
 using HRMS_Backend.Mapper;
 using HRMS_Backend.Middleware;
@@ -28,7 +29,6 @@ using System.Text;
 //using PostInteractionService = HRMS_Backend.Services.Achievements.PostInteractionService;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 
 builder.Services.AddCors(options =>
@@ -119,6 +119,7 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IPostsService , PostsService>();
 builder.Services.AddScoped<IEmployeeCycleStatsService, EmployeeCycleStatsService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IShareEmailService, ShareEmailService>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 //builder.Services.AddScoped<IPostInteractionService, PostInteractionService>();
@@ -145,7 +146,6 @@ app.UseStaticFiles(new StaticFileOptions
 });
 app.UseHttpsRedirection();
 app.UseAuthentication();
-
 app.UseAuthorization();
 app.MapControllers();
 app.UseExceptionHandler();

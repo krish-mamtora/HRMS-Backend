@@ -87,14 +87,53 @@ namespace HRMS_Backend.Services.Achievements
 
             return  _mapper.Map<PostsDisplayDto>(post);
         }
-        public async Task<List<PostsDisplayDto>> getFeedItemsAsync(int pageNumber , int pageSize)
+        //public async Task<List<PostsDisplayDto>> getFeedItemsAsync(int pageNumber , int pageSize)
+        //{
+        //    int skip = (pageNumber - 1) * pageSize;
+        //    var posts = await _context.Posts.Where(p => p.IsVisible && p.DeletedByUserId == null)
+        //            .Include(p => p.Author).Include(p => p.PostImages)
+        //             .Include(p => p.PostTagMaps).ThenInclude(pt => pt.Tag)
+        //            .Include(p => p.PostInteraction).OrderByDescending(p => p.CreatedAt)
+        //            .Skip(skip).Take(pageSize).ToListAsync(); 
+        //    return _mapper.Map<List<PostsDisplayDto>>(posts);
+        //}
+        public async Task<List<PostsDisplayDto>> GetFeedItemsAsync( int pageNumber,int pageSize, string? search, string? tag,DateTime? startDate, DateTime? endDate)
         {
             int skip = (pageNumber - 1) * pageSize;
-            var posts = await _context.Posts.Where(p => p.IsVisible && p.DeletedByUserId == null)
-                    .Include(p => p.Author).Include(p => p.PostImages)
-                     .Include(p => p.PostTagMaps).ThenInclude(pt => pt.Tag)
-                    .Include(p => p.PostInteraction).OrderByDescending(p => p.CreatedAt)
-                    .Skip(skip).Take(pageSize).ToListAsync(); 
+
+            var query = _context.Posts
+                .Where(p => p.IsVisible && p.DeletedByUserId == null)
+                .Include(p => p.Author)
+                .Include(p => p.PostImages)
+                .Include(p => p.PostTagMaps).ThenInclude(pt => pt.Tag)
+                .Include(p => p.PostInteraction)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(p =>
+                    p.Title.ToLower().Contains(search) ||
+                    p.Description.ToLower().Contains(search)
+                );
+            }
+            if (!string.IsNullOrEmpty(tag))
+            {
+                query = query.Where(p =>
+                    p.PostTagMaps.Any(t => t.Tag.TagName == tag)
+                );
+            }
+            if (startDate.HasValue)
+            {
+                query = query.Where(p => p.CreatedAt >= startDate.Value);
+            }
+            if (endDate.HasValue)
+            {
+                query = query.Where(p => p.CreatedAt <= endDate.Value);
+            }
+            var posts = await query
+                .OrderByDescending(p => p.CreatedAt).Skip(skip).Take(pageSize).ToListAsync();
+
             return _mapper.Map<List<PostsDisplayDto>>(posts);
         }
         public async Task<List<PostsDisplayDto>> GetAllPostsAsync()

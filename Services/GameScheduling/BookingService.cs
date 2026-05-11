@@ -400,7 +400,7 @@ namespace HRMS_Backend.Services.GameScheduling
             Console.WriteLine($"{slotId} {completedByUserId}");
             try
             {
-                var slot = await _context.GameSlots.Include(s => s.Bookings).ThenInclude(b => b.BookingParticipants).FirstOrDefaultAsync(s => s.Id == slotId);
+                var slot = await _context.GameSlots.Include(s => s.Bookings).ThenInclude(b => b.BookingParticipants).Include(s => s.Bookings).ThenInclude(b => b.User).FirstOrDefaultAsync(s => s.Id == slotId);
                 if (slot == null)
                     throw new Exception("Slot not found");
 

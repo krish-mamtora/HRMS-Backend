@@ -8,8 +8,14 @@ namespace HRMS_Backend.Services.TravelandExpenses
     public interface ITravelPlanService
     {
         Task<TravelPlan> CreateTravelPlanAsync(TravelCreateUpdateDto dto);
-        Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync();
-
+        //Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync();
+        Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync(
+            string destination = null,
+            string purpose = null,
+            string tripType = null,
+            string travelMode = null,
+            string? timeStatus = null
+        );
         Task<TravelResponseDto?> GetPlanByIdAsync(int id);
 
         Task<bool> UpdatePlanById(int id, TravelCreateUpdateDto dto);

@@ -34,14 +34,25 @@ namespace HRMS_Backend.Controllers.TravelandExpense
                 return BadRequest(ex.Message);
             }
         }
+        //[HttpGet]
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    var plans = await _service.GetAllPlansAsync();
+        //    if (plans == null || !plans.Any())
+        //    {
+        //        return NotFound("No plans found");
+        //    }
+        //    return Ok(plans);
+        //}
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+                [FromQuery] string? destination,
+                [FromQuery] string? purpose,
+                [FromQuery] string? tripType,
+                [FromQuery] string? travelMode,
+                [FromQuery] string? timeStatus)
         {
-            var plans = await _service.GetAllPlansAsync();
-            if (plans == null || !plans.Any())
-            {
-                return NotFound("No plans found");
-            }
+            var plans = await _service.GetAllPlansAsync(destination, purpose, tripType, travelMode, timeStatus);
             return Ok(plans);
         }
 

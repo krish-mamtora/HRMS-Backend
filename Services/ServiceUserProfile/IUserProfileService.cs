@@ -1,4 +1,5 @@
-﻿using HRMS_Backend.Model.DtoUserProfile;
+﻿using HRMS_Backend.Entities.FixEntityUserProfile;
+using HRMS_Backend.Model.DtoUserProfile;
 
 namespace HRMS_Backend.Services.ServiceUserProfile
 {
@@ -11,6 +12,7 @@ namespace HRMS_Backend.Services.ServiceUserProfile
         Task<IEnumerable<UserProfileDisplayDto>> GetUsersByManagerIdAsync(int id);
         Task<bool> UpdateUserAsync(int id, UserProfileCreateUpdateDto updateUserDto);
         Task<string> GetGameInterestedByIdAsync(int id);
+        Task<IEnumerable<UserProfile>> GetProfilesByRoleAsync(string role);
         Task<bool> DeleteUserAsync(int id);
         Task<Boolean> IsUserBannedAsync(int userId);
         Task<string> getUserEmailfromId(int id);

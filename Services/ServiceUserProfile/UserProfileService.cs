@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using HRMS_Backend.Data;
 using HRMS_Backend.Entities;
+using HRMS_Backend.Entities.FixEntityUserProfile;
+
 //using HRMS_Backend.Model.UserProfile;
 using HRMS_Backend.Model.DtoUserProfile;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.Intrinsics.X86;
 
 namespace HRMS_Backend.Services.ServiceUserProfile
 {
@@ -16,11 +19,40 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             _context = context;
             _mapper = mapper;
         }
+        //public async Task<IEnumerable<UserProfileDisplayDto>> GetAllUsersAsync()
+        //{
+        //    var users = await _context.UserProfile.ToListAsync();
+        //    return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
+        //}
         public async Task<IEnumerable<UserProfileDisplayDto>> GetAllUsersAsync()
         {
-            var users = await _context.UserProfile.ToListAsync();
-            return _mapper.Map<IEnumerable<UserProfileDisplayDto>>(users);
+            var users = await _context.UserProfile
+                .Select(u => new UserProfileDisplayDto
+                {
+                    UserProfileId = u.UserProfileId,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Address = u.Address,
+                    Gender = u.Gender,
+                    ManagerId = u.ManagerId,
+                    ManagerName = _context.UserProfile
+                        .Where(m => m.UserProfileId == u.ManagerId)
+                        .Select(m => m.FirstName + " " + m.LastName)
+                        .FirstOrDefault() ?? "No Manager",
+                    Designation = u.Designation,
+                    Birthday = u.Birthday,
+                    Age = u.Age,
+                    Department = u.Department,
+                    FavouriteSport = u.FavouriteSport,
+                    JoinDate = u.JoinDate,
+                    IsActive = u.IsActive
+                })
+                .ToListAsync();
+
+            return users;
         }
+
+
         public async Task<string?> getUserEmailfromId(int id)
         {
             var email = await _context.Users.Where(u => u.Id == id).Select(u => u.Email).FirstOrDefaultAsync();
@@ -36,6 +68,18 @@ namespace HRMS_Backend.Services.ServiceUserProfile
             var sport = await _context.UserProfile.Where(u => u.UserProfileId == id).Select(u => u.FavouriteSport).FirstOrDefaultAsync();
             return sport;
         }
+        public async Task<IEnumerable<UserProfile>> GetProfilesByRoleAsync(string role)
+        {
+            return await _context.Users
+                .Where(u => u.Role == role) // Filter by role in Users table
+                .Join(_context.UserProfile,
+                      user => user.Id,            // Users table Primary Key (UserId)
+                      profile => profile.UserProfileId,  // UserProfile table Foreign Key
+                      (user, profile) => profile) // Select the profile data (Names, etc.)
+                .ToListAsync();
+        }
+
+
         public async Task<IEnumerable<UserProfileDisplayDto>> GetUsersByManagerIdAsync(int id)
         {
             var users = await _context.UserProfile.Where(up=>up.ManagerId==id).ToListAsync();

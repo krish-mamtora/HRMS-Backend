@@ -23,8 +23,8 @@ namespace HRMS_Backend.Services.Quartz
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                //var gameSlotService = scope.ServiceProvider.GetRequiredService<IGameSlotService>();
-                //var gamesService = scope.ServiceProvider.GetRequiredService<IGamesService>();
+                var gameSlotService = scope.ServiceProvider.GetRequiredService<IGameSlotService>();
+                var gamesService = scope.ServiceProvider.GetRequiredService<IGamesService>();
                 var postService = scope.ServiceProvider.GetRequiredService<IPostsService>();
 
                 await postService.GenerateSystemPosts();

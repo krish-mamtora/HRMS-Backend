@@ -1,4 +1,6 @@
-﻿using HRMS_Backend.Entities.JobListing;
+﻿using HRMS_Backend.Entities;
+using HRMS_Backend.Entities.FixEntityUserProfile;
+using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Model;
 using HRMS_Backend.Model.DtoUserProfile;
 using HRMS_Backend.Services.ServiceUserProfile;
@@ -20,11 +22,34 @@ namespace HRMS_Backend.Controllers.UserProfileController
         {
             _service = service;
         }
+        //[HttpGet]
+        //public async Task<ActionResult> GetAllUsers()
+        //{
+        //    var users = await _service.GetAllUsersAsync();
+        //    return Ok(users);
+        //}
+       
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
+        //{
+        //    var success = await _service.UpdateUserAsync(id, dto);
+
+        //    if (!success) { 
+        //        return BadRequest(new { message = "Update failed or user not found" }); 
+        //    }
+        //    return Ok(new { message = "User updated successfully" });
+        //}
         [HttpGet]
-        public async Task<ActionResult> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<UserProfile>>> GetUserProfiles([FromQuery] string? role)
         {
-            var users = await _service.GetAllUsersAsync();
-            return Ok(users);
+            if (!string.IsNullOrEmpty(role))
+            {
+                var profilesByRole = await _service.GetProfilesByRoleAsync(role);
+                return Ok(profilesByRole);
+            }
+
+            var allProfiles = await _service.GetAllUsersAsync();
+            return Ok(allProfiles);
         }
 
         [HttpGet("{id:int}")]
@@ -82,5 +107,6 @@ namespace HRMS_Backend.Controllers.UserProfileController
             }
             return Ok(new { email });
         }
+        
     }
 }

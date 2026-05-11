@@ -56,10 +56,20 @@ namespace HRMS_Backend.Controllers.Achievements
             var posts = await _postsService.GetAllVisiblePostsAsync();
             return Ok(posts);
         }
+        //[HttpGet("feed")]
+        //public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> getFeed([FromQuery] int pageNumber=1  , [FromQuery] int pageSize = 10)
+        //{
+        //    var items = await _postsService.getFeedItemsAsync(pageNumber, pageSize);
+        //    return Ok(items);
+        //}
         [HttpGet("feed")]
-        public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> getFeed([FromQuery] int pageNumber=1  , [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<PostsDisplayDto>>> GetFeed([FromQuery] int pageNumber = 1,[FromQuery] int pageSize = 10,
+                 [FromQuery] string? search = null,[FromQuery] string? tag = null,[FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
         {
-            var items = await _postsService.getFeedItemsAsync(pageNumber, pageSize);
+            var items = await _postsService.GetFeedItemsAsync(
+                pageNumber, pageSize, search,tag,
+                startDate, endDate
+            );
             return Ok(items);
         }
         [HttpGet("user/history")]

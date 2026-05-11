@@ -43,9 +43,46 @@ namespace HRMS_Backend.Services.TravelandExpenses
 
         }
 
-        public async Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync()
+        public async Task<IEnumerable<TravelResponseDto>> GetAllPlansAsync(
+            string destination = null,
+            string purpose = null,
+            string tripType = null,
+            string travelMode = null,
+            string? timeStatus = null
+        )
         {
-            var plans = await _context.TravelPlan.ToListAsync();
+            IQueryable<TravelPlan> query = _context.TravelPlan;
+
+            if (!string.IsNullOrEmpty(destination))
+            {
+               query = query.Where(p => p.Destination.Contains(destination));
+            }
+            if (!string.IsNullOrEmpty(purpose))
+            {
+                query = query.Where(p => p.Purpose.Contains(purpose)); 
+            }
+            if (!string.IsNullOrEmpty(tripType))
+            {
+                query = query.Where(p => p.TripType == tripType);
+             }
+            if (!string.IsNullOrEmpty(travelMode))
+            {
+                query = query.Where(p => p.TravelMode == travelMode);
+            }
+
+            var now = DateTime.UtcNow;
+
+            if (!string.IsNullOrEmpty(timeStatus))
+            {
+                query = timeStatus.ToLower() switch
+                {
+                    "past" => query.Where(p => p.EndDate < now),
+                    "ongoing" => query.Where(p => p.StartDate <= now && p.EndDate >= now),
+                    "future" => query.Where(p => p.StartDate > now),
+                    _ => query
+                };
+            }
+            var plans = await query.ToListAsync();
             return _mapper.Map<IEnumerable<TravelResponseDto>>(plans);
         }
         public async Task<TravelResponseDto> GetPlanByIdAsync(int id)

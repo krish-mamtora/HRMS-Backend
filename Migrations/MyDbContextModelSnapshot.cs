@@ -742,8 +742,8 @@ namespace HRMS_Backend.Migrations
 
                     b.Property<string>("JdUrl")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int>("ManagedBy")
                         .HasColumnType("int");
@@ -1025,6 +1025,32 @@ namespace HRMS_Backend.Migrations
                     b.HasIndex("TravelId");
 
                     b.ToTable("Expenses");
+                });
+
+            modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.InAppNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmpId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InAppNotifications");
                 });
 
             modelBuilder.Entity("HRMS_Backend.Entities.TravelandExpense.Notification", b =>
