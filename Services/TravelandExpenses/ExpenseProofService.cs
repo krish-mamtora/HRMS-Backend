@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
+using HRMS_Backend.Common.Exceptions;
 using HRMS_Backend.Data;
-using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
-using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Services.TravelandExpenses
@@ -14,68 +12,102 @@ namespace HRMS_Backend.Services.TravelandExpenses
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        public ExpenseProofService(MyDbContext context, IMapper mapper , IWebHostEnvironment hostingEnvironment )
+        private readonly ILogger<ExpenseProofService> _logger;
+
+        public ExpenseProofService(
+            MyDbContext context,
+            IMapper mapper,
+            IWebHostEnvironment hostingEnvironment,
+            ILogger<ExpenseProofService> logger)
         {
             _context = context;
             _mapper = mapper;
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
 
-        public async Task<ExpenseProofCreateUpdateDto?> getAssignedTravelPlayById(int id)
+        public async Task<ExpenseProof>
+            CreateExpenseProofAsync(
+                ExpenseProofCreateUpdateDto dto)
         {
-            var expenseproof = await _context.TravelAssignment.FindAsync(id);
-            return _mapper.Map<ExpenseProofCreateUpdateDto>(expenseproof);
-        }
-        public async Task<ExpenseProof> createExpenseProofAsync([FromForm] ExpenseProofCreateUpdateDto dto)
-        {
-            if (dto == null)
-                throw new ArgumentNullException(nameof(dto));
-
-            string uniqueFileName = string.Empty;
             if (dto.ProofDocument == null)
             {
-                // dont allow 
+                throw new BadRequestException(
+                    "Proof document is required");
             }
-            
-            string uploadsFolder = Path.Combine(_hostingEnvironment.ContentRootPath, "UploadedExpenseProof");
-            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-            uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(dto.ProofDocument.FileName);
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            var uploadsFolder = Path.Combine(
+                _hostingEnvironment.ContentRootPath,
+                "UploadedExpenseProof");
+
+            if (!Directory.Exists(uploadsFolder))
             {
-                await dto.ProofDocument.CopyToAsync(fileStream);
+                Directory.CreateDirectory(uploadsFolder);
             }
-           
+
+            var uniqueFileName =
+                $"{Guid.NewGuid()}_{Path.GetFileName(dto.ProofDocument.FileName)}";
+
+            var filePath = Path.Combine(
+                uploadsFolder,
+                uniqueFileName);
+
+            await using (var fileStream = new FileStream(
+                filePath,
+                FileMode.Create))
+            {
+                await dto.ProofDocument
+                    .CopyToAsync(fileStream);
+            }
+
             var expenseProof = new ExpenseProof
             {
                 TravelExpenseId = dto.TravelExpenseId,
+
                 ProofDocumentUrl = uniqueFileName,
-                CreatedAt = dto.CreatedAt,
+
+                CreatedAt = DateTime.UtcNow
             };
-            _context.ExpenseProof.Add(expenseProof);
+
+            await _context.ExpenseProof
+                .AddAsync(expenseProof);
+
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Expense proof uploaded successfully");
+
             return expenseProof;
         }
 
-        public async Task<ExpenseProofDisplayDto> getExpenseProofById(int id)
+        public async Task<ExpenseProofDisplayDto>
+            GetExpenseProofByIdAsync(int id)
         {
-            var expenseproof = await _context.ExpenseProof.FindAsync(id);
-            if (expenseproof == null)
+            var expenseProof = await _context.ExpenseProof
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (expenseProof is null)
             {
-                return null;
+                throw new NotFoundException(
+                    "Expense proof not found");
             }
-            return _mapper.Map<ExpenseProofDisplayDto>(expenseproof);
+
+            return _mapper.Map<ExpenseProofDisplayDto>(
+                expenseProof);
         }
 
-        public async Task<IEnumerable<ExpenseProofDisplayDto>> getExpenseProofByExpenseId(int id)
+        public async Task<IEnumerable<ExpenseProofDisplayDto>>
+            GetExpenseProofByExpenseIdAsync(int id)
         {
-            var expenseproof = await _context.ExpenseProof.Where(ep=>ep.TravelExpenseId==id).ToListAsync();
-            if (expenseproof == null)
-            {
-                return null;
-            }
-            return _mapper.Map<IEnumerable<ExpenseProofDisplayDto>>(expenseproof);
+            var expenseProofs = await _context.ExpenseProof
+                .AsNoTracking()
+                .Where(x => x.TravelExpenseId == id)
+                .ToListAsync();
+
+            return _mapper.Map<
+                IEnumerable<ExpenseProofDisplayDto>>(
+                expenseProofs);
         }
     }
 }

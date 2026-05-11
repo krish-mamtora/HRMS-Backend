@@ -1,85 +1,119 @@
 ﻿using AutoMapper;
+using HRMS_Backend.Common.Exceptions;
 using HRMS_Backend.Data;
 using HRMS_Backend.Entities.TravelandExpense;
-using HRMS_Backend.Model.JobListing;
 using HRMS_Backend.Model.TravelandExpense;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Eventing.Reader;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HRMS_Backend.Services.TravelandExpenses
 {
-
     public class EmployeeTravelService : IEmployeeTravelService
     {
         private readonly MyDbContext _context;
         private readonly IMapper _mapper;
-        public EmployeeTravelService(MyDbContext context, IMapper mapper)
+        private readonly ILogger<EmployeeTravelService> _logger;
+
+        public EmployeeTravelService(
+            MyDbContext context,
+            IMapper mapper,
+            ILogger<EmployeeTravelService> logger)
         {
             _context = context;
             _mapper = mapper;
-        }
-        public async Task<IEnumerable<TravelAssignmentDisplayDto>> getAllAssignDetails()
-        {
-            var Jobs = await _context.TravelAssignment.ToListAsync();
-            return _mapper.Map<IEnumerable<TravelAssignmentDisplayDto>>(Jobs);
-        }
-        public async Task<TravelAssignmentDisplayDto?> getAssignedTravelPlayById(int id)
-        {
-            var assignedPlan = await _context.TravelAssignment.FindAsync(id);
-            var assignedPlanDto = _mapper.Map<TravelAssignmentDisplayDto>(assignedPlan);
-            return assignedPlanDto;
+            _logger = logger;
         }
 
-        public async Task<IEnumerable<TravelAssignmentDisplayDto>> getAllAssignedPlansForEmpId(int id)
+        public async Task<IEnumerable<TravelAssignmentDisplayDto>>
+            GetAllAssignDetailsAsync()
         {
-            var assignedPlans = await _context.TravelAssignment.Where(ta => ta.EmpId == id).ToListAsync();
-            var assignedPlansDto = _mapper.Map<IEnumerable<TravelAssignmentDisplayDto>>(assignedPlans);
-            return assignedPlansDto;
+            var assignments = await _context.TravelAssignment
+                .AsNoTracking()
+                .ToListAsync();
 
+            return _mapper.Map<
+                IEnumerable<TravelAssignmentDisplayDto>>(
+                assignments);
         }
-        public async Task<bool> createBulkUploadTravelPlan(BulkTravelAssignmentDto dto)
-        {
-            var now = DateTime.UtcNow;
 
+        public async Task<TravelAssignmentDisplayDto>
+            GetAssignedTravelPlanByIdAsync(int id)
+        {
+            var assignment = await _context.TravelAssignment
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (assignment is null)
+            {
+                throw new NotFoundException(
+                    "Assigned travel plan not found");
+            }
+
+            return _mapper.Map<TravelAssignmentDisplayDto>(
+                assignment);
+        }
+
+        public async Task<IEnumerable<TravelAssignmentDisplayDto>>
+            GetAllAssignedPlansForEmpIdAsync(int id)
+        {
+            var assignments = await _context.TravelAssignment
+                .AsNoTracking()
+                .Where(x => x.EmpId == id)
+                .ToListAsync();
+
+            return _mapper.Map<
+                IEnumerable<TravelAssignmentDisplayDto>>(
+                assignments);
+        }
+
+        public async Task CreateBulkUploadTravelPlanAsync(
+            BulkTravelAssignmentDto dto)
+        {
             var existingEmpIds = await _context.TravelAssignment
-            .Where(ta => ta.PId == dto.PId && dto.EmpId.Contains(ta.EmpId))
-            .Select(ta => ta.EmpId)
-            .ToListAsync();
+                .Where(x =>
+                    x.PId == dto.PId &&
+                    dto.EmpId.Contains(x.EmpId))
+                .Select(x => x.EmpId)
+                .ToListAsync();
 
-            var newEmpIds = dto.EmpId.Except(existingEmpIds).ToList();
+            var newEmpIds = dto.EmpId
+                .Except(existingEmpIds)
+                .ToList();
 
             if (!newEmpIds.Any())
             {
-                throw new Exception("Employees are already assigned to this plan.");
+                throw new BadRequestException(
+                    "Employees are already assigned to this plan");
             }
-            var assignments = newEmpIds.Select(empId => new TravelAssignment
-            {
-                EmpId = empId,
-                PId = dto.PId,
-                Status = dto.Status,
-                CreatedAt = now
-            }).ToList();
-            await _context.TravelAssignment.AddRangeAsync(assignments);
+
+            var assignments = newEmpIds
+                .Select(empId => new TravelAssignment
+                {
+                    EmpId = empId,
+                    PId = dto.PId,
+                    Status = dto.Status,
+                    CreatedAt = DateTime.UtcNow
+                })
+                .ToList();
+
+            await _context.TravelAssignment
+                .AddRangeAsync(assignments);
+
             await _context.SaveChangesAsync();
-            return true;
+
+            _logger.LogInformation(
+                "Travel plan assigned successfully");
         }
 
-        public async Task<List<int>> getAllEmployeesAssignedToPlan(int id)
+        public async Task<List<int>>
+            GetAllEmployeesAssignedToPlanAsync(int id)
         {
-            try
-            {
-                return await _context.TravelAssignment
-                    .Where(ta => ta.PId == id)
-                    .Select(ta => ta.EmpId)              
-                    .ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error occured : ", e.Message);
-                return new List<int>();
-            }
+            var employeeIds = await _context.TravelAssignment
+                .AsNoTracking()
+                .Where(x => x.PId == id)
+                .Select(x => x.EmpId)
+                .ToListAsync();
 
+            return employeeIds;
         }
     }
 }

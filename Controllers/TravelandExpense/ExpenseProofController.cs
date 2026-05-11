@@ -1,4 +1,8 @@
-﻿using HRMS_Backend.Model.JobListing;
+﻿using HRMS_Backend.Common.Constants;
+using HRMS_Backend.Common.Enums;
+using HRMS_Backend.Common.Exceptions;
+using HRMS_Backend.Common.Responses;
+using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.TravelandExpense;
 using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authorization;
@@ -6,73 +10,127 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS_Backend.Controllers.TravelandExpense
 {
-
     [Route("api/[controller]")]
     [ApiController]
-
     public class ExpenseProofController : ControllerBase
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IExpenseProofService _service;
-        public ExpenseProofController(IWebHostEnvironment hostingEnvironment , IExpenseProofService service)
+
+        public ExpenseProofController(
+            IWebHostEnvironment hostingEnvironment,
+            IExpenseProofService service)
         {
             _hostingEnvironment = hostingEnvironment;
             _service = service;
         }
-        [HttpGet("download-expense-proof/{filename}")]
-        public async Task<IActionResult> getExpenseProof(string fileName)
+
+        [HttpGet("download-expense-proof/{fileName}")]
+        public async Task<IActionResult>
+            GetExpenseProof(string fileName)
         {
-            string filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "UploadedExpenseProof", fileName);
-            if (!System.IO.File.Exists(filePath)) return NotFound();
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-            return File(fileBytes, "application/pdf", fileName);
+            var filePath = Path.Combine(
+                _hostingEnvironment.ContentRootPath,
+                "UploadedExpenseProof",
+                fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                throw new NotFoundException(
+                    "Expense proof file not found");
+            }
+
+            var fileBytes =
+                await System.IO.File.ReadAllBytesAsync(
+                    filePath);
+
+            return File(
+                fileBytes,
+                "application/pdf",
+                fileName);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Employee")]
-        public async Task<IActionResult?> createExpenseProofAsync([FromForm]  ExpenseProofCreateUpdateDto dto)
+        [Authorize(Roles = Roles.Employee)]
+        public async Task<
+            ActionResult<ApiResponse<ExpenseProofDisplayDto>>>
+            CreateExpenseProofAsync(
+                [FromForm]
+                ExpenseProofCreateUpdateDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            string uniqueFileName = string.Empty;
             if (dto.ProofDocument == null)
             {
-                return BadRequest("Proof document is MUST!!!");
+                throw new BadRequestException(
+                    "Proof document is required");
             }
-             var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
-            var extension = Path.GetExtension(dto.ProofDocument.FileName).ToLowerInvariant();
-             if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
-             {
-                  return BadRequest("Invalid file type. Only PDF and Word documents are allowed.");
-             }
-            
-            var expenseProof = await _service.createExpenseProofAsync(dto);
-            return CreatedAtAction(nameof(getExpenseProofById), new { id = expenseProof.Id }, expenseProof);
+
+            var allowedExtensions =
+                new[] { ".pdf", ".doc", ".docx" };
+
+            var extension = Path
+                .GetExtension(dto.ProofDocument.FileName)
+                .ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(extension) ||
+                !allowedExtensions.Contains(extension))
+            {
+                throw new BadRequestException(
+                    "Invalid file type. Only PDF and Word documents are allowed");
+            }
+
+            var expenseProof = await _service
+                .CreateExpenseProofAsync(dto);
+
+            var response =
+                ApiResponse<ExpenseProof>
+                .SuccessResponse(
+                    expenseProof,
+                    "Expense proof uploaded successfully",
+                    (int)ResponseCode.Created);
+
+            return StatusCode(
+                StatusCodes.Status201Created,
+                response);
         }
 
         [HttpGet("getExpenseProofById/{id}")]
-        public async Task<IActionResult> getExpenseProofById(int id)
+        public async Task<
+            ActionResult<
+                ApiResponse<ExpenseProofDisplayDto>>>
+            GetExpenseProofById(int id)
         {
-            var expenseproof = await _service.getExpenseProofById(id);
-            if (expenseproof == null)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(expenseproof);
+            var expenseProof = await _service
+                .GetExpenseProofByIdAsync(id);
+
+            var response =
+                ApiResponse<ExpenseProofDisplayDto>
+                .SuccessResponse(
+                    expenseProof,
+                    "Expense proof fetched successfully",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
 
         [HttpGet("getExpenseProofForExpenseid/{id}")]
-        public async Task<IActionResult> getExpenseProofByExpenseId(int id)
+        public async Task<
+            ActionResult<
+                ApiResponse<
+                    IEnumerable<ExpenseProofDisplayDto>>>>
+            GetExpenseProofByExpenseId(int id)
         {
-            var expenseproof = await _service.getExpenseProofByExpenseId(id);
-            if (expenseproof == null)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(expenseproof);
+            var expenseProofs = await _service
+                .GetExpenseProofByExpenseIdAsync(id);
+
+            var response =
+                ApiResponse<
+                    IEnumerable<ExpenseProofDisplayDto>>
+                .SuccessResponse(
+                    expenseProofs,
+                    "Expense proofs fetched successfully",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
     }
 }

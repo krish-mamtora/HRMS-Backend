@@ -1,4 +1,8 @@
-﻿using HRMS_Backend.Data;
+﻿using HRMS_Backend.Common.Constants;
+using HRMS_Backend.Common.Enums;
+using HRMS_Backend.Common.Exceptions;
+using HRMS_Backend.Common.Responses;
+using HRMS_Backend.Data;
 using HRMS_Backend.Entities.JobListing;
 using HRMS_Backend.Entities.TravelandExpense;
 using HRMS_Backend.Model.JobListing;
@@ -20,153 +24,272 @@ namespace HRMS_Backend.Controllers.TravelandExpense
         private readonly IEmployeeTravelService _service;
         private readonly IEmailService _emailService;
         private readonly MyDbContext _context;
-        public EmployeePlanController(IEmployeeTravelService service , IEmailService emailservice , MyDbContext context)
+
+        public EmployeePlanController(
+            IEmployeeTravelService service,
+            IEmailService emailService,
+            MyDbContext context)
         {
             _service = service;
+            _emailService = emailService;
             _context = context;
-            _emailService = emailservice;
         }
-        [Authorize(Roles = "HR")]
+
+        [Authorize(Roles = Roles.HR)]
         [HttpPost]
-        public async Task<IActionResult> CreateBulkPlan([FromBody] BulkTravelAssignmentDto dto)
+        public async Task<ActionResult<ApiResponse<string>>>
+            CreateBulkPlan(
+                [FromBody] BulkTravelAssignmentDto dto)
         {
-            if (dto?.EmpId == null || !dto.EmpId.Any())
+            if (dto.EmpId == null || !dto.EmpId.Any())
             {
-                return BadRequest("Employee list cannot be empty");
+                throw new BadRequestException(
+                    "Employee list cannot be empty");
             }
-            try
-            {
-                bool result = await _service.createBulkUploadTravelPlan(dto);
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await _service
+                .CreateBulkUploadTravelPlanAsync(dto);
+
+            var response = ApiResponse<string>
+                .SuccessResponse(
+                    "Success",
+                    "Travel plan assigned successfully",
+                    (int)ResponseCode.Created);
+
+            return StatusCode(
+                StatusCodes.Status201Created,
+                response);
         }
-        [Authorize(Roles = "HR")]
-        [HttpPost("notifyTravel/", Name = "NotifyForTravelPlan")]
 
-        public async Task<IActionResult> NotifyForTravelPlan([FromBody] ShareTravelPlanMailCreateUpdateDto dto)
+        [Authorize(Roles = Roles.HR)]
+        [HttpPost("notifyTravel")]
+        public async Task<ActionResult<ApiResponse<string>>>
+            NotifyForTravelPlan(
+                [FromBody]
+                ShareTravelPlanMailCreateUpdateDto dto)
         {
-            if (!ModelState.IsValid)
+            var travelPlan = await _context.TravelPlan
+                .FindAsync(dto.PId);
+
+            if (travelPlan is null)
             {
-                return BadRequest(ModelState);
-            }
-            var travelplan = await _context.TravelPlan.FindAsync(dto.PId);
-            if (travelplan == null)
-            {
-                return NotFound("Travel Plan Not Found");
+                throw new NotFoundException(
+                    "Travel plan not found");
             }
 
-            var travelassignmail = new TravelAssignEmail
+            var travelAssignMail = new TravelAssignEmail
             {
                 PId = dto.PId,
                 ReceiverMail = dto.ReceiverMail,
                 EmpId = dto.EmpId,
                 Subject = dto.Subject,
                 Message = dto.Message,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
 
-            _context.TravelAssignEmail.Add(travelassignmail);
+            _context.TravelAssignEmail
+                .Add(travelAssignMail);
+
+            var inAppNotification = new InAppNotification
+            {
+                EmpId = dto.EmpId,
+                Message =
+                    $"New Travel Plan Assigned: {travelPlan.Destination}",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.InAppNotifications
+                .Add(inAppNotification);
+
             await _context.SaveChangesAsync();
 
             var body = $@"
-                  <h2> Travel Plan Assigned: {travelplan.Purpose}</h2>
-                   <p>{dto.Message}</p>   
-                        <br/>
-                        <p>Destination : {travelplan.Destination}</p>
-                          <p>Start Date  :  {travelplan.StartDate}</p>
-                          <p>End Date :  {travelplan.EndDate}</p>
-                          <p>Trip Type :  {travelplan.TripType}</p>
-                              <h3>Kindly Visit portal for more information and upload varification documents ...<h3/>
+                <h2>Travel Plan Assigned:
+                    {travelPlan.Purpose}
+                </h2>
+
+                <p>{dto.Message}</p>
+
+                <br/>
+
+                <p>
+                    Destination:
+                    {travelPlan.Destination}
+                </p>
+
+                <p>
+                    Start Date:
+                    {travelPlan.StartDate}
+                </p>
+
+                <p>
+                    End Date:
+                    {travelPlan.EndDate}
+                </p>
+
+                <p>
+                    Trip Type:
+                    {travelPlan.TripType}
+                </p>
+
+                <h3>
+                    Kindly visit portal for more information
+                    and upload verification documents.
+                </h3>
             ";
+
             await _emailService.SendEmailAsync(
                 dto.ReceiverMail,
-                string.IsNullOrEmpty(dto.Subject) ? "Travel Plan Assigned" : dto.Subject,
-                body
-            );
+                string.IsNullOrWhiteSpace(dto.Subject)
+                    ? "Travel Plan Assigned"
+                    : dto.Subject,
+                body);
 
-            var inAppNotif = new InAppNotification
-            {
-                EmpId = dto.EmpId,
-                Message = $"New Travel Plan Assigned: {travelplan.Destination}",
-                CreatedAt = DateTime.UtcNow
-            };
-            _context.InAppNotifications.Add(inAppNotif);
-            await _context.SaveChangesAsync();
+            var response = ApiResponse<string>
+                .SuccessResponse(
+                    "Success",
+                    "Email sent successfully",
+                    (int)ResponseCode.Success);
 
-            return Ok(new { message = "Email send successfully!" });
+            return Ok(response);
         }
 
         [HttpGet("unread")]
-        public async Task<IActionResult> GetUnreadNotifications()
+        public async Task<
+            ActionResult<
+                ApiResponse<List<InAppNotification>>>>
+            GetUnreadNotifications()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var notifications = await _context.InAppNotifications.AsNoTracking().Where(n => n.EmpId == int.Parse(userId) && !n.IsRead).ToListAsync();
-            return Ok(notifications);
+            var userId = User
+                .FindFirst(ClaimTypes.NameIdentifier)
+                ?.Value;
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new UnauthorizedException(
+                    "Invalid user");
+            }
+
+            var notifications = await _context
+                .InAppNotifications
+                .AsNoTracking()
+                .Where(x =>
+                    x.EmpId == int.Parse(userId) &&
+                    !x.IsRead)
+                .ToListAsync();
+
+            var response =
+                ApiResponse<List<InAppNotification>>
+                .SuccessResponse(
+                    notifications,
+                    "Notifications fetched successfully",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
 
         [HttpPost("mark-as-read")]
-        public async Task<IActionResult> MarkAsRead([FromBody] NotificationReadDto dto)
+        public async Task<ActionResult<ApiResponse<string>>>
+            MarkAsRead(
+                [FromBody] NotificationReadDto dto)
         {
-            var notifications = await _context.InAppNotifications.Where(n => dto.Ids.Contains(n.Id)).ToListAsync();
+            var notifications = await _context
+                .InAppNotifications
+                .Where(x => dto.Ids.Contains(x.Id))
+                .ToListAsync();
 
-            foreach (var n in notifications)
+            foreach (var notification in notifications)
             {
-                n.IsRead = true;
+                notification.IsRead = true;
             }
 
             await _context.SaveChangesAsync();
-            return Ok();
-        }
-        [HttpGet("plan/", Name = "getAllAssignDetails")]
-        public async Task<IActionResult> getAllAssignDetails()
-        {
-            var travelPlans = await  _service.getAllAssignDetails();
-            if (travelPlans == null)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(travelPlans);
+
+            var response = ApiResponse<string>
+                .SuccessResponse(
+                    "Success",
+                    "Notifications marked as read",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
 
-        [HttpGet("plan/{id}", Name = "getAssignedTravelPlayById")]
-        public async Task<IActionResult> getAssignedTravelPlayById(int id)
+        [HttpGet("plan")]
+        public async Task<
+            ActionResult<
+                ApiResponse<
+                    IEnumerable<TravelAssignmentDisplayDto>>>>
+            GetAllAssignDetails()
         {
-            var travelPlans =await  _service.getAssignedTravelPlayById(id);
-            if (travelPlans == null)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(travelPlans);
+            var plans = await _service
+                .GetAllAssignDetailsAsync();
+
+            var response =
+                ApiResponse<
+                    IEnumerable<TravelAssignmentDisplayDto>>
+                .SuccessResponse(
+                    plans,
+                    "Travel assignments fetched successfully",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
 
-        [HttpGet("employee/{id}", Name = "getAllAssignedPlansForEmpId")]
-        public async Task<IActionResult> getAllAssignedPlansForEmpId(int id)
+        [HttpGet("plan/{id}")]
+        public async Task<
+            ActionResult<
+                ApiResponse<TravelAssignmentDisplayDto>>>
+            GetAssignedTravelPlayById(int id)
         {
-            var plans = await _service.getAllAssignedPlansForEmpId(id);
-            if (plans == null)
-            {
-                return BadRequest(ModelState);
-            }
-            return Ok(plans);
+            var plan = await _service
+                .GetAssignedTravelPlanByIdAsync(id);
+
+            var response =
+                ApiResponse<TravelAssignmentDisplayDto>
+                .SuccessResponse(
+                    plan,
+                    "Travel assignment fetched successfully",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
 
-
-        [HttpGet("employeeForTravelPlan/{id}", Name = "getEmployeesForTravelPlan")]
-        public async Task<ActionResult<List<int>>> getAllEmployeesAssignedToPlan(int id)
+        [HttpGet("employee/{id}")]
+        public async Task<
+            ActionResult<
+                ApiResponse<
+                    IEnumerable<TravelAssignmentDisplayDto>>>>
+            GetAllAssignedPlansForEmpId(int id)
         {
-            var employeeIds = await _service.getAllEmployeesAssignedToPlan(id);
+            var plans = await _service
+                .GetAllAssignedPlansForEmpIdAsync(id);
 
-            if (employeeIds == null || employeeIds.Count == 0)
-            {
-                return NotFound($"No employees found for plan ID {id}.");
-            }
+            var response =
+                ApiResponse<
+                    IEnumerable<TravelAssignmentDisplayDto>>
+                .SuccessResponse(
+                    plans,
+                    "Employee travel plans fetched successfully",
+                    (int)ResponseCode.Success);
 
-            return Ok(employeeIds);
+            return Ok(response);
+        }
+
+        [HttpGet("employeeForTravelPlan/{id}")]
+        public async Task<
+            ActionResult<ApiResponse<List<int>>>>
+            GetAllEmployeesAssignedToPlan(int id)
+        {
+            var employeeIds = await _service
+                .GetAllEmployeesAssignedToPlanAsync(id);
+
+            var response = ApiResponse<List<int>>
+                .SuccessResponse(
+                    employeeIds,
+                    "Employees fetched successfully",
+                    (int)ResponseCode.Success);
+
+            return Ok(response);
         }
     }
 }

@@ -1,16 +1,10 @@
-﻿using HRMS_Backend.Entities;
+﻿using HRMS_Backend.Common.Constants;
+using HRMS_Backend.Common.Enums;
+using HRMS_Backend.Common.Responses;
 using HRMS_Backend.Model;
 using HRMS_Backend.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace HRMS_Backend.Controllers
 {
@@ -18,64 +12,85 @@ namespace HRMS_Backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration configuration;
-        private readonly IAuthService service;
+        private readonly IAuthService _authService;
 
-        public AuthController(IAuthService service) {
-            this.service = service;
+        public AuthController(IAuthService authService)
+        {
+            _authService = authService;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User?>> Register(UserDto request)
+        public async Task<ActionResult<ApiResponse<object>>> Register(
+            [FromBody] UserDto request)
         {
-            var user = await  service.RegisterAsync(request);
-            if(user is null)
-            {
-                return BadRequest(new { message = "Email already exists" });
-            }
-            return Ok(new
-            {
-                email = user.Email,
-                message = "Registration successful"
-            });
+            var user = await _authService.RegisterAsync(request);
+
+            var response = ApiResponse<object>.SuccessResponse(
+                new
+                {
+                    user.Email
+                },
+                "Registration successful",
+                (int)ResponseCode.Created
+            );
+
+            return StatusCode(StatusCodes.Status201Created, response);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponseDto?>> Login(UserDto request)
+        public async Task<ActionResult<ApiResponse<TokenResponseDto>>> Login(
+            [FromBody] UserDto request)
         {
-            var token = await service.LoginAsync(request);
-            if (token is null) {
-                return BadRequest("Username/Password is wrong");
-            }
-           
-            return Ok(token);
+            var token = await _authService.LoginAsync(request);
+
+            var response = ApiResponse<TokenResponseDto>.SuccessResponse(
+                token,
+                "Login successful",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
+        public async Task<ActionResult<ApiResponse<TokenResponseDto>>> RefreshToken(
+            [FromBody] RefreshTokenRequestDto request)
         {
-            var token = await service.RefreshTokenAsync(request);
-            if (token is null)
-            {
-                return BadRequest("Invlid/expired token");
-            }
+            var token = await _authService.RefreshTokenAsync(request);
 
-            return Ok(token);
+            var response = ApiResponse<TokenResponseDto>.SuccessResponse(
+                token,
+                "Token refreshed successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
 
-        [HttpGet("Auth-endpoint")]
+        [HttpGet("auth-check")]
         [Authorize]
-
-        public ActionResult AuthCheck()
+        public ActionResult<ApiResponse<string>> AuthCheck()
         {
-            return Ok();
+            var response = ApiResponse<string>.SuccessResponse(
+                "Authorized",
+                "User authenticated successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
-        [HttpGet("Admin-endpoint")]
-        [Authorize(Roles = "Admin")]
 
-        public ActionResult AdminCheck()
+        [HttpGet("admin-check")]
+        [Authorize(Roles = Roles.Admin)]
+        public ActionResult<ApiResponse<string>> AdminCheck()
         {
-            return Ok();
+            var response = ApiResponse<string>.SuccessResponse(
+                "Authorized",
+                "Admin authenticated successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
     }
 }
