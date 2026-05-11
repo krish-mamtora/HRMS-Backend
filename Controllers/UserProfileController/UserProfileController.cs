@@ -1,10 +1,7 @@
-﻿using HRMS_Backend.Entities;
-using HRMS_Backend.Entities.FixEntityUserProfile;
-using HRMS_Backend.Entities.JobListing;
-using HRMS_Backend.Model;
+﻿using HRMS_Backend.Common.Enums;
+using HRMS_Backend.Common.Responses;
 using HRMS_Backend.Model.DtoUserProfile;
 using HRMS_Backend.Services.ServiceUserProfile;
-using HRMS_Backend.Services.TravelandExpenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,98 +12,118 @@ namespace HRMS_Backend.Controllers.UserProfileController
     [ApiController]
     public class UserProfileController : ControllerBase
     {
+        private readonly IUserProfileService _userProfileService;
 
-        private readonly IUserProfileService _service;
-
-        public UserProfileController(IUserProfileService service)
+        public UserProfileController(IUserProfileService userProfileService)
         {
-            _service = service;
+            _userProfileService = userProfileService;
         }
-        //[HttpGet]
-        //public async Task<ActionResult> GetAllUsers()
-        //{
-        //    var users = await _service.GetAllUsersAsync();
-        //    return Ok(users);
-        //}
-       
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
-        //{
-        //    var success = await _service.UpdateUserAsync(id, dto);
 
-        //    if (!success) { 
-        //        return BadRequest(new { message = "Update failed or user not found" }); 
-        //    }
-        //    return Ok(new { message = "User updated successfully" });
-        //}
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserProfile>>> GetUserProfiles([FromQuery] string? role)
+        public async Task<ActionResult<ApiResponse<IEnumerable<UserProfileDisplayDto>>>> GetUserProfiles(
+            [FromQuery] string? role)
         {
-            if (!string.IsNullOrEmpty(role))
+            IEnumerable<UserProfileDisplayDto> profiles;
+
+            if (!string.IsNullOrWhiteSpace(role))
             {
-                var profilesByRole = await _service.GetProfilesByRoleAsync(role);
-                return Ok(profilesByRole);
+                profiles = await _userProfileService.GetProfilesByRoleAsync(role);
+            }
+            else
+            {
+                profiles = await _userProfileService.GetAllUsersAsync();
             }
 
-            var allProfiles = await _service.GetAllUsersAsync();
-            return Ok(allProfiles);
+            var response = ApiResponse<IEnumerable<UserProfileDisplayDto>>.SuccessResponse(
+                profiles,
+                "User profiles fetched successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult> GetUserById(int id)
+        public async Task<ActionResult<ApiResponse<UserProfileDisplayDto>>> GetUserById(
+            int id)
         {
-            var user = await _service.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+            var user = await _userProfileService.GetUserByIdAsync(id);
+
+            var response = ApiResponse<UserProfileDisplayDto>.SuccessResponse(
+                user,
+                "User profile fetched successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
 
-        [HttpGet("team/{id}", Name = "GetUsersByManagerIdAsync")]
-        public async Task<ActionResult> GetUsersByManagerIdAsync(int id)
+        [HttpGet("team/{id:int}")]
+        public async Task<ActionResult<ApiResponse<IEnumerable<UserProfileDisplayDto>>>> GetUsersByManagerId(
+            int id)
         {
-            var users = await _service.GetUsersByManagerIdAsync(id);
-            return Ok(users);
+            var users = await _userProfileService.GetUsersByManagerIdAsync(id);
+
+            var response = ApiResponse<IEnumerable<UserProfileDisplayDto>>.SuccessResponse(
+                users,
+                "Team members fetched successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
+
         [HttpPost]
-        public async Task<ActionResult> CreateuserProfile([FromBody] UserProfileCreateUpdateDto dto)
+        public async Task<ActionResult<ApiResponse<UserProfileDisplayDto>>> CreateUserProfile(
+            [FromBody] UserProfileCreateUpdateDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var createProfile = await _service.CreateUserAsync(dto);
-            return CreatedAtAction(nameof(GetUserById), new { id = createProfile.UserProfileId }, createProfile);
+            var createdProfile = await _userProfileService.CreateUserAsync(dto);
+
+            var response = ApiResponse<UserProfileDisplayDto>.SuccessResponse(
+                createdProfile,
+                "User profile created successfully",
+                (int)ResponseCode.Created
+            );
+
+            return CreatedAtAction(
+                nameof(GetUserById),
+                new { id = createdProfile.UserProfileId },
+                response
+            );
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] UserProfileCreateUpdateDto dto)
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<ApiResponse<string>>> UpdateUserProfile(
+            int id,
+            [FromBody] UserProfileCreateUpdateDto dto)
         {
-            if(!ModelState.IsValid)
-            { 
-                return BadRequest(ModelState); 
-            }
+            await _userProfileService.UpdateUserAsync(id, dto);
 
-            var result = await _service.UpdateUserAsync(id, dto);
+            var response = ApiResponse<string>.SuccessResponse(
+                "Profile updated successfully",
+                "User profile updated successfully",
+                (int)ResponseCode.Success
+            );
 
-            if (!result)
-            {
-                return NotFound(new { message = "Could not update profile." });
-            }
-
-            return Ok(new { message = "Profile updated successfully!!!!" });
+            return Ok(response);
         }
-        [HttpGet("getusetemailfromId/{id}")]
-        public async Task<IActionResult> GetUserEmailfromId(int id)
+
+        [HttpGet("email/{id:int}")]
+        public async Task<ActionResult<ApiResponse<object>>> GetUserEmailFromId(
+            int id)
         {
-            var email = await _service.getUserEmailfromId(id);
+            var email = await _userProfileService.GetUserEmailFromIdAsync(id);
 
-            if (string.IsNullOrEmpty(email))
-            {
-                return NotFound(new { message = "Email address not found for this employee." });
-            }
-            return Ok(new { email });
+            var response = ApiResponse<object>.SuccessResponse(
+                new
+                {
+                    Email = email
+                },
+                "User email fetched successfully",
+                (int)ResponseCode.Success
+            );
+
+            return Ok(response);
         }
-        
     }
 }
